@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+happycode_tenzero_auth:
+    app_name:             'Happy Coder'
+    app_description:      "A load of Jolly old things i am making."
+    user_class:           'App\Entity\User'
+    user_field:           'email'
+    theme:                'tz-theme-default' # or tz-theme-vibes
+    enable_register:       true
+    register_fields:      ['firstname', 'lastname']
+    login_redirect_url:   '/private'
+    logout_redirect_url:  '/bye'
+    token_ttl:             60 # seconds
+    api_route_path:       '/api'
+    access_control:
+        - { path: '^/bye', roles: 'PUBLIC_ACCESS' }
+        - { path: '^/$', roles: 'PUBLIC_ACCESS' }
+        - { path: '^/', roles: 'IS_AUTHENTICATED_FULLY' }

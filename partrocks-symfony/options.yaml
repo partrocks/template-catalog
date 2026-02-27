@@ -1,0 +1,16 @@
+options:
+  - id: projectName
+    label: Project name
+    type: string
+    default: ""
+    required: true
+
+  - id: authType
+    label: Auth type
+    type: select
+    default: none
+    options:
+      - label: None
+        value: none
+      - label: PartRocks Auth
+        value: partrocks-auth

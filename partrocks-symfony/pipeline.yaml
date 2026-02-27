@@ -1,0 +1,15 @@
+pipeline:
+  - steps:
+      - create-project
+      - install-dependencies
+      - install-auth-dependencies
+      - generate-jwt-keys
+      - update-jwt-key-paths
+      - add-jwt-env-variables
+      - ignore-jwt-key-files
+      - copy-auth-package-configs
+      - copy-auth-src-files
+      - copy-auth-templates-files
+      - register-auth-bundle
+      - add-auth-routes
+      - warmup-cache

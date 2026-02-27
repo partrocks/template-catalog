@@ -32,13 +32,15 @@ Defines internal variables for app setup. These are the questions the **partrock
 
 Procedures the desktop app (or any tool) will perform for new app bootstrapping. Steps consist of commands such as:
 
-| Command | Description |
-|---------|-------------|
-| `run` | Execute on the command line |
-| `copy` | Copy a file from the template directory into the new project folder |
+
+| Command  | Description                                                          |
+| -------- | -------------------------------------------------------------------- |
+| `run`    | Execute on the command line                                          |
+| `copy`   | Copy a file from the template directory into the new project folder  |
 | `modify` | Perform a find/replace on an existing file in the app project folder |
-| `append` | Add content to an existing file |
-| `delete` | Delete a file from the project folder |
+| `append` | Add content to an existing file                                      |
+| `delete` | Delete a file from the project folder                                |
+
 
 ### pipeline.yaml
 
@@ -56,8 +58,11 @@ Assets (files and folders of any sort) used during app setup or deployment.
 
 Deployment configuration for the template:
 
-| File | Purpose |
-|------|---------|
-| **providers.yaml** | Data on which cloud hosting providers are configured in this template for deployments |
-| **environments.yaml** | A set of environments that can run simultaneously on a provider |
-| **presets.yaml** | Pre-configured groups of infrastructure data recommended for deployments (e.g., cloud resource differences for production vs UAT) |
+
+| File                  | Purpose                                                                                                                           |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **providers.yaml**    | Data on which cloud hosting providers are configured in this template for deployments                                             |
+| **environments.yaml** | A set of environments that can run simultaneously on a provider                                                                   |
+| **presets.yaml**      | Pre-configured groups of infrastructure data recommended for deployments (e.g., cloud resource differences for production vs UAT) |
+
+

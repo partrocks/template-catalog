@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+
+<div class="main">
+    <div class="nav">
+        <a href="{{ path('app_home_public') }}">Public </a> | <a href="{{ path('app_home_private') }}">Private</a>
+    </div>
+
+    <h1>Public Page ✅</h1>
+
+    <p>This Page is can be viewed publicly.</p>
+
+</div>
+{% endblock %}

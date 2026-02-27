@@ -1,0 +1,115 @@
+steps:
+  - step: create-project
+    label: Creating Symfony project
+    run:
+      - command: symfony new --webapp .
+
+  - step: install-dependencies
+    label: Installing dependencies
+    run:
+      - command: composer install
+
+  - step: install-auth-dependencies
+    label: Installing Composer libraries
+    run:
+      - command: composer require lexik/jwt-authentication-bundle --no-interaction
+      - command: composer require happycode/tenzero-auth --no-scripts --no-interaction
+    when:
+      - authType is not none
+
+  - step: generate-jwt-keys
+    label: Generating JWT keys
+    run:
+      - command: bin/console lexik:jwt:generate-keypair --skip-if-exists
+    when:
+      - authType is not none
+
+  - step: update-jwt-key-paths
+    label: Updating JWT key paths
+    modify:
+      file: config/packages/lexik_jwt_authentication.yaml
+      replacements:
+        - search: "private_key_path: null"
+          replace: "private_key_path: '{{projectName}}/config/jwt/private.pem'"
+        - search: "public_key_path: null"
+          replace: "public_key_path: '{{projectName}}/config/jwt/public.pem'"
+    when:
+      - authType is not none
+
+  - step: add-jwt-env-variables
+    label: Adding JWT env variables
+    appendIfMissing:
+      file: .env
+      marker: "###> lexik/jwt-authentication-bundle ###"
+      content: |-
+        ###> lexik/jwt-authentication-bundle ###
+        JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+        JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+        JWT_PASSPHRASE=
+        ###< lexik/jwt-authentication-bundle ###
+    when:
+      - authType is not none
+
+  - step: ignore-jwt-key-files
+    label: Ignoring JWT key files
+    appendIfMissing:
+      file: .gitignore
+      marker: "###> tenzero-jwt ###"
+      content: |-
+        ###> tenzero-jwt ###
+        /config/jwt/*.pem
+        ###< tenzero-jwt ###
+    when:
+      - authType is not none
+
+  - step: copy-auth-package-configs
+    label: Copying Auth package configs
+    copy:
+      from: config/packages
+      to: config/packages
+    when:
+      - authType is not none
+
+  - step: copy-auth-src-files
+    label: Copying Auth related src files
+    copy:
+      from: src
+      to: src
+    when:
+      - authType is not none
+
+  - step: copy-auth-templates-files
+    label: Copying Login system templates files
+    copy:
+      from: templates/auth
+      to: templates
+    when:
+      - authType is not none
+
+  - step: register-auth-bundle
+    label: Registering PartRocks Auth Bundle
+    modify:
+      file: config/bundles.php
+      replacements:
+        - search: "return ["
+          replace: |-
+            return [
+                Happycode\TenZeroAuth\TenZeroAuthBundle::class => ['all' => true],
+    when:
+      - authType is not none
+
+  - step: add-auth-routes
+    label: Adding Auth routes
+    append:
+      file: config/routes.yaml
+      content: |-
+        tenzero_auth:
+            resource: '@TenZeroAuthBundle/config/routes.php'
+    when:
+      - authType is not none
+
+  - step: warmup-cache
+    label: Warming up cache
+    run:
+      - command: symfony console cache:clear
+      - command: symfony console cache:warmup

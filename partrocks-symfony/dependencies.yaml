@@ -1,0 +1,9 @@
+dependencies:
+  - name: Composer
+    install: |
+      curl -sS https://getcomposer.org/installer | php
+      mv composer.phar /usr/local/bin/composer
+  - name: Symfony CLI
+    install: |
+      curl -1sLf 'https://dl.cloudsmith.io/public/symfony/cli/setup.deb.sh' | bash
+      sudo apt-get install symfony-cli
