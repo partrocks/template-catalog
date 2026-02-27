@@ -18,7 +18,8 @@ templates:
   - partrocks
 - id: nextjs
   name: Next.js
-  description: A basic Next.js template that installs the official create-next-app starter.
+  description: A basic Next.js template that installs the official create-next-app
+    starter.
   version: 1.0.0
   tags:
   - nextjs
