@@ -1,0 +1,3 @@
+pipeline:
+  - steps:
+      - create-next-app

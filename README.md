@@ -10,6 +10,12 @@ This catalog provides clients with fast search capability via the root `info.yam
 
 ---
 
+## Important: Automation
+
+All commands in templates are run by automation. **Avoid user interaction** — use non-interactive flags (e.g. `--yes`, `-y`, `--no-input`) so steps complete without prompts.
+
+---
+
 ## Template Directory Structure
 
 Each template directory describes a local software project's build and deployment information. It consists of the following:
