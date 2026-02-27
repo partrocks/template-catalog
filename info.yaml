@@ -1,24 +1,23 @@
 templates:
-  - id: partrocks-symfony
-    name: PartRocks Symfony
-    description: PartRocks Symfony is an opinionated template for building Symfony applications.
-    version: 1.0.0
-    tags:
-      - symfony
-      - php
-      - framework
-      - web
-      - api
-      - partrocks
-  - id: nextjs
-    name: Next.js
-    description:
-      A basic Next.js template that installs the official create-next-app
-      starter.
-    version: 1.0.0
-    tags:
-      - nextjs
-      - react
-      - javascript
-      - typescript
-      - web
+- id: partrocks-symfony
+  name: PartRocks Symfony
+  description: PartRocks Symfony is an opinionated template for building Symfony applications.
+  version: 1.0.0
+  tags:
+  - symfony
+  - php
+  - framework
+  - web
+  - api
+  - partrocks
+- id: nextjs
+  name: Next.js
+  description: A basic Next.js template that installs the official create-next-app
+    starter.
+  version: 1.0.0
+  tags:
+  - nextjs
+  - react
+  - javascript
+  - typescript
+  - web
