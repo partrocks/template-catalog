@@ -28,7 +28,6 @@ Describes the template for discovery and search:
 - **name** — display name
 - **description** — what the template provides
 - **tags** — array of tags for categorization
-- **keywords** — list of keywords for search
 
 ### options.yaml
 

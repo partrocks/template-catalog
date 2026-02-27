@@ -9,12 +9,6 @@ manifest:
     - web
     - api
     - partrocks
-  keywords:
-    - symfony
-    - php
-    - framework
-    - web
-    - partrocks
   version: "1.0.0"
   author: PartRocks
   license: MIT

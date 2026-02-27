@@ -123,7 +123,6 @@ def build_info_yaml() -> dict:
             "description": manifest.get("description"),
             "version": manifest.get("version"),
             "tags": manifest.get("tags", []),
-            "keywords": manifest.get("keywords", []),
         })
     return {"templates": templates}
 

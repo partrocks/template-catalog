@@ -8,12 +8,6 @@ manifest:
     - javascript
     - typescript
     - web
-  keywords:
-    - nextjs
-    - react
-    - javascript
-    - typescript
-    - web
   version: "1.0.0"
   author: PartRocks
   license: MIT
