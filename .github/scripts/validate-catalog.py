@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Validate catalog changes:
-- Ensure only one template directory changed
 - Validate all YAML files parse correctly
 """
 import os
@@ -89,23 +88,10 @@ def main() -> int:
     changed_files = get_changed_files()
     changed_templates = get_changed_template_dirs(changed_files, template_dirs)
 
-    # Skip validation if no template dirs changed (e.g. README-only change)
-    if not changed_templates:
-        print("No template directories changed. Skipping single-dir check.")
-        return 0
-
-    if len(changed_templates) > 1:
-        print(
-            f"ERROR: Only one template directory may be updated per push. "
-            f"Changed: {', '.join(sorted(changed_templates))}",
-            file=sys.stderr,
-        )
-        return 1
-
     if not validate_yaml_files(repo_root, changed_files):
         return 1
 
-    print(f"Validated: {list(changed_templates)[0]}")
+    print(f"Validated: {', '.join(sorted(changed_templates)) if changed_templates else 'no template changes'}")
     return 0
 
 
