@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Update catalog after push to main:
-- Bump manifest version if template changed but version wasn't updated
-- Regenerate info.yaml from all manifests
+Update catalog after push to main (runs after validation passes):
+- For each changed template: bump manifest version (semver patch) if author didn't
+- Regenerate info.yaml from all manifests (using updated versions)
 """
 import os
 import re
@@ -133,7 +133,7 @@ def main() -> int:
     changed = get_changed_template_dirs()
     modified = False
 
-    # Bump version for changed templates where author didn't already bump
+    # Semver: bump patch version for changed templates (skip if author already bumped)
     for template_dir in sorted(changed):
         if not version_was_bumped(template_dir):
             bump_manifest_version(template_dir)
