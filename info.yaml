@@ -1,1 +1,18 @@
-{}
+templates:
+- id: partrocks-symfony
+  name: PartRocks Symfony
+  description: PartRocks Symfony is an opinionated template for building Symfony applications.
+  version: 1.0.0
+  tags:
+  - symfony
+  - php
+  - framework
+  - web
+  - api
+  - partrocks
+  keywords:
+  - symfony
+  - php
+  - framework
+  - web
+  - partrocks
