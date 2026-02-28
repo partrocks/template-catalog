@@ -15,14 +15,14 @@ steps:
       - command: composer require lexik/jwt-authentication-bundle --no-interaction
       - command: composer require happycode/tenzero-auth --no-scripts --no-interaction
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: generate-jwt-keys
     label: Generating JWT keys
     run:
       - command: bin/console lexik:jwt:generate-keypair --skip-if-exists
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: update-jwt-key-paths
     label: Updating JWT key paths
@@ -34,7 +34,7 @@ steps:
         - search: "public_key_path: null"
           replace: "public_key_path: '{{projectName}}/config/jwt/public.pem'"
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: add-jwt-env-variables
     label: Adding JWT env variables
@@ -48,7 +48,7 @@ steps:
         JWT_PASSPHRASE=
         ###< lexik/jwt-authentication-bundle ###
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: ignore-jwt-key-files
     label: Ignoring JWT key files
@@ -60,7 +60,7 @@ steps:
         /config/jwt/*.pem
         ###< tenzero-jwt ###
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: copy-auth-package-configs
     label: Copying Auth package configs
@@ -68,7 +68,7 @@ steps:
       from: config/packages
       to: config/packages
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: copy-auth-src-files
     label: Copying Auth related src files
@@ -76,7 +76,7 @@ steps:
       from: src
       to: src
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: copy-auth-templates-files
     label: Copying Login system templates files
@@ -84,7 +84,7 @@ steps:
       from: templates/auth
       to: templates
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: register-auth-bundle
     label: Registering PartRocks Auth Bundle
@@ -96,7 +96,7 @@ steps:
             return [
                 Happycode\TenZeroAuth\TenZeroAuthBundle::class => ['all' => true],
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: add-auth-routes
     label: Adding Auth routes
@@ -106,7 +106,7 @@ steps:
         tenzero_auth:
             resource: '@TenZeroAuthBundle/config/routes.php'
     when:
-      - authType is not none
+      - authType !== 'none'
 
   - step: warmup-cache
     label: Warming up cache
