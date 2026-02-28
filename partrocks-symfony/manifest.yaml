@@ -3,13 +3,13 @@ manifest:
   name: PartRocks Symfony
   description: PartRocks Symfony is an opinionated template for building Symfony applications.
   tags:
-    - symfony
-    - php
-    - framework
-    - web
-    - api
-    - partrocks
-  version: "1.0.2"
+  - symfony
+  - php
+  - framework
+  - web
+  - api
+  - partrocks
+  version: 1.0.3
   author: PartRocks
   license: MIT
   repository: https://github.com/partrocks/partrocks-symfony
