@@ -1,0 +1,4 @@
+pipeline:
+  - steps:
+      - create-project
+      - create-readme

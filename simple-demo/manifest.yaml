@@ -1,0 +1,9 @@
+manifest:
+  id: simple-demo
+  name: Next.js
+  description: A basic template for fast demoing PartRocks features.
+  tags:
+    - simple
+  version: "1.0.0"
+  author: PartRocks
+  license: MIT
