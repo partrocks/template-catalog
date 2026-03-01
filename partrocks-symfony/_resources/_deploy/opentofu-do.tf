@@ -1,0 +1,205 @@
+terraform {
+  required_version = ">= 1.6.0"
+
+  required_providers {
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
+  }
+}
+
+locals {
+  tz_environment_id    = "{{ tz.environment.id }}"
+  tz_provider_id       = "{{ tz.provider.id }}"
+  tz_release_tag       = "{{ tz.release.tag }}"
+  tz_release_ref       = "{{ tz.release.imageRef }}"
+  tz_app_port          = "{{ tz.constraints.appPort }}"
+  tz_app_health_path   = "{{ tz.constraints.appHealthPath }}"
+  tz_do_region         = "{{ tz.constraints.doRegion }}"
+  tz_do_instance_size  = "{{ tz.constraints.doInstanceSize }}"
+  tz_do_instance_count = "{{ tz.constraints.doInstanceCount }}"
+  safe_environment_id = replace(
+    replace(
+      replace(replace(replace(lower(local.tz_environment_id), "{", ""), "}", ""), " ", ""),
+      ".",
+      "-"
+    ),
+    "_",
+    "-"
+  )
+  release_ref_tail = trimspace(local.tz_release_ref) != "" ? element(
+    split("/", local.tz_release_ref),
+    length(split("/", local.tz_release_ref)) - 1
+  ) : "app"
+  release_repo_name = split("@", local.release_ref_tail)[0]
+  safe_release_repo_name = replace(
+    replace(
+      replace(replace(replace(lower(local.release_repo_name), "{", ""), "}", ""), " ", ""),
+      ".",
+      "-"
+    ),
+    "_",
+    "-"
+  )
+  app_scope_hash = substr(
+    sha1(trimspace(local.tz_release_ref) != "" ? local.tz_release_ref : local.safe_environment_id),
+    0,
+    8
+  )
+  app_scope        = substr("${local.safe_release_repo_name}-${local.safe_environment_id}-${local.app_scope_hash}", 0, 45)
+  app_scope_short  = substr(local.app_scope, 0, 25)
+  app_service_name = substr("tz-${local.app_scope}", 0, 40)
+  database_name    = "appdb"
+
+  # App Platform uses short region names (nyc, sfo); database uses long (nyc1, sfo2)
+  do_region_db  = local.tz_do_region != "" ? local.tz_do_region : "nyc1"
+  do_region_app = regex("^([a-z]+)[0-9]*$", local.do_region_db)
+
+  # Parse image ref for registry/repository/tag
+  # Supports: registry.digitalocean.com/reg/repo:tag, docker.io/owner/repo:tag, ghcr.io/owner/repo:tag
+  image_ref_parts   = split(":", local.tz_release_ref)
+  image_tag         = length(local.image_ref_parts) > 1 ? local.image_ref_parts[length(local.image_ref_parts) - 1] : "latest"
+  image_without_tag = length(local.image_ref_parts) > 1 ? join(":", slice(local.image_ref_parts, 0, length(local.image_ref_parts) - 1)) : local.tz_release_ref
+  image_path_parts  = split("/", local.image_without_tag)
+  registry_type = (
+    can(regex("registry\\.digitalocean\\.com", local.tz_release_ref)) ? "DOCR" :
+    can(regex("ghcr\\.io", local.tz_release_ref)) ? "GHCR" :
+    "DOCKER_HUB"
+  )
+  # DOCR: registry.digitalocean.com/registry-name/repo -> registry=registry-name[1], repository=repo[2] or slice(2,end)
+  # DOCKER_HUB: docker.io/owner/repo or owner/repo -> registry=owner, repository=repo
+  # GHCR: ghcr.io/owner/repo -> registry=owner[1], repository=slice(2,end)
+  do_registry = (
+    local.registry_type == "DOCR" ? (length(local.image_path_parts) >= 2 ? local.image_path_parts[1] : "") :
+    local.registry_type == "GHCR" ? (length(local.image_path_parts) >= 2 ? local.image_path_parts[1] : "") :
+    length(local.image_path_parts) >= 2 ? (local.image_path_parts[0] == "docker.io" ? local.image_path_parts[1] : local.image_path_parts[0]) : ""
+  )
+  do_repository = (
+    local.registry_type == "DOCR" ? (length(local.image_path_parts) >= 3 ? join("/", slice(local.image_path_parts, 2, length(local.image_path_parts))) : local.release_ref_tail) :
+    local.registry_type == "GHCR" ? (length(local.image_path_parts) >= 3 ? join("/", slice(local.image_path_parts, 2, length(local.image_path_parts))) : local.release_ref_tail) :
+    length(local.image_path_parts) >= 2 ? (local.image_path_parts[0] == "docker.io" ? join("/", slice(local.image_path_parts, 2, length(local.image_path_parts))) : (length(local.image_path_parts) >= 3 ? join("/", slice(local.image_path_parts, 1, length(local.image_path_parts))) : local.image_path_parts[1])) : local.release_ref_tail
+  )
+}
+
+resource "digitalocean_database_cluster" "postgres" {
+  name       = "tz-${local.app_scope}-postgres"
+  engine     = "pg"
+  version    = "16"
+  size       = "db-s-1vcpu-1gb"
+  region     = local.do_region_db
+  node_count = 1
+}
+
+resource "digitalocean_database_db" "appdb" {
+  cluster_id = digitalocean_database_cluster.postgres.id
+  name       = local.database_name
+}
+
+resource "random_password" "app_secret" {
+  length  = 64
+  special = false
+}
+
+resource "random_password" "jwt_secret_key" {
+  length  = 96
+  special = false
+}
+
+locals {
+  database_url = "postgresql://${digitalocean_database_cluster.postgres.user}:${urlencode(digitalocean_database_cluster.postgres.password)}@${digitalocean_database_cluster.postgres.host}:${digitalocean_database_cluster.postgres.port}/${local.database_name}?sslmode=require&serverVersion=16&charset=utf8"
+}
+
+resource "digitalocean_app" "app" {
+  spec {
+    name   = local.app_service_name
+    region = local.do_region_app
+
+    service {
+      name               = "web"
+      instance_count     = try(tonumber(local.tz_do_instance_count), 1)
+      instance_size_slug = local.tz_do_instance_size != "" ? local.tz_do_instance_size : "basic-xxs"
+      http_port          = tonumber(local.tz_app_port)
+
+      image {
+        registry_type = local.registry_type
+        registry      = local.do_registry
+        repository    = local.do_repository
+        tag           = local.image_tag
+      }
+
+      health_check {
+        http_path             = local.tz_app_health_path
+        initial_delay_seconds = 30
+        period_seconds        = 10
+        timeout_seconds       = 3
+        success_threshold     = 1
+        failure_threshold     = 3
+      }
+
+      env {
+        key   = "APP_ENV"
+        value = "prod"
+        type  = "GENERAL"
+      }
+
+      env {
+        key   = "DATABASE_URL"
+        value = local.database_url
+        type  = "SECRET"
+      }
+
+      env {
+        key   = "APP_SECRET"
+        value = random_password.app_secret.result
+        type  = "SECRET"
+      }
+
+      env {
+        key   = "JWT_SECRET_KEY"
+        value = random_password.jwt_secret_key.result
+        type  = "SECRET"
+      }
+    }
+  }
+}
+
+resource "digitalocean_database_firewall" "postgres" {
+  cluster_id = digitalocean_database_cluster.postgres.id
+
+  rule {
+    type  = "app"
+    value = digitalocean_app.app.id
+  }
+}
+
+output "APP_BASE_URL" {
+  description = "Application base URL."
+  value       = digitalocean_app.app.live_url
+}
+
+output "DATABASE_URL" {
+  description = "Database connection string (sensitive)."
+  value       = local.database_url
+  sensitive   = true
+}
+
+output "APP_SECRET" {
+  description = "APP_SECRET value (sensitive)."
+  value       = random_password.app_secret.result
+  sensitive   = true
+}
+
+output "JWT_SECRET_KEY" {
+  description = "JWT secret key (sensitive)."
+  value       = random_password.jwt_secret_key.result
+  sensitive   = true
+}
+
+output "APP_ENV" {
+  value = "prod"
+}

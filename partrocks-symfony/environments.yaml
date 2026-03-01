@@ -1,0 +1,21 @@
+environments:
+  local:
+    id: local
+    type: docker
+    composeFile: _docker/docker-compose.yml
+    variables:
+      - DATABASE_URL
+      - APP_MODE
+  prod:
+    id: prod
+    type: cloud
+    deploy:
+      aws:
+        type: openTofu
+        from: _deploy/openTofu-aws.tf
+      digital-ocean:
+        type: openTofu
+        from: _deploy/openTofu-do.tf
+    variables:
+      - DATABASE_URL
+      - APP_MODE
