@@ -1,9 +1,7 @@
 dependencies:
+  - name: PHP
+    install: apk add --no-cache php82 php82-cli php82-phar php82-xml php82-mbstring php82-curl php82-zip php82-openssl php82-ctype php82-iconv php82-session php82-tokenizer
   - name: Composer
-    install: |
-      curl -sS https://getcomposer.org/installer | php
-      mv composer.phar /usr/local/bin/composer
+    install: curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
   - name: Symfony CLI
-    install: |
-      curl -1sLf 'https://dl.cloudsmith.io/public/symfony/cli/setup.deb.sh' | bash
-      sudo apt-get install symfony-cli
+    install: curl -sS https://get.symfony.com/cli/installer | bash && mv ~/.symfony5/bin/symfony /usr/local/bin/symfony
