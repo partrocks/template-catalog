@@ -3,7 +3,7 @@ manifest:
   name: Simple Demo
   description: A basic template for fast demoing PartRocks features.
   tags:
-    - simple
-  version: 1.0.1
+  - simple
+  version: 1.0.2
   author: PartRocks
   license: MIT
