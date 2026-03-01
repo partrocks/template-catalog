@@ -9,10 +9,16 @@ steps:
     run:
       - command: composer install
 
-  - step: install-auth-dependencies
-    label: Installing Composer libraries
+  - step: install-lexik-dependencies
+    label: Installing lexik/jwt-authentication-bundle
     run:
       - command: composer require lexik/jwt-authentication-bundle --no-interaction
+    when:
+      - authType !== 'none'
+
+  - step: install-happycode-dependencies
+    label: Installing happycode/tenzero-auth
+    run:
       - command: composer require happycode/tenzero-auth --no-scripts --no-interaction
     when:
       - authType !== 'none'
@@ -20,7 +26,7 @@ steps:
   - step: generate-jwt-keys
     label: Generating JWT keys
     run:
-      - command: bin/console lexik:jwt:generate-keypair --skip-if-exists
+      - command: php bin/console lexik:jwt:generate-keypair --skip-if-exists
     when:
       - authType !== 'none'
 
@@ -73,7 +79,7 @@ steps:
   - step: copy-auth-src-files
     label: Copying Auth related src files
     copy:
-      from: src
+      from: src/auth
       to: src
     when:
       - authType !== 'none'

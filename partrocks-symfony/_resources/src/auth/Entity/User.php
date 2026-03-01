@@ -66,4 +66,9 @@ class User extends TenZeroUser
     {
         return $this->id;
     }
+
+    public function eraseCredentials(): void
+    {
+        // Clear any temporary, sensitive data
+    }
 }

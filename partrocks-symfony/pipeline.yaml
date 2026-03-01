@@ -2,7 +2,8 @@ pipeline:
   - steps:
       - create-project
       - install-dependencies
-      - install-auth-dependencies
+      - install-lexik-dependencies
+      - install-happycode-dependencies
       - generate-jwt-keys
       - update-jwt-key-paths
       - add-jwt-env-variables
