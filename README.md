@@ -2,7 +2,9 @@
 
 ## A library of App Templates Curated by PartRocks
 
----
+> **Syntax reference** — The template-engine that reads these files has its syntax
+> definition documented at:
+> [partrocks/desktop › template-engine/syntax.md](https://github.com/partrocks/desktop/blob/main/packages/template-engine/syntax.md)
 
 ## Overview
 
@@ -24,10 +26,10 @@ Each template directory describes a local software project's build and deploymen
 
 Describes the template for discovery and search:
 
-- **id** — unique identifier
-- **name** — display name
-- **description** — what the template provides
-- **tags** — array of tags for categorization
+-   **id** — unique identifier
+-   **name** — display name
+-   **description** — what the template provides
+-   **tags** — array of tags for categorization
 
 ### options.yaml
 
@@ -37,7 +39,6 @@ Defines internal variables for app setup. These are the questions the **partrock
 
 Procedures the desktop app (or any tool) will perform for new app bootstrapping. Steps consist of commands such as:
 
-
 | Command  | Description                                                          |
 | -------- | -------------------------------------------------------------------- |
 | `run`    | Execute on the command line                                          |
@@ -45,7 +46,6 @@ Procedures the desktop app (or any tool) will perform for new app bootstrapping.
 | `modify` | Perform a find/replace on an existing file in the app project folder |
 | `append` | Add content to an existing file                                      |
 | `delete` | Delete a file from the project folder                                |
-
 
 ### pipeline.yaml
 
@@ -55,19 +55,16 @@ Ordered steps (from `steps.yaml`) that define the bootstrap flow. Each step in t
 
 Environmental tools the app will need in order to build and run.
 
-### _resources/
+### \_resources/
 
 Assets (files and folders of any sort) used during app setup or deployment.
 
-### _deploy/
+### \_deploy/
 
 Deployment configuration for the template:
-
 
 | File                  | Purpose                                                                                                                           |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | **providers.yaml**    | Data on which cloud hosting providers are configured in this template for deployments                                             |
 | **environments.yaml** | A set of environments that can run simultaneously on a provider                                                                   |
 | **presets.yaml**      | Pre-configured groups of infrastructure data recommended for deployments (e.g., cloud resource differences for production vs UAT) |
-
-
