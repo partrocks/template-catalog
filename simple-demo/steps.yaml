@@ -7,7 +7,5 @@ steps:
   - step: create-readme
     label: Creating README.md
     copy:
-      from: _resources/README.md
+      from: README.md
       to: "{{projectName}}/README.md"
-
-    
