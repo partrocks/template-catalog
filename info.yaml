@@ -14,7 +14,7 @@ templates:
   name: Next.js
   description: A basic Next.js template that installs the official create-next-app
     starter.
-  version: 1.0.0
+  version: 1.0.1
   tags:
   - nextjs
   - react
