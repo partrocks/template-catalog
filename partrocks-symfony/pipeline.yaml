@@ -14,3 +14,4 @@ pipeline:
       - register-auth-bundle
       - add-auth-routes
       - warmup-cache
+      - copy-docker-assets

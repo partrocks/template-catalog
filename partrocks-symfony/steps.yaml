@@ -119,3 +119,16 @@ steps:
     run:
       - command: symfony console cache:clear
       - command: symfony console cache:warmup
+
+  - step: copy-docker-assets
+    label: Copying Docker assets for local dev
+    copy:
+      from: _docker
+      to: docker
+    appendIfMissing:
+      file: .gitignore
+      marker: "###> partrocks-docker ###"
+      content: |-
+        ###> partrocks-docker ###
+        /docker/
+        ###< partrocks-docker ###

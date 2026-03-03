@@ -1,21 +1,43 @@
 environments:
   local:
     id: local
-    type: docker
-    composeFile: _docker/docker-compose.yml
-    variables:
-      - DATABASE_URL
-      - APP_MODE
+    runtime: docker
+    docker:
+      composeFile: _resources/_docker/docker-compose.yml
+      url:
+        scheme: http
+        domain: localhost
+        port: 8000
+        # path: /app
+        # query: debug=true
+    vars:
+      DATABASE_URL:
+        required: true
+        secret: true
+      APP_MODE:
+        required: true
+        default: local
+
+  base-cloud:
+    id: base-cloud
+    abstract: true
+    runtime: cloud
+    vars:
+      DATABASE_URL:
+        required: true
+        secret: true
+      APP_MODE:
+        required: true
+        default: prod
+
   prod:
     id: prod
-    type: cloud
+    extends: base-cloud
     deploy:
-      aws:
-        type: openTofu
-        from: _deploy/openTofu-aws.tf
-      digital-ocean:
-        type: openTofu
-        from: _deploy/openTofu-do.tf
-    variables:
-      - DATABASE_URL
-      - APP_MODE
+      targets:
+        aws:
+          engine: opentofu
+          source: _resources/_deploy/opentofu-aws.tf
+        digitalocean:
+          engine: opentofu
+          source: _resources/_deploy/opentofu-do.tf
