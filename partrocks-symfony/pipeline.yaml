@@ -12,6 +12,7 @@ pipeline:
       - copy-auth-package-configs
       - copy-auth-src-files
       - copy-auth-templates-files
+      - copy-fixtures-files
       - register-auth-bundle
       - add-auth-routes
       - warmup-cache
