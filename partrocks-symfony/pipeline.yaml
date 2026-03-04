@@ -4,6 +4,7 @@ pipeline:
       - install-dependencies
       - install-lexik-dependencies
       - install-happycode-dependencies
+      - install-fixtures-dependencies
       - generate-jwt-keys
       - update-jwt-key-paths
       - add-jwt-env-variables

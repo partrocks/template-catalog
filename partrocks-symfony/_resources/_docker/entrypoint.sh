@@ -23,4 +23,16 @@ fi
 echo "[bootstrap] Clearing Symfony cache..."
 php bin/console cache:clear --no-interaction || true
 
+echo "[bootstrap] Creating database..."
+php bin/console doctrine:database:create --if-not-exists --no-interaction || true
+
+echo "[bootstrap] Making migrations..."
+php bin/console make:migration --no-interaction || true
+
+echo "[bootstrap] Migrating database..."
+php bin/console doctrine:migrations:migrate --no-interaction || true
+
+echo "[bootstrap] Loading fixtures..."
+php bin/console doctrine:fixtures:load --no-interaction || true
+
 exec "$@"
