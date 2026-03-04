@@ -9,7 +9,7 @@ services:
             - ./:/var/www/html:delegated
         environment:
             APP_ENV: dev
-            DATABASE_URL: postgresql://app:app@db:{{dbPort}}/app?serverVersion=18&charset=utf8
+            DATABASE_URL: postgresql://app:app@db:5432/app?serverVersion=18&charset=utf8
             JWT_SECRET_KEY: /var/www/html/config/jwt/private.pem
             JWT_PUBLIC_KEY: /var/www/html/config/jwt/public.pem
             JWT_PASSPHRASE:
@@ -17,7 +17,7 @@ services:
         entrypoint: ["/usr/local/bin/entrypoint.sh"]
         command: sh -c "php -S 0.0.0.0:{{localPort}} -t public"
         ports:
-            - "{{localPort}}:8000"
+            - "{{localPort}}:{{localPort}}"
         depends_on:
             db:
                 condition: service_healthy
