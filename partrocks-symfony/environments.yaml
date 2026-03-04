@@ -7,7 +7,7 @@ environments:
       url:
         scheme: http
         domain: localhost
-        port: 8000
+        port: "{{localPort}}"
         # path: /app
         # query: debug=true
       commands:
