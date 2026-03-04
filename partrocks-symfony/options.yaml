@@ -14,3 +14,11 @@ options:
         value: none
       - label: PartRocks Auth
         value: partrocks-auth
+
+  - id: localPort
+    type: auto-port-local
+    range: app
+
+  - id: dbPort
+    type: auto-port-local
+    range: resource

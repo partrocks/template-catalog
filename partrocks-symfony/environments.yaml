@@ -10,13 +10,26 @@ environments:
         port: 8000
         # path: /app
         # query: debug=true
+      commands:
+        - clear-cache:
+          run:
+            - label: Clear cache
+            - command: "php bin/console cache:clear --no-interaction"
+        - migrate-database:
+          run:
+            - label: Migrate database
+            - command: "php bin/console doctrine:migrations:migrate --no-interaction"
+        - load-fixtures:
+          run:
+            - label: Load fixtures
+            - command: "php bin/console doctrine:fixtures:load --no-interaction"
     vars:
       DATABASE_URL:
         required: true
         secret: true
       APP_MODE:
         required: true
-        default: local
+        default: dev
 
   base-cloud:
     id: base-cloud
