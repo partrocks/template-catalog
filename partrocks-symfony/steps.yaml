@@ -100,7 +100,7 @@ steps:
   - step: copy-fixtures-files
     label: Copying fixtures files
     copy:
-      from: _resources/fixtures
+      from: fixtures
       to: fixtures
 
   - step: register-auth-bundle

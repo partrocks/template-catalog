@@ -3,7 +3,7 @@ environments:
     id: local
     runtime: docker
     docker:
-      composeFile: _resources/_docker/docker-compose.yml
+      composeFile: _docker/docker-compose.yml
       url:
         scheme: http
         domain: localhost
@@ -50,7 +50,7 @@ environments:
       targets:
         aws:
           engine: opentofu
-          source: _resources/_deploy/opentofu-aws.tf
+          source: _deploy/opentofu-aws.tf
         digitalocean:
           engine: opentofu
-          source: _resources/_deploy/opentofu-do.tf
+          source: _deploy/opentofu-do.tf
