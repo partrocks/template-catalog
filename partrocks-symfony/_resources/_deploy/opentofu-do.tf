@@ -14,15 +14,15 @@ terraform {
 }
 
 locals {
-  tz_environment_id    = "{{ tz.environment.id }}"
-  tz_provider_id       = "{{ tz.provider.id }}"
-  tz_release_tag       = "{{ tz.release.tag }}"
-  tz_release_ref       = "{{ tz.release.imageRef }}"
-  tz_app_port          = "{{ tz.constraints.appPort }}"
-  tz_app_health_path   = "{{ tz.constraints.appHealthPath }}"
-  tz_do_region         = "{{ tz.constraints.doRegion }}"
-  tz_do_instance_size  = "{{ tz.constraints.doInstanceSize }}"
-  tz_do_instance_count = "{{ tz.constraints.doInstanceCount }}"
+  tz_environment_id    = "{{ environment.id }}"
+  tz_provider_id       = "{{ provider.id }}"
+  tz_release_tag       = "{{ release.tag }}"
+  tz_release_ref       = "{{ release.imageRef }}"
+  tz_app_port          = "{{ constraints.appPort }}"
+  tz_app_health_path   = "{{ constraints.appHealthPath }}"
+  tz_do_region         = "{{ constraints.doRegion }}"
+  tz_do_instance_size  = "{{ constraints.doInstanceSize }}"
+  tz_do_instance_count = "{{ constraints.doInstanceCount }}"
   safe_environment_id = replace(
     replace(
       replace(replace(replace(lower(local.tz_environment_id), "{", ""), "}", ""), " ", ""),

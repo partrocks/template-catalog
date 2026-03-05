@@ -14,16 +14,16 @@ terraform {
 }
 
 locals {
-  tz_environment_id = "{{ tz.environment.id }}"
-  tz_provider_id    = "{{ tz.provider.id }}"
-  tz_release_tag    = "{{ tz.release.tag }}"
-  tz_release_ref    = "{{ tz.release.imageRef }}"
-  tz_app_port       = "{{ tz.constraints.appPort }}"
-  tz_app_health_path = "{{ tz.constraints.appHealthPath }}"
-  tz_apprunner_cpu   = "{{ tz.constraints.appRunnerCpu }}"
-  tz_apprunner_memory = "{{ tz.constraints.appRunnerMemory }}"
-  tz_apprunner_min_size = "{{ tz.constraints.appRunnerMinSize }}"
-  tz_apprunner_max_size = "{{ tz.constraints.appRunnerMaxSize }}"
+  tz_environment_id = "{{ environment.id }}"
+  tz_provider_id    = "{{ provider.id }}"
+  tz_release_tag    = "{{ release.tag }}"
+  tz_release_ref    = "{{ release.imageRef }}"
+  tz_app_port       = "{{ constraints.appPort }}"
+  tz_app_health_path = "{{ constraints.appHealthPath }}"
+  tz_apprunner_cpu   = "{{ constraints.appRunnerCpu }}"
+  tz_apprunner_memory = "{{ constraints.appRunnerMemory }}"
+  tz_apprunner_min_size = "{{ constraints.appRunnerMinSize }}"
+  tz_apprunner_max_size = "{{ constraints.appRunnerMaxSize }}"
   safe_environment_id = replace(
     replace(
       replace(replace(replace(lower(local.tz_environment_id), "{", ""), "}", ""), " ", ""),
