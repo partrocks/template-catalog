@@ -27,6 +27,8 @@ steps:
     label: Installing fixtures dependencies
     run:
       - command: composer require orm-fixtures --dev --no-interaction
+    when:
+      - authType !== 'none'
 
   - step: generate-jwt-keys
     label: Generating JWT keys
