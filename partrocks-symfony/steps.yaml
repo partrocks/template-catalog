@@ -27,8 +27,6 @@ steps:
     label: Installing fixtures dependencies
     run:
       - command: composer require orm-fixtures --dev --no-interaction
-    when:
-      - authType !== 'none'
 
   - step: generate-jwt-keys
     label: Generating JWT keys
@@ -104,6 +102,8 @@ steps:
     copy:
       from: fixtures
       to: fixtures
+    when:
+      - authType !== 'none'
 
   - step: register-auth-bundle
     label: Registering PartRocks Auth Bundle
