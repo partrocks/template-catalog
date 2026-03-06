@@ -14,27 +14,27 @@ terraform {
 }
 
 locals {
-  tz_environment_id    = "{{ environment.id }}"
-  tz_provider_id       = "{{ provider.id }}"
-  tz_release_tag       = "{{ release.tag }}"
-  tz_release_ref       = "{{ release.imageRef }}"
-  tz_app_port          = "{{ constraints.appPort }}"
-  tz_app_health_path   = "{{ constraints.appHealthPath }}"
-  tz_do_region         = "{{ constraints.doRegion }}"
-  tz_do_instance_size  = "{{ constraints.doInstanceSize }}"
-  tz_do_instance_count = "{{ constraints.doInstanceCount }}"
+  pr_environment_id    = "{{ environment.id }}"
+  pr_provider_id       = "{{ provider.id }}"
+  pr_release_tag       = "{{ release.tag }}"
+  pr_release_ref       = "{{ release.imageRef }}"
+  pr_app_port          = "{{ constraints.appPort }}"
+  pr_app_health_path   = "{{ constraints.appHealthPath }}"
+  pr_do_region         = "{{ constraints.doRegion }}"
+  pr_do_instance_size  = "{{ constraints.doInstanceSize }}"
+  pr_do_instance_count = "{{ constraints.doInstanceCount }}"
   safe_environment_id = replace(
     replace(
-      replace(replace(replace(lower(local.tz_environment_id), "{", ""), "}", ""), " ", ""),
+      replace(replace(replace(lower(local.pr_environment_id), "{", ""), "}", ""), " ", ""),
       ".",
       "-"
     ),
     "_",
     "-"
   )
-  release_ref_tail = trimspace(local.tz_release_ref) != "" ? element(
-    split("/", local.tz_release_ref),
-    length(split("/", local.tz_release_ref)) - 1
+  release_ref_tail = trimspace(local.pr_release_ref) != "" ? element(
+    split("/", local.pr_release_ref),
+    length(split("/", local.pr_release_ref)) - 1
   ) : "app"
   release_repo_name = split("@", local.release_ref_tail)[0]
   safe_release_repo_name = replace(
@@ -47,28 +47,28 @@ locals {
     "-"
   )
   app_scope_hash = substr(
-    sha1(trimspace(local.tz_release_ref) != "" ? local.tz_release_ref : local.safe_environment_id),
+    sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.safe_environment_id),
     0,
     8
   )
   app_scope        = substr("${local.safe_release_repo_name}-${local.safe_environment_id}-${local.app_scope_hash}", 0, 45)
   app_scope_short  = substr(local.app_scope, 0, 25)
-  app_service_name = substr("tz-${local.app_scope}", 0, 40)
+  app_service_name = substr("partrocks-${local.app_scope}", 0, 40)
   database_name    = "appdb"
 
   # App Platform uses short region names (nyc, sfo); database uses long (nyc1, sfo2)
-  do_region_db  = local.tz_do_region != "" ? local.tz_do_region : "nyc1"
+  do_region_db  = local.pr_do_region != "" ? local.pr_do_region : "nyc1"
   do_region_app = regex("^([a-z]+)[0-9]*$", local.do_region_db)
 
   # Parse image ref for registry/repository/tag
   # Supports: registry.digitalocean.com/reg/repo:tag, docker.io/owner/repo:tag, ghcr.io/owner/repo:tag
-  image_ref_parts   = split(":", local.tz_release_ref)
+  image_ref_parts   = split(":", local.pr_release_ref)
   image_tag         = length(local.image_ref_parts) > 1 ? local.image_ref_parts[length(local.image_ref_parts) - 1] : "latest"
-  image_without_tag = length(local.image_ref_parts) > 1 ? join(":", slice(local.image_ref_parts, 0, length(local.image_ref_parts) - 1)) : local.tz_release_ref
+  image_without_tag = length(local.image_ref_parts) > 1 ? join(":", slice(local.image_ref_parts, 0, length(local.image_ref_parts) - 1)) : local.pr_release_ref
   image_path_parts  = split("/", local.image_without_tag)
   registry_type = (
-    can(regex("registry\\.digitalocean\\.com", local.tz_release_ref)) ? "DOCR" :
-    can(regex("ghcr\\.io", local.tz_release_ref)) ? "GHCR" :
+    can(regex("registry\\.digitalocean\\.com", local.pr_release_ref)) ? "DOCR" :
+    can(regex("ghcr\\.io", local.pr_release_ref)) ? "GHCR" :
     "DOCKER_HUB"
   )
   # DOCR: registry.digitalocean.com/registry-name/repo -> registry=registry-name[1], repository=repo[2] or slice(2,end)
@@ -87,7 +87,7 @@ locals {
 }
 
 resource "digitalocean_database_cluster" "postgres" {
-  name       = "tz-${local.app_scope}-postgres"
+  name       = "partrocks-${local.app_scope}-postgres"
   engine     = "pg"
   version    = "16"
   size       = "db-s-1vcpu-1gb"
@@ -121,9 +121,9 @@ resource "digitalocean_app" "app" {
 
     service {
       name               = "web"
-      instance_count     = try(tonumber(local.tz_do_instance_count), 1)
-      instance_size_slug = local.tz_do_instance_size != "" ? local.tz_do_instance_size : "basic-xxs"
-      http_port          = tonumber(local.tz_app_port)
+      instance_count     = try(tonumber(local.pr_do_instance_count), 1)
+      instance_size_slug = local.pr_do_instance_size != "" ? local.pr_do_instance_size : "basic-xxs"
+      http_port          = tonumber(local.pr_app_port)
 
       image {
         registry_type = local.registry_type
@@ -133,7 +133,7 @@ resource "digitalocean_app" "app" {
       }
 
       health_check {
-        http_path             = local.tz_app_health_path
+        http_path             = local.pr_app_health_path
         initial_delay_seconds = 30
         period_seconds        = 10
         timeout_seconds       = 3

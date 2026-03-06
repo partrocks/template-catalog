@@ -42,6 +42,58 @@ environments:
       APP_MODE:
         required: true
         default: prod
+    deploy:
+      targets:
+        aws:
+          capabilities:
+            - appRuntime
+            - postgres
+            - envConfig
+          constraints:
+            appPort: 9000
+            appHealthPath: /
+          outputs:
+            - key: APP_BASE_URL
+              value: "{{ APP_BASE_URL }}"
+            - key: DATABASE_URL
+              value: "{{ DATABASE_URL }}"
+            - key: APP_SECRET
+              value: "{{ APP_SECRET }}"
+            - key: JWT_SECRET_KEY
+              value: "{{ JWT_SECRET_KEY }}"
+            - key: APP_ENV
+              value: "{{ APP_ENV }}"
+          presets:
+            - id: cheap-and-cheerful
+              label: Cheap and cheerful
+              description: Lowest baseline cost with conservative autoscaling.
+              constraints:
+                appRunnerCpu: 1024
+                appRunnerMemory: 2048
+                appRunnerMinSize: 1
+                appRunnerMaxSize: 1
+            - id: maximum-effort-at-a-price
+              label: Maximum effort at a price
+              description: Higher resource profile and wider autoscaling envelope.
+              constraints:
+                appRunnerCpu: 2048
+                appRunnerMemory: 4096
+                appRunnerMinSize: 2
+                appRunnerMaxSize: 8
+        digitalocean:
+          capabilities:
+          constraints:
+          outputs:
+          presets:
+
+  uat:
+    id: uat
+    extends: base-cloud
+    deploy:
+      targets:
+        aws:
+          engine: opentofu
+          source: _deploy/opentofu-aws.tf
 
   prod:
     id: prod

@@ -14,19 +14,19 @@ terraform {
 }
 
 locals {
-  tz_environment_id = "{{ environment.id }}"
-  tz_provider_id    = "{{ provider.id }}"
-  tz_release_tag    = "{{ release.tag }}"
-  tz_release_ref    = "{{ release.imageRef }}"
-  tz_app_port       = "{{ constraints.appPort }}"
-  tz_app_health_path = "{{ constraints.appHealthPath }}"
-  tz_apprunner_cpu   = "{{ constraints.appRunnerCpu }}"
-  tz_apprunner_memory = "{{ constraints.appRunnerMemory }}"
-  tz_apprunner_min_size = "{{ constraints.appRunnerMinSize }}"
-  tz_apprunner_max_size = "{{ constraints.appRunnerMaxSize }}"
+  pr_environment_id = "{{ environment.id }}"
+  pr_provider_id    = "{{ provider.id }}"
+  pr_release_tag    = "{{ release.tag }}"
+  pr_release_ref    = "{{ release.imageRef }}"
+  pr_app_port       = "{{ constraints.appPort }}"
+  pr_app_health_path = "{{ constraints.appHealthPath }}"
+  pr_apprunner_cpu   = "{{ constraints.appRunnerCpu }}"
+  pr_apprunner_memory = "{{ constraints.appRunnerMemory }}"
+  pr_apprunner_min_size = "{{ constraints.appRunnerMinSize }}"
+  pr_apprunner_max_size = "{{ constraints.appRunnerMaxSize }}"
   safe_environment_id = replace(
     replace(
-      replace(replace(replace(lower(local.tz_environment_id), "{", ""), "}", ""), " ", ""),
+      replace(replace(replace(lower(local.pr_environment_id), "{", ""), "}", ""), " ", ""),
       ".",
       "-"
     ),
@@ -34,9 +34,9 @@ locals {
     "-"
   )
   # Scope resource names to app+env to avoid cross-project collisions.
-  release_ref_tail = trimspace(local.tz_release_ref) != "" ? element(
-    split("/", local.tz_release_ref),
-    length(split("/", local.tz_release_ref)) - 1
+  release_ref_tail = trimspace(local.pr_release_ref) != "" ? element(
+    split("/", local.pr_release_ref),
+    length(split("/", local.pr_release_ref)) - 1
   ) : "app"
   release_repo_name = split("@", local.release_ref_tail)[0]
   safe_release_repo_name = replace(
@@ -49,13 +49,13 @@ locals {
     "-"
   )
   app_scope_hash = substr(
-    sha1(trimspace(local.tz_release_ref) != "" ? local.tz_release_ref : local.safe_environment_id),
+    sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.safe_environment_id),
     0,
     8
   )
   app_scope              = substr("${local.safe_release_repo_name}-${local.safe_environment_id}-${local.app_scope_hash}", 0, 45)
   app_scope_short        = substr(local.app_scope, 0, 25)
-  app_service_name       = substr("tz-${local.app_scope}", 0, 40)
+  app_service_name       = substr("partrocks-${local.app_scope}", 0, 40)
   database_name          = "appdb"
   database_username      = "appuser"
 }
@@ -72,7 +72,7 @@ data "aws_subnets" "default_vpc_subnets" {
 }
 
 resource "aws_security_group" "postgres" {
-  name_prefix = "tz-${local.app_scope}-postgres-"
+  name_prefix = "partrocks-${local.app_scope}-postgres-"
   description = "Postgres access within default VPC CIDR"
   vpc_id      = data.aws_vpc.default.id
 
@@ -92,7 +92,7 @@ resource "aws_security_group" "postgres" {
 }
 
 resource "aws_security_group" "apprunner_vpc_connector" {
-  name_prefix = "tz-${local.app_scope}-apprunner-vpc-"
+  name_prefix = "partrocks-${local.app_scope}-apprunner-vpc-"
   description = "App Runner VPC connector egress"
   vpc_id      = data.aws_vpc.default.id
 
@@ -105,7 +105,7 @@ resource "aws_security_group" "apprunner_vpc_connector" {
 }
 
 resource "aws_db_subnet_group" "postgres" {
-  name       = "tz-${local.app_scope}-postgres-subnets"
+  name       = "partrocks-${local.app_scope}-postgres-subnets"
   subnet_ids = data.aws_subnets.default_vpc_subnets.ids
 }
 
@@ -116,7 +116,7 @@ resource "random_password" "database_password" {
 }
 
 resource "aws_db_instance" "postgres" {
-  identifier                 = "tz-${local.app_scope}-postgres"
+  identifier                 = "partrocks-${local.app_scope}-postgres"
   allocated_storage          = 20
   max_allocated_storage      = 100
   storage_type               = "gp3"
@@ -140,8 +140,8 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "database_url" {
-  name                    = "tz/${local.app_scope}/DATABASE_URL"
-  description             = "Symfony DATABASE_URL for ${local.tz_environment_id}"
+  name                    = "partrocks/${local.app_scope}/DATABASE_URL"
+  description             = "Symfony DATABASE_URL for ${local.pr_environment_id}"
   recovery_window_in_days = 0
 }
 
@@ -156,8 +156,8 @@ resource "random_password" "app_secret" {
 }
 
 resource "aws_secretsmanager_secret" "app_secret" {
-  name                    = "tz/${local.app_scope}/APP_SECRET"
-  description             = "Symfony APP_SECRET for ${local.tz_environment_id}"
+  name                    = "partrocks/${local.app_scope}/APP_SECRET"
+  description             = "Symfony APP_SECRET for ${local.pr_environment_id}"
   recovery_window_in_days = 0
 }
 
@@ -172,8 +172,8 @@ resource "random_password" "jwt_secret_key" {
 }
 
 resource "aws_secretsmanager_secret" "jwt_secret_key" {
-  name                    = "tz/${local.app_scope}/JWT_SECRET_KEY"
-  description             = "Symfony JWT secret key for ${local.tz_environment_id}"
+  name                    = "partrocks/${local.app_scope}/JWT_SECRET_KEY"
+  description             = "Symfony JWT secret key for ${local.pr_environment_id}"
   recovery_window_in_days = 0
 }
 
@@ -255,8 +255,8 @@ resource "aws_apprunner_vpc_connector" "app" {
 
 resource "aws_apprunner_auto_scaling_configuration_version" "app" {
   auto_scaling_configuration_name = "${local.app_scope_short}-autoscaling"
-  min_size                        = tonumber(local.tz_apprunner_min_size)
-  max_size                        = tonumber(local.tz_apprunner_max_size)
+  min_size                        = tonumber(local.pr_apprunner_min_size)
+  max_size                        = tonumber(local.pr_apprunner_max_size)
 }
 
 resource "aws_apprunner_service" "app" {
@@ -270,9 +270,9 @@ resource "aws_apprunner_service" "app" {
     }
     image_repository {
       image_repository_type = "ECR"
-      image_identifier      = local.tz_release_ref
+      image_identifier      = local.pr_release_ref
       image_configuration {
-        port = local.tz_app_port
+        port = local.pr_app_port
         runtime_environment_variables = {
           APP_ENV = "prod"
         }
@@ -286,8 +286,8 @@ resource "aws_apprunner_service" "app" {
   }
 
   instance_configuration {
-    cpu               = local.tz_apprunner_cpu
-    memory            = local.tz_apprunner_memory
+    cpu               = local.pr_apprunner_cpu
+    memory            = local.pr_apprunner_memory
     instance_role_arn = aws_iam_role.apprunner_instance.arn
   }
 
@@ -300,7 +300,7 @@ resource "aws_apprunner_service" "app" {
 
   health_check_configuration {
     protocol = "HTTP"
-    path     = local.tz_app_health_path
+    path     = local.pr_app_health_path
   }
 
   depends_on = [
