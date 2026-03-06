@@ -73,7 +73,7 @@ environments:
             artifacts:
               type: container_image
               containerImage:
-                dockerfile: _deploy/Dockerfile.cloud
+                dockerfile: _docker/Dockerfile.cloud
                 context: .
                 repositoryName: partrocks/{{projectName}}
                 tagStrategy: releaseTag
