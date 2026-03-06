@@ -15,25 +15,23 @@ RUN apk add --no-cache \
 # Install PHP extensions
 RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd intl
 
-# Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
+WORKDIR /app
 
-# Copy composer files
 COPY composer.json composer.lock ./
 
-# Copy application files
+RUN composer install \
+  --prefer-dist \
+  --no-interaction \
+  --no-dev \
+  --optimize-autoloader \
+  --no-scripts
+
+COPY _deploy/hooks /opt/partrocks/hooks
+RUN chmod +x /opt/partrocks/hooks/*
+
 COPY . .
 
-# Add entrypoint for runtime composer install (dev)
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
-
-# Expose port 8000 for the built-in PHP server (dev)
-EXPOSE 8000
-
+EXPOSE 9000
 CMD ["php-fpm"]

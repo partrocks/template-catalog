@@ -32,16 +32,18 @@ provider "aws" {
 }
 
 locals {
-  pr_environment_id = "{{ environment.id }}"
-  pr_provider_id    = "{{ provider.id }}"
-  pr_release_tag    = "{{ release.tag }}"
-  pr_release_ref    = "{{ release.imageRef }}"
-  pr_app_port       = "{{ constraints.appPort }}"
-  pr_app_health_path = "{{ constraints.appHealthPath }}"
-  pr_apprunner_cpu   = "{{ constraints.appRunnerCpu }}"
-  pr_apprunner_memory = "{{ constraints.appRunnerMemory }}"
-  pr_apprunner_min_size = "{{ constraints.appRunnerMinSize }}"
-  pr_apprunner_max_size = "{{ constraints.appRunnerMaxSize }}"
+  pr_environment_id       = "{{ environment.id }}"
+  pr_provider_id          = "{{ provider.id }}"
+  pr_release_tag          = "{{ release.tag }}"
+  pr_release_ref          = "{{ release.imageRef }}"
+  pr_app_port             = "{{ constraints.appPort }}"
+  pr_app_health_path      = "{{ constraints.appHealthPath }}"
+  pr_apprunner_cpu        = "{{ constraints.appRunnerCpu }}"
+  pr_apprunner_memory     = "{{ constraints.appRunnerMemory }}"
+  pr_apprunner_min_size   = "{{ constraints.appRunnerMinSize }}"
+  pr_apprunner_max_size   = "{{ constraints.appRunnerMaxSize }}"
+  pr_start_command        = "{{ constraints.appRunnerStartCommand }}"
+
   safe_environment_id = replace(
     replace(
       replace(replace(replace(lower(local.pr_environment_id), "{", ""), "}", ""), " ", ""),
@@ -51,12 +53,15 @@ locals {
     "_",
     "-"
   )
+
   # Scope resource names to app+env to avoid cross-project collisions.
   release_ref_tail = trimspace(local.pr_release_ref) != "" ? element(
     split("/", local.pr_release_ref),
     length(split("/", local.pr_release_ref)) - 1
   ) : "app"
+
   release_repo_name = split("@", local.release_ref_tail)[0]
+
   safe_release_repo_name = replace(
     replace(
       replace(replace(replace(lower(local.release_repo_name), "{", ""), "}", ""), " ", ""),
@@ -66,16 +71,18 @@ locals {
     "_",
     "-"
   )
+
   app_scope_hash = substr(
     sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.safe_environment_id),
     0,
     8
   )
-  app_scope              = substr("${local.safe_release_repo_name}-${local.safe_environment_id}-${local.app_scope_hash}", 0, 45)
-  app_scope_short        = substr(local.app_scope, 0, 25)
-  app_service_name       = substr("partrocks-${local.app_scope}", 0, 40)
-  database_name          = "appdb"
-  database_username      = "appuser"
+
+  app_scope         = substr("${local.safe_release_repo_name}-${local.safe_environment_id}-${local.app_scope_hash}", 0, 45)
+  app_scope_short   = substr(local.app_scope, 0, 25)
+  app_service_name  = substr("partrocks-${local.app_scope}", 0, 40)
+  database_name     = "appdb"
+  database_username = "appuser"
 }
 
 data "aws_vpc" "default" {
@@ -95,9 +102,9 @@ resource "aws_security_group" "postgres" {
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
     security_groups = [aws_security_group.apprunner_vpc_connector.id]
   }
 
@@ -164,7 +171,7 @@ resource "aws_secretsmanager_secret" "database_url" {
 }
 
 resource "aws_secretsmanager_secret_version" "database_url" {
-  secret_id = aws_secretsmanager_secret.database_url.id
+  secret_id     = aws_secretsmanager_secret.database_url.id
   secret_string = local.database_url
 }
 
@@ -180,7 +187,7 @@ resource "aws_secretsmanager_secret" "app_secret" {
 }
 
 resource "aws_secretsmanager_secret_version" "app_secret" {
-  secret_id = aws_secretsmanager_secret.app_secret.id
+  secret_id     = aws_secretsmanager_secret.app_secret.id
   secret_string = random_password.app_secret.result
 }
 
@@ -196,7 +203,7 @@ resource "aws_secretsmanager_secret" "jwt_secret_key" {
 }
 
 resource "aws_secretsmanager_secret_version" "jwt_secret_key" {
-  secret_id = aws_secretsmanager_secret.jwt_secret_key.id
+  secret_id     = aws_secretsmanager_secret.jwt_secret_key.id
   secret_string = random_password.jwt_secret_key.result
 }
 
@@ -283,17 +290,24 @@ resource "aws_apprunner_service" "app" {
 
   source_configuration {
     auto_deployments_enabled = false
+
     authentication_configuration {
       access_role_arn = aws_iam_role.apprunner_access.arn
     }
+
     image_repository {
       image_repository_type = "ECR"
       image_identifier      = local.pr_release_ref
+
       image_configuration {
-        port = local.pr_app_port
+        port          = local.pr_app_port
+        start_command = local.pr_start_command
+
         runtime_environment_variables = {
           APP_ENV = "prod"
+          APP_RUN_COMMAND = "php-fpm -F"
         }
+
         runtime_environment_secrets = {
           DATABASE_URL   = aws_secretsmanager_secret.database_url.arn
           APP_SECRET     = aws_secretsmanager_secret.app_secret.arn
