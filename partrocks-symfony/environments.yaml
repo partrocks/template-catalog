@@ -80,11 +80,6 @@ environments:
                 appRunnerMemory: 4096
                 appRunnerMinSize: 2
                 appRunnerMaxSize: 8
-        digitalocean:
-          capabilities:
-          constraints:
-          outputs:
-          presets:
 
   uat:
     id: uat
@@ -94,6 +89,13 @@ environments:
         aws:
           engine: opentofu
           source: _deploy/opentofu-aws.tf
+        digitalocean:
+          engine: opentofu
+          source: _deploy/opentofu-do.tf
+          capabilities:
+          constraints:
+          outputs:
+          presets:
 
   prod:
     id: prod
@@ -103,6 +105,3 @@ environments:
         aws:
           engine: opentofu
           source: _deploy/opentofu-aws.tf
-        digitalocean:
-          engine: opentofu
-          source: _deploy/opentofu-do.tf
