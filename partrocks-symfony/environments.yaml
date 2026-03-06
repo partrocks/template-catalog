@@ -45,6 +45,14 @@ environments:
     deploy:
       targets:
         aws:
+          preflights:
+            artifacts:
+              type: container_image
+              containerImage:
+                dockerfile: _deploy/Dockerfile.cloud
+                context: .
+                repositoryName: partrocks/{{projectName}}
+                tagStrategy: releaseTag
           capabilities:
             - appRuntime
             - postgres
@@ -92,10 +100,10 @@ environments:
         digitalocean:
           engine: opentofu
           source: _deploy/opentofu-do.tf
-          capabilities:
-          constraints:
-          outputs:
-          presets:
+          capabilities: []
+          constraints: {}
+          outputs: []
+          presets: []
 
   prod:
     id: prod
