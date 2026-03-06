@@ -13,6 +13,24 @@ terraform {
   }
 }
 
+variable "aws_region" {
+  description = "AWS region for resources"
+  type        = string
+}
+
+provider "aws" {
+  region = var.aws_region
+  default_tags {
+    tags = {
+      Application = local.app_scope
+      ManagedBy   = "partrocks"
+      Environment = local.pr_environment_id
+      Provider    = local.pr_provider_id
+      Partrocks   = "true"
+    }
+  }
+}
+
 locals {
   pr_environment_id = "{{ environment.id }}"
   pr_provider_id    = "{{ provider.id }}"
