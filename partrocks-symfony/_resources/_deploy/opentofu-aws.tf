@@ -324,7 +324,7 @@ resource "aws_apprunner_vpc_connector" "app" {
 }
 
 resource "aws_apprunner_auto_scaling_configuration_version" "app" {
-  auto_scaling_configuration_name = "${local.app_scope_short}-autoscaling"
+  auto_scaling_configuration_name = substr("${local.app_scope_short}-asg", 0, 32)
   min_size                        = tonumber(local.pr_apprunner_min_size)
   max_size                        = tonumber(local.pr_apprunner_max_size)
 }
