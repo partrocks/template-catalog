@@ -34,4 +34,5 @@ RUN chmod +x /opt/partrocks/hooks/*
 COPY . .
 
 EXPOSE 9000
-CMD ["php-fpm"]
+
+# Container is started by environments.yaml (deploy.targets.[PROVIDER].constraints.appRunnerStartCommand)
