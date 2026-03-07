@@ -44,13 +44,35 @@ locals {
   pr_apprunner_max_size   = "{{ constraints.appRunnerMaxSize }}"
   pr_start_command        = "{{ constraints.appRunnerStartCommand }}"
 
-  safe_environment_id = replace(
-    replace(
-      replace(replace(replace(lower(local.pr_environment_id), "{", ""), "}", ""), " ", ""),
-      ".",
+  safe_environment_id = trimsuffix(
+    trimprefix(
+      replace(
+        replace(
+          replace(
+            replace(
+              replace(
+                replace(
+                  replace(lower(local.pr_environment_id), "{", ""),
+                  "}",
+                  ""
+                ),
+                " ",
+                "-"
+              ),
+              ".",
+              "-"
+            ),
+            "_",
+            "-"
+          ),
+          ":",
+          "-"
+        ),
+        "/",
+        "-"
+      ),
       "-"
     ),
-    "_",
     "-"
   )
 
@@ -60,15 +82,38 @@ locals {
     length(split("/", local.pr_release_ref)) - 1
   ) : "app"
 
-  release_repo_name = split("@", local.release_ref_tail)[0]
+  # release_ref_tail can be repo:tag or repo@sha256:... — keep repo only.
+  release_repo_name = split(":", split("@", local.release_ref_tail)[0])[0]
 
-  safe_release_repo_name = replace(
-    replace(
-      replace(replace(replace(lower(local.release_repo_name), "{", ""), "}", ""), " ", ""),
-      ".",
+  safe_release_repo_name = trimsuffix(
+    trimprefix(
+      replace(
+        replace(
+          replace(
+            replace(
+              replace(
+                replace(
+                  replace(lower(local.release_repo_name), "{", ""),
+                  "}",
+                  ""
+                ),
+                " ",
+                "-"
+              ),
+              ".",
+              "-"
+            ),
+            "_",
+            "-"
+          ),
+          ":",
+          "-"
+        ),
+        "/",
+        "-"
+      ),
       "-"
     ),
-    "_",
     "-"
   )
 

@@ -75,7 +75,147 @@ environments:
               containerImage:
                 dockerfile: _docker/Dockerfile.cloud
                 context: .
+                repositoryName: partrocks/{{projectName}}environments:
+  local:
+    id: local
+    runtime: docker
+    docker:
+      composeFile: _docker/docker-compose.yml
+      url:
+        scheme: http
+        domain: localhost
+        port: "{{localPort}}"
+      commands:
+        - clear-cache:
+          run:
+            - label: Clear cache
+            - command: "php bin/console cache:clear --no-interaction"
+        - migrate-database:
+          run:
+            - label: Migrate database
+            - command: "php bin/console doctrine:migrations:migrate --no-interaction"
+        - load-fixtures:
+          run:
+            - label: Load fixtures
+            - command: "php bin/console doctrine:fixtures:load --no-interaction"
+    vars:
+      DATABASE_URL:
+        required: true
+        secret: true
+      APP_MODE:
+        required: true
+        default: dev
+
+  base-cloud:
+    id: base-cloud
+    abstract: true
+    runtime: cloud
+    vars:
+      DATABASE_URL:
+        required: true
+        secret: true
+      APP_MODE:
+        required: true
+        default: prod
+
+    lifecycle:
+      hooks:
+        release:
+          runPolicy: once_per_release_per_env
+          onFailure: abort_deploy
+          timeoutSeconds: 900
+          steps:
+            - id: db-create-if-missing
+              run: "php bin/console doctrine:database:create --if-not-exists --no-interaction || true"
+            - id: db-migrate
+              run: "php bin/console doctrine:migrations:migrate --no-interaction || true"
+
+        startup:
+          runPolicy: per_instance_start
+          onFailure: restart_instance
+          timeoutSeconds: 180
+          steps:
+            # Keep this script in template resources and make it idempotent.
+            # It can materialize JWT keys from env secrets if provided,
+            # otherwise fallback to generate-keypair for non-prod/testing.
+            - id: runtime-bootstrap
+              run: "sh _deploy/hooks/runtime-bootstrap.sh"
+            - id: cache-warmup
+              run: "php bin/console cache:warmup --no-interaction || true"
+
+    deploy:
+      targets:
+        aws:
+          preflights:
+            artifacts:
+              type: container_image
+              containerImage:
+                dockerfile: _docker/Dockerfile.cloud
+                context: .
                 repositoryName: partrocks/{{projectName}}
+                tagStrategy: releaseTag
+          capabilities:
+            - appRuntime
+            - postgres
+            - envConfig
+          constraints:
+            appPort: 8080
+            appHealthPath: /
+            appRunnerStartCommand: "php -S 0.0.0.0:8080 -t public"
+          outputs:
+            - key: APP_BASE_URL
+              value: "{{ APP_BASE_URL }}"
+            - key: DATABASE_URL
+              value: "{{ DATABASE_URL }}"
+            - key: APP_SECRET
+              value: "{{ APP_SECRET }}"
+            - key: JWT_SECRET_KEY
+              value: "{{ JWT_SECRET_KEY }}"
+            - key: APP_ENV
+              value: "{{ APP_ENV }}"
+          presets:
+            - id: cheap-and-cheerful
+              label: Cheap and cheerful
+              description: Lowest baseline cost with conservative autoscaling.
+              constraints:
+                appRunnerCpu: 1024
+                appRunnerMemory: 2048
+                appRunnerMinSize: 1
+                appRunnerMaxSize: 1
+            - id: maximum-effort-at-a-price
+              label: Maximum effort at a price
+              description: Higher resource profile and wider autoscaling envelope.
+              constraints:
+                appRunnerCpu: 2048
+                appRunnerMemory: 4096
+                appRunnerMinSize: 2
+                appRunnerMaxSize: 8
+
+  uat:
+    id: uat
+    extends: base-cloud
+    deploy:
+      targets:
+        aws:
+          engine: opentofu
+          source: _deploy/opentofu-aws.tf
+        digitalocean:
+          engine: opentofu
+          source: _deploy/opentofu-do.tf
+          capabilities: []
+          constraints: {}
+          outputs: []
+          presets: []
+
+  prod:
+    id: prod
+    extends: base-cloud
+    deploy:
+      targets:
+        aws:
+          engine: opentofu
+          source: _deploy/opentofu-aws.tf
+
                 tagStrategy: releaseTag
           capabilities:
             - appRuntime
