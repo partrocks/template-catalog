@@ -350,7 +350,7 @@ resource "aws_apprunner_service" "app" {
 
         runtime_environment_variables = {
           APP_ENV = "prod"
-          APP_RUN_COMMAND = "php-fpm -F"
+          APP_RUN_COMMAND = "php -S 0.0.0.0:${local.pr_app_port} -t public"
         }
 
         runtime_environment_secrets = {
