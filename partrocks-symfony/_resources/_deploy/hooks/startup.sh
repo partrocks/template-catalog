@@ -23,19 +23,5 @@ done
 
 APP_RUN_COMMAND="${APP_RUN_COMMAND:-php -S 0.0.0.0:9000 -t public}"
 
-
-### DEBUGGING
-log_env_meta() {
-  name="$1"
-  eval val="\${$name:-}"
-  echo "[startup][debug] ${name}=${val}"
-}
-echo "[startup][debug] APP_ENV=${APP_ENV:-<unset>}"
-log_env_meta "APP_DEBUG"
-log_env_meta "DATABASE_URL"
-log_env_meta "APP_SECRET"
-log_env_meta "JWT_SECRET_KEY"
-### DEBUGGING
-
 echo "[startup] starting app process"
 exec sh -c "$APP_RUN_COMMAND"
