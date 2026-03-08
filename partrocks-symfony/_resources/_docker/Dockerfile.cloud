@@ -28,10 +28,10 @@ RUN composer install \
   --optimize-autoloader \
   --no-scripts
 
-COPY _deploy/hooks /opt/partrocks/hooks
+COPY app/ /app
+COPY _partrocks/_deploy/hooks /opt/partrocks/hooks
 RUN chmod +x /opt/partrocks/hooks/*
 
-COPY . .
 
 EXPOSE 9000
 
