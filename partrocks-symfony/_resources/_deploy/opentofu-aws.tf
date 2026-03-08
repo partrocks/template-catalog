@@ -382,7 +382,10 @@ resource "aws_apprunner_service" "app" {
 
   depends_on = [
     aws_iam_role_policy_attachment.apprunner_access_ecr,
-    aws_iam_role_policy.apprunner_secrets
+    aws_iam_role_policy.apprunner_secrets,
+    aws_secretsmanager_secret_version.database_url,
+    aws_secretsmanager_secret_version.app_secret,
+    aws_secretsmanager_secret_version.jwt_secret_key
   ]
 }
 
