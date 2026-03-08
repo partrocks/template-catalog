@@ -117,13 +117,18 @@ locals {
     "-"
   )
 
+  # Stable per app+environment; never changes between releases.
+  scope_seed = "${local.safe_release_repo_name}-${local.safe_environment_id}"
   app_scope_hash = substr(
-    sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.safe_environment_id),
+    sha1(local.scope_seed),
     0,
     8
   )
-
-  app_scope         = substr("${local.safe_release_repo_name}-${local.safe_environment_id}-${local.app_scope_hash}", 0, 45)
+  app_scope = substr(
+    "${local.safe_release_repo_name}-${local.safe_environment_id}-${local.app_scope_hash}",
+    0,
+    45
+  )
   app_scope_short   = substr(local.app_scope, 0, 25)
   app_service_name  = substr("partrocks-${local.app_scope}", 0, 40)
   database_name     = "appdb"
