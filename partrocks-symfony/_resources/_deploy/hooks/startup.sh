@@ -21,7 +21,7 @@ done
 # to call a script
 # sh /opt/partrocks/hooks/script_from_hooks.sh
 
-APP_RUN_COMMAND="${APP_RUN_COMMAND:-php-fpm -F}"
+APP_RUN_COMMAND="${APP_RUN_COMMAND:-php -S 0.0.0.0:9000 -t public}"
 
 echo "[startup] starting app process"
 exec sh -c "$APP_RUN_COMMAND"
