@@ -8,6 +8,7 @@ steps:
     label: Installing dependencies
     run:
       - command: composer install
+      - command: php bin/console importmap:install --env=prod --no-interaction
 
   - step: install-lexik-dependencies
     label: Installing lexik/jwt-authentication-bundle

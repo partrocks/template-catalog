@@ -31,7 +31,7 @@ log_env_meta() {
   echo "[startup][debug] ${name}=${val}"
 }
 echo "[startup][debug] APP_ENV=${APP_ENV:-<unset>}"
-log_env_meta "APP_MODE"
+log_env_meta "APP_DEBUG"
 log_env_meta "DATABASE_URL"
 log_env_meta "APP_SECRET"
 log_env_meta "JWT_SECRET_KEY"
