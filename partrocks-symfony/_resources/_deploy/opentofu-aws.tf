@@ -180,9 +180,8 @@ resource "aws_db_subnet_group" "postgres" {
 }
 
 resource "random_password" "database_password" {
-  length           = 32
-  special          = true
-  override_special = "!#&*+-.:=?@^_" # excludes URL-breaking chars like % ? / [ ]
+  length  = 32
+  special = false
 }
 
 resource "aws_db_instance" "postgres" {
@@ -206,7 +205,7 @@ resource "aws_db_instance" "postgres" {
 }
 
 locals {
-  database_url = "postgresql://${local.database_username}:${urlencode(random_password.database_password.result)}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/${local.database_name}?serverVersion=16&charset=utf8"
+  database_url = "postgresql://${local.database_username}:${random_password.database_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/${local.database_name}?serverVersion=16&charset=utf8"
 }
 
 resource "aws_secretsmanager_secret" "database_url" {
