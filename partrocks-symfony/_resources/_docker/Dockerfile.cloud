@@ -27,13 +27,12 @@ RUN composer install \
   --no-dev \
   --optimize-autoloader \
   --no-scripts
-  
-RUN php bin/console importmap:install --env=prod --no-interaction
 
 COPY app/ /app
 COPY _partrocks/_deploy/hooks /opt/partrocks/hooks
 RUN chmod +x /opt/partrocks/hooks/*
 
+RUN php bin/console importmap:install --env=prod --no-interaction
 
 EXPOSE 9000
 
