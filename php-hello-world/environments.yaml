@@ -1,0 +1,69 @@
+schemaVersion: 1
+environments:
+  local:
+    id: local
+    runtime: docker
+    docker:
+      composeFile: _docker/docker-compose.yml
+      service: app
+      url:
+        scheme: http
+        domain: localhost
+        port: "{{app_port}}"
+      commands:
+        php-version:
+          label: Show PHP version
+          command: php -v
+    vars:
+      APP_ENV:
+        required: true
+        default: local
+
+  base-cloud:
+    id: base-cloud
+    abstract: true
+    runtime: cloud
+    vars:
+      APP_ENV:
+        required: true
+        default: prod
+    deploy:
+      targets:
+        aws:
+          capabilities:
+            - appRuntime
+            - envConfig
+          constraints:
+            appPort: 80
+            appHealthPath: /
+          outputs:
+            - key: APP_BASE_URL
+              value: "{{ APP_BASE_URL }}"
+            - key: APP_ENV
+              value: "{{ APP_ENV }}"
+          presets:
+            - id: small
+              label: Small
+              description: Minimal baseline for a hello-world service.
+              constraints:
+                appRunnerCpu: 1024
+                appRunnerMemory: 2048
+                appRunnerMinSize: 1
+                appRunnerMaxSize: 1
+          preflights:
+            artifacts:
+              type: container_image
+              containerImage:
+                dockerfile: _deploy/Dockerfile
+                context: .
+                repositoryName: partrocks/{{projectName}}
+                tagStrategy: releaseTag
+
+  prod:
+    id: prod
+    extends: base-cloud
+    deploy:
+      targets:
+        aws:
+          engine: opentofu
+          source: _deploy/opentofu-aws.tf

@@ -1,0 +1,9 @@
+services:
+  app:
+    image: php:8.3-apache
+    container_name: app
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "{{app_port}}:80"
