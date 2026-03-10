@@ -1,9 +1,4 @@
 steps:
-  - step: create-project
-    label: Creating project
-    run:
-      - command: "mkdir -p {{projectName}}"
-
   - step: create-readme
     label: Creating README.md
     copy:
