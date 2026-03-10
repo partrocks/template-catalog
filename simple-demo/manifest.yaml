@@ -4,6 +4,6 @@ manifest:
   description: A basic template for fast demoing PartRocks features.
   tags:
   - simple
-  version: 1.0.2
+  version: 1.0.3
   author: PartRocks
   license: MIT

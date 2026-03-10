@@ -24,6 +24,6 @@ templates:
 - id: simple-demo
   name: Simple Demo
   description: A basic template for fast demoing PartRocks features.
-  version: 1.0.2
+  version: 1.0.3
   tags:
   - simple
