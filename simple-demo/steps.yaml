@@ -3,4 +3,4 @@ steps:
     label: Creating README.md
     copy:
       from: README.md
-      to: "{{projectName}}/README.md"
+      to: "README.md"
