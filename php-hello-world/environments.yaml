@@ -41,6 +41,12 @@ environments:
               value: "{{ APP_BASE_URL }}"
             - key: APP_ENV
               value: "{{ APP_ENV }}"
+            - key: public_url
+              value: "{{ FRONT_DOOR_URL }}"
+            - key: dns_name
+              value: "{{ FRONT_DOOR_DNS_NAME }}"
+            - key: canonical_hosted_zone_id
+              value: "{{ FRONT_DOOR_HOSTED_ZONE_ID }}"
           presets:
             - id: small
               label: Small

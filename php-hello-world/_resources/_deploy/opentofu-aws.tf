@@ -138,6 +138,56 @@ resource "aws_apprunner_service" "app" {
   ]
 }
 
+resource "aws_cloudfront_distribution" "app_frontdoor" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "PartRocks App Runner front door"
+  default_root_object = ""
+  price_class         = "PriceClass_100"
+
+  origin {
+    domain_name = aws_apprunner_service.app.service_url
+    origin_id   = "apprunner-${local.app_scope_hash}"
+
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+
+  default_cache_behavior {
+    target_origin_id       = "apprunner-${local.app_scope_hash}"
+    viewer_protocol_policy = "redirect-to-https"
+    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"]
+    cached_methods         = ["GET", "HEAD", "OPTIONS"]
+    compress               = true
+
+    forwarded_values {
+      query_string = true
+      headers      = ["*"]
+      cookies {
+        forward = "all"
+      }
+    }
+
+    min_ttl     = 0
+    default_ttl = 0
+    max_ttl     = 0
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+}
+
 output "APP_BASE_URL" {
   description = "Application base URL."
   value       = "https://${aws_apprunner_service.app.service_url}"
@@ -145,4 +195,19 @@ output "APP_BASE_URL" {
 
 output "APP_ENV" {
   value = "prod"
+}
+
+output "FRONT_DOOR_URL" {
+  description = "CloudFront URL intended for domain routing."
+  value       = "https://${aws_cloudfront_distribution.app_frontdoor.domain_name}"
+}
+
+output "FRONT_DOOR_DNS_NAME" {
+  description = "Alias-compatible DNS target for Route53."
+  value       = aws_cloudfront_distribution.app_frontdoor.domain_name
+}
+
+output "FRONT_DOOR_HOSTED_ZONE_ID" {
+  description = "Route53 hosted zone id for the CloudFront target."
+  value       = aws_cloudfront_distribution.app_frontdoor.hosted_zone_id
 }
