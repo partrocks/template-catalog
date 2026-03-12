@@ -50,6 +50,14 @@ environments:
                 appRunnerMemory: 2048
                 appRunnerMinSize: 1
                 appRunnerMaxSize: 1
+            - id: large
+              label: Large
+              description: Maximum baseline for a hello-world service.
+              constraints:
+                appRunnerCpu: 2048
+                appRunnerMemory: 4096
+                appRunnerMinSize: 2
+                appRunnerMaxSize: 8
           preflights:
             artifacts:
               type: container_image
@@ -61,6 +69,15 @@ environments:
 
   prod:
     id: prod
+    extends: base-cloud
+    deploy:
+      targets:
+        aws:
+          engine: opentofu
+          source: _deploy/opentofu-aws.tf
+
+  uat:
+    id: uat
     extends: base-cloud
     deploy:
       targets:
