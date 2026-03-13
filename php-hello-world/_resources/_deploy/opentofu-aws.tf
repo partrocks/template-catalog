@@ -166,7 +166,9 @@ resource "aws_cloudfront_distribution" "app_frontdoor" {
 
     forwarded_values {
       query_string = true
-      headers      = ["*"]
+      # Do not forward viewer Host header to App Runner.
+      # Forwarding Host causes App Runner/envoy to return 404 for custom domains.
+      headers      = []
       cookies {
         forward = "all"
       }
