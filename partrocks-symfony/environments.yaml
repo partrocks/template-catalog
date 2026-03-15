@@ -88,6 +88,12 @@ environments:
           outputs:
             - key: APP_BASE_URL
               value: "{{ APP_BASE_URL }}"
+            - key: public_url
+              value: "{{ FRONT_DOOR_URL }}"
+            - key: dns_name
+              value: "{{ FRONT_DOOR_DNS_NAME }}"
+            - key: canonical_hosted_zone_id
+              value: "{{ FRONT_DOOR_HOSTED_ZONE_ID }}"
             - key: DATABASE_URL
               value: "{{ DATABASE_URL }}"
             - key: APP_SECRET
