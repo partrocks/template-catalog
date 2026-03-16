@@ -131,6 +131,17 @@ locals {
   )
   app_scope_short   = substr(local.app_scope, 0, 25)
   app_service_name  = substr("partrocks-${local.app_scope}", 0, 40)
+  app_shared_seed = local.safe_release_repo_name
+  app_shared_hash = substr(
+    sha1(local.app_shared_seed),
+    0,
+    8
+  )
+  app_shared_scope = substr(
+    "${local.safe_release_repo_name}-${local.app_shared_hash}",
+    0,
+    45
+  )
   database_name     = "appdb"
   database_username = "appuser"
 }
@@ -402,6 +413,9 @@ resource "aws_cloudfront_distribution" "app_frontdoor" {
   comment             = "PartRocks App Runner front door"
   default_root_object = ""
   price_class         = "PriceClass_100"
+  tags = {
+    PartrocksSharedFrontDoorKey = local.app_shared_scope
+  }
 
   origin {
     domain_name = aws_apprunner_service.app.service_url
@@ -484,5 +498,20 @@ output "FRONT_DOOR_DNS_NAME" {
 
 output "FRONT_DOOR_HOSTED_ZONE_ID" {
   description = "Route53 hosted zone id for the CloudFront target."
+  value       = aws_cloudfront_distribution.app_frontdoor.hosted_zone_id
+}
+
+output "APP_SHARED_FRONT_DOOR_KEY" {
+  description = "App-scoped shared front-door identity key."
+  value       = local.app_shared_scope
+}
+
+output "APP_SHARED_FRONT_DOOR_DNS_NAME" {
+  description = "App-scoped shared front-door DNS target."
+  value       = aws_cloudfront_distribution.app_frontdoor.domain_name
+}
+
+output "APP_SHARED_FRONT_DOOR_HOSTED_ZONE_ID" {
+  description = "App-scoped shared front-door hosted zone id."
   value       = aws_cloudfront_distribution.app_frontdoor.hosted_zone_id
 }
