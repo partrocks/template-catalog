@@ -1,7 +1,7 @@
 templates:
 - id: php-hello-world
   name: PHP Hello World
-  description: Minimal PHP hello-world template with local Docker and AWS prod deployment.
+  description: Minimal PHP template with local Docker and AWS prod deployment.
   version: 1.0.3
   tags:
   - php
