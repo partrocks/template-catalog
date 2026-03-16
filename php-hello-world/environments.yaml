@@ -72,6 +72,8 @@ environments:
                 context: .
                 repositoryName: partrocks/{{projectName}}
                 tagStrategy: releaseTag
+          teardown:
+            policy: cleanup
 
   prod:
     id: prod
