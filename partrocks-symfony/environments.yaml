@@ -77,6 +77,8 @@ environments:
                 context: .
                 repositoryName: partrocks/{{projectName}}
                 tagStrategy: releaseTag
+          teardown:
+            policy: cleanup
           capabilities:
             - appRuntime
             - postgres
