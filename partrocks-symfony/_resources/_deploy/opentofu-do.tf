@@ -14,44 +14,23 @@ terraform {
 }
 
 locals {
-  pr_environment_id    = "{{ environment.id }}"
-  pr_provider_id       = "{{ provider.id }}"
-  pr_release_tag       = "{{ release.tag }}"
-  pr_release_ref       = "{{ release.imageRef }}"
-  pr_app_port          = "{{ constraints.appPort }}"
-  pr_app_health_path   = "{{ constraints.appHealthPath }}"
-  pr_do_region         = "{{ constraints.doRegion }}"
-  pr_do_instance_size  = "{{ constraints.doInstanceSize }}"
-  pr_do_instance_count = "{{ constraints.doInstanceCount }}"
-  safe_environment_id = replace(
-    replace(
-      replace(replace(replace(lower(local.pr_environment_id), "{", ""), "}", ""), " ", ""),
-      ".",
-      "-"
-    ),
-    "_",
-    "-"
-  )
-  release_ref_tail = trimspace(local.pr_release_ref) != "" ? element(
-    split("/", local.pr_release_ref),
-    length(split("/", local.pr_release_ref)) - 1
-  ) : "app"
-  release_repo_name = split("@", local.release_ref_tail)[0]
-  safe_release_repo_name = replace(
-    replace(
-      replace(replace(replace(lower(local.release_repo_name), "{", ""), "}", ""), " ", ""),
-      ".",
-      "-"
-    ),
-    "_",
-    "-"
-  )
+  pr_environment_id      = "{{ environment.id }}"
+  pr_safe_environment_id = "{{ environment.safeId }}"
+  pr_provider_id         = "{{ provider.id }}"
+  pr_release_tag         = "{{ release.tag }}"
+  pr_release_ref         = "{{ release.imageRef }}"
+  pr_safe_release_repo_name = "{{ release.safeImageName }}"
+  pr_app_port            = "{{ constraints.appPort }}"
+  pr_app_health_path     = "{{ constraints.appHealthPath }}"
+  pr_do_region           = "{{ constraints.doRegion }}"
+  pr_do_instance_size    = "{{ constraints.doInstanceSize }}"
+  pr_do_instance_count   = "{{ constraints.doInstanceCount }}"
   app_scope_hash = substr(
-    sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.safe_environment_id),
+    sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.pr_safe_environment_id),
     0,
     8
   )
-  app_scope        = substr("${local.safe_release_repo_name}-${local.safe_environment_id}-${local.app_scope_hash}", 0, 45)
+  app_scope        = substr("${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}-${local.app_scope_hash}", 0, 45)
   app_scope_short  = substr(local.app_scope, 0, 25)
   app_service_name = substr("partrocks-${local.app_scope}", 0, 40)
   database_name    = "appdb"

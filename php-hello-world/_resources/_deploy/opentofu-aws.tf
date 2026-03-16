@@ -28,51 +28,26 @@ provider "aws" {
 }
 
 locals {
-  pr_environment_id     = "{{ environment.id }}"
-  pr_provider_id        = "{{ provider.id }}"
-  pr_release_ref        = "{{ release.imageRef }}"
-  pr_app_port           = "{{ constraints.appPort }}"
-  pr_app_health_path    = "{{ constraints.appHealthPath }}"
-  pr_apprunner_cpu      = "{{ constraints.appRunnerCpu }}"
-  pr_apprunner_memory   = "{{ constraints.appRunnerMemory }}"
-  pr_apprunner_min_size = "{{ constraints.appRunnerMinSize }}"
-  pr_apprunner_max_size = "{{ constraints.appRunnerMaxSize }}"
+  pr_environment_id       = "{{ environment.id }}"
+  pr_safe_environment_id  = "{{ environment.safeId }}"
+  pr_provider_id          = "{{ provider.id }}"
+  pr_release_ref          = "{{ release.imageRef }}"
+  pr_safe_release_name    = "{{ release.safeImageName }}"
+  pr_app_port             = "{{ constraints.appPort }}"
+  pr_app_health_path      = "{{ constraints.appHealthPath }}"
+  pr_apprunner_cpu        = "{{ constraints.appRunnerCpu }}"
+  pr_apprunner_memory     = "{{ constraints.appRunnerMemory }}"
+  pr_apprunner_min_size   = "{{ constraints.appRunnerMinSize }}"
+  pr_apprunner_max_size   = "{{ constraints.appRunnerMaxSize }}"
 
-  safe_environment_id = trimsuffix(
-    trimprefix(
-      replace(
-        replace(
-          replace(
-            replace(
-              replace(lower(local.pr_environment_id), " ", "-"),
-              ".",
-              "-"
-            ),
-            "_",
-            "-"
-          ),
-          ":",
-          "-"
-        ),
-        "/",
-        "-"
-      ),
-      "-"
-    ),
-    "-"
-  )
-
-  release_ref_tail   = trimspace(local.pr_release_ref) != "" ? element(split("/", local.pr_release_ref), length(split("/", local.pr_release_ref)) - 1) : "app"
-  release_repo_name  = split(":", split("@", local.release_ref_tail)[0])[0]
-  safe_release_name  = trimsuffix(trimprefix(replace(replace(replace(replace(replace(lower(local.release_repo_name), " ", "-"), ".", "-"), "_", "-"), ":", "-"), "/", "-"), "-"), "-")
-  scope_seed         = "${local.safe_release_name}-${local.safe_environment_id}"
+  scope_seed         = "${local.pr_safe_release_name}-${local.pr_safe_environment_id}"
   app_scope_hash     = substr(sha1(local.scope_seed), 0, 8)
-  app_scope          = substr("${local.safe_release_name}-${local.safe_environment_id}-${local.app_scope_hash}", 0, 45)
+  app_scope          = substr("${local.pr_safe_release_name}-${local.pr_safe_environment_id}-${local.app_scope_hash}", 0, 45)
   app_scope_short    = substr(local.app_scope, 0, 25)
   app_service_name   = substr("partrocks-${local.app_scope}", 0, 40)
-  app_shared_seed    = local.safe_release_name
+  app_shared_seed    = local.pr_safe_release_name
   app_shared_hash    = substr(sha1(local.app_shared_seed), 0, 8)
-  app_shared_scope   = substr("${local.safe_release_name}-${local.app_shared_hash}", 0, 45)
+  app_shared_scope   = substr("${local.pr_safe_release_name}-${local.app_shared_hash}", 0, 45)
 }
 
 resource "aws_iam_role" "apprunner_access" {

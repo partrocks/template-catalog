@@ -1,0 +1,37 @@
+schemaVersion: 1
+environments:
+  base-cloud:
+    id: base-cloud
+    abstract: true
+    runtime: cloud
+    deploy:
+      targets:
+        aws:
+          capabilities:
+            - envConfig
+          constraints: {}
+          outputs:
+            - key: public_url
+              value: "{{ SITE_URL }}"
+            - key: dns_name
+              value: "{{ SITE_DNS_NAME }}"
+          presets:
+            - id: cheapest
+              label: Static S3 Website
+              description: Single S3 static website bucket with AWS S3 hosting.
+          preflights:
+            artifacts:
+              type: archive
+              archive:
+                path: .
+          teardown:
+            policy: cleanup
+
+  prod:
+    id: prod
+    extends: base-cloud
+    deploy:
+      targets:
+        aws:
+          engine: opentofu
+          source: _deploy/opentofu-aws.tf
