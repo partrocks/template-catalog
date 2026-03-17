@@ -53,7 +53,8 @@ locals {
 }
 
 resource "aws_s3_bucket" "site" {
-  bucket = local.website_bucket_name
+  bucket        = local.website_bucket_name
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "site" {
