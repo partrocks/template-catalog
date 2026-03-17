@@ -4,7 +4,7 @@ preset:
   label: Maximum effort at a price
   description: Higher resource profile and wider autoscaling envelope.
   engine: opentofu
-  source: ../cheap-and-cheerful/opentofu.tf
+  source: opentofu.tf
   capabilities:
     - appRuntime
     - postgres

@@ -46,7 +46,6 @@ locals {
   pr_apprunner_max_size    = "{{ constraints.appRunnerMaxSize }}"
   pr_start_command         = "{{ constraints.appRunnerStartCommand }}"
 
-  # Stable per app+environment; never changes between releases.
   scope_seed = "${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}"
   app_scope_hash = substr(
     sha1(local.scope_seed),
@@ -167,7 +166,7 @@ resource "aws_secretsmanager_secret_version" "database_url" {
 resource "random_password" "app_secret" {
   length           = 32
   special          = true
-  override_special = "!#&*+-.:=?@^_" # intentionally excludes %
+  override_special = "!#&*+-.:=?@^_"
 }
 
 resource "aws_secretsmanager_secret" "app_secret" {
@@ -184,7 +183,7 @@ resource "aws_secretsmanager_secret_version" "app_secret" {
 resource "random_password" "jwt_secret_key" {
   length           = 48
   special          = true
-  override_special = "!#&*+-.:=?@^_" # intentionally excludes %
+  override_special = "!#&*+-.:=?@^_"
 }
 
 resource "aws_secretsmanager_secret" "jwt_secret_key" {
@@ -367,8 +366,6 @@ resource "aws_cloudfront_distribution" "app_frontdoor" {
 
     forwarded_values {
       query_string = true
-      # Do not forward viewer Host header to App Runner.
-      # Forwarding Host causes App Runner/envoy to return 404 for custom domains.
       headers      = []
       cookies {
         forward = "all"
@@ -427,20 +424,5 @@ output "FRONT_DOOR_DNS_NAME" {
 
 output "FRONT_DOOR_HOSTED_ZONE_ID" {
   description = "Route53 hosted zone id for the CloudFront target."
-  value       = aws_cloudfront_distribution.app_frontdoor.hosted_zone_id
-}
-
-output "APP_SHARED_FRONT_DOOR_KEY" {
-  description = "App-scoped shared front-door identity key."
-  value       = local.app_shared_scope
-}
-
-output "APP_SHARED_FRONT_DOOR_DNS_NAME" {
-  description = "App-scoped shared front-door DNS target."
-  value       = aws_cloudfront_distribution.app_frontdoor.domain_name
-}
-
-output "APP_SHARED_FRONT_DOOR_HOSTED_ZONE_ID" {
-  description = "App-scoped shared front-door hosted zone id."
   value       = aws_cloudfront_distribution.app_frontdoor.hosted_zone_id
 }
