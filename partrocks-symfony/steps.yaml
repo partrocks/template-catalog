@@ -26,7 +26,9 @@ steps:
   - step: install-fixtures-dependencies
     label: Installing fixtures dependencies
     run:
-      - command: composer require hautelook/alice-bundle --dev --no-interaction
+      - command: composer require hautelook/alice-bundle:^2.16 --dev --with-all-dependencies --no-interaction
+    when:
+      - authType !== 'none'
 
   - step: generate-jwt-keys
     label: Generating JWT keys
