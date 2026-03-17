@@ -3,6 +3,8 @@ name: Catalog CI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   validate:
@@ -25,6 +27,7 @@ jobs:
 
   update:
     needs: validate
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write  # for committing back

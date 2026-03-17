@@ -91,6 +91,7 @@ resource "random_password" "jwt_secret_key" {
 
 locals {
   database_url = "postgresql://${digitalocean_database_cluster.postgres.user}:${urlencode(digitalocean_database_cluster.postgres.password)}@${digitalocean_database_cluster.postgres.host}:${digitalocean_database_cluster.postgres.port}/${local.database_name}?sslmode=require&serverVersion=16&charset=utf8"
+  app_dns_name = split("/", trimprefix(digitalocean_app.app.live_url, "https://"))[0]
 }
 
 resource "digitalocean_app" "app" {
@@ -159,6 +160,11 @@ resource "digitalocean_database_firewall" "postgres" {
 output "APP_BASE_URL" {
   description = "Application base URL."
   value       = digitalocean_app.app.live_url
+}
+
+output "APP_DNS_NAME" {
+  description = "DNS hostname for the application URL."
+  value       = local.app_dns_name
 }
 
 output "DATABASE_URL" {

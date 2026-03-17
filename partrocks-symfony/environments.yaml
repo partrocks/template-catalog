@@ -135,7 +135,11 @@ environments:
           source: _deploy/opentofu-do.tf
           capabilities: []
           constraints: {}
-          outputs: []
+          outputs:
+            - key: public_url
+              value: "{{ APP_BASE_URL }}"
+            - key: dns_name
+              value: "{{ APP_DNS_NAME }}"
           presets: []
 
   prod:
