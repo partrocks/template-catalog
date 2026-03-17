@@ -56,8 +56,8 @@ environments:
           onFailure: restart_instance
           timeoutSeconds: 180
           steps:
-            - id: runtime-bootstrap
-              run: "sh _deploy/hooks/runtime-bootstrap.sh"
+            - id: instance-bootstrap
+              run: "sh _deploy/hooks/instance-bootstrap.sh"
             - id: cache-warmup
               run: "php bin/console cache:warmup --no-interaction || true"
     deploy:
@@ -92,8 +92,8 @@ environments:
           onFailure: restart_instance
           timeoutSeconds: 180
           steps:
-            - id: runtime-bootstrap
-              run: "sh _deploy/hooks/runtime-bootstrap.sh"
+            - id: instance-bootstrap
+              run: "sh _deploy/hooks/instance-bootstrap.sh"
             - id: cache-warmup
               run: "php bin/console cache:warmup --no-interaction || true"
     deploy:
