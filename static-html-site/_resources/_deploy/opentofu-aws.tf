@@ -51,45 +51,10 @@ locals {
 
   website_bucket_name = trimsuffix(trimprefix(local.website_bucket_name_raw, "-"), "-")
 
-  # Release snapshot files staged by preflight (inside deploy runner container).
-  release_site_files = can(fileset(local.pr_release_archive_path, "**"))
-    ? fileset(local.pr_release_archive_path, "**")
-    : []
-
-  content_type_map = {
-    html = "text/html; charset=utf-8"
-    css  = "text/css; charset=utf-8"
-    js   = "application/javascript; charset=utf-8"
-    mjs  = "application/javascript; charset=utf-8"
-    json = "application/json; charset=utf-8"
-    txt  = "text/plain; charset=utf-8"
-    svg  = "image/svg+xml"
-    png  = "image/png"
-    jpg  = "image/jpeg"
-    jpeg = "image/jpeg"
-    webp = "image/webp"
-    gif  = "image/gif"
-    ico  = "image/x-icon"
-  }
 }
 
 resource "aws_s3_bucket" "site" {
   bucket = local.website_bucket_name
-
-  lifecycle {
-    precondition {
-      condition = trimspace(local.pr_release_archive_path) != ""
-      error_message = "release.archivePath was not provided. Ensure deploy preflight artifacts.type is archive."
-    }
-    precondition {
-      condition = length(local.release_site_files) > 0
-      error_message = "No files were found in the staged release archive path. Ensure the selected release contains website files."
-    }
-    precondition {
-      condition = contains(local.release_site_files, "index.html")
-      error_message = "The selected release archive is missing index.html at the archive root."
-    }
-  }
 }
 
 resource "aws_s3_bucket_public_access_block" "site" {
@@ -131,18 +96,32 @@ resource "aws_s3_bucket_policy" "site_public_read" {
   depends_on = [aws_s3_bucket_public_access_block.site]
 }
 
-resource "aws_s3_object" "site_files" {
-  for_each = toset(local.release_site_files)
+resource "terraform_data" "sync_site_files" {
+  triggers_replace = {
+    release_tag  = local.pr_release_tag
+    archive_path = local.pr_release_archive_path
+    bucket_name  = aws_s3_bucket.site.id
+  }
 
-  bucket       = aws_s3_bucket.site.id
-  key          = each.value
-  source       = "${local.pr_release_archive_path}/${each.value}"
-  etag         = filemd5("${local.pr_release_archive_path}/${each.value}")
-  content_type = lookup(
-    local.content_type_map,
-    lower(element(reverse(split(".", each.value)), 0)),
-    "application/octet-stream"
-  )
+  lifecycle {
+    precondition {
+      condition     = trimspace(local.pr_release_archive_path) != ""
+      error_message = "release.archivePath was not provided. Ensure deploy preflight artifacts.type is archive."
+    }
+    precondition {
+      condition     = fileexists("${local.pr_release_archive_path}/index.html")
+      error_message = "index.html not found in staged release archive path."
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "aws s3 sync \"${local.pr_release_archive_path}\" \"s3://${aws_s3_bucket.site.id}\" --delete --region \"${var.aws_region}\""
+  }
+
+  depends_on = [
+    aws_s3_bucket_website_configuration.site,
+    aws_s3_bucket_policy.site_public_read
+  ]
 }
 
 output "SITE_URL" {

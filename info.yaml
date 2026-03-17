@@ -2,7 +2,7 @@ templates:
   - id: static-html-site
     name: Static HTML Site
     description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
-    version: 1.0.1
+    version: 1.0.2
     tags:
       - static
       - html
