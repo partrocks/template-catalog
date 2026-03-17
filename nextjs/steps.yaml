@@ -1,5 +1,0 @@
-steps:
-  - step: create-next-app
-    label: Installing Next.js application
-    run:
-      - command: npx create-next-app@latest . --yes

@@ -1,6 +1,0 @@
-steps:
-  - step: create-readme
-    label: Creating README.md
-    copy:
-      from: README.md
-      to: "README.md"

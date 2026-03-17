@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate catalog changes."""
+"""Validate catalog changes for preset-namespace schema v2."""
 import os
 import re
 import sys
@@ -9,7 +9,6 @@ from typing import Any
 
 
 def get_template_dirs(repo_root: Path) -> list[str]:
-    """Return template dir names (those containing manifest.yaml)."""
     return [
         d.name for d in repo_root.iterdir()
         if d.is_dir() and not d.name.startswith(".") and (d / "manifest.yaml").exists()
@@ -17,14 +16,8 @@ def get_template_dirs(repo_root: Path) -> list[str]:
 
 
 def get_changed_files() -> list[str]:
-    """Get files changed in the most recent commit (for push to main)."""
-    # HEAD~1 may not exist on first commit
-    rev = subprocess.run(
-        ["git", "rev-parse", "HEAD~1"],
-        capture_output=True,
-    )
+    rev = subprocess.run(["git", "rev-parse", "HEAD~1"], capture_output=True)
     if rev.returncode != 0:
-        # First commit: all files are "changed"
         result = subprocess.run(
             ["git", "ls-tree", "-r", "--name-only", "HEAD"],
             capture_output=True,
@@ -42,7 +35,6 @@ def get_changed_files() -> list[str]:
 
 
 def get_changed_template_dirs(changed_files: list[str], template_dirs: list[str]) -> set[str]:
-    """Return which template directories have changed files."""
     changed = set()
     for f in changed_files:
         parts = f.split("/")
@@ -51,102 +43,126 @@ def get_changed_template_dirs(changed_files: list[str], template_dirs: list[str]
     return changed
 
 
-def deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
-    out = dict(base)
-    for key, value in overlay.items():
-        if (
-            key in out
-            and isinstance(out[key], dict)
-            and isinstance(value, dict)
-        ):
-            out[key] = deep_merge(out[key], value)
-        else:
-            out[key] = value
-    return out
-
-
-def merge_target(parent: dict[str, Any], child: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "engine": child.get("engine", parent.get("engine")),
-        "source": child.get("source", parent.get("source")),
-        "capabilities": (
-            child.get("capabilities")
-            if isinstance(child.get("capabilities"), list) and len(child.get("capabilities")) > 0
-            else parent.get("capabilities", [])
-        ),
-        "constraints": deep_merge(
-            parent.get("constraints", {}) if isinstance(parent.get("constraints"), dict) else {},
-            child.get("constraints", {}) if isinstance(child.get("constraints"), dict) else {},
-        ),
-        "outputs": (
-            child.get("outputs")
-            if isinstance(child.get("outputs"), list) and len(child.get("outputs")) > 0
-            else parent.get("outputs", [])
-        ),
-        "presets": (
-            child.get("presets")
-            if isinstance(child.get("presets"), list) and len(child.get("presets")) > 0
-            else parent.get("presets", [])
-        ),
-    }
-
-
-def resolve_environment(
-    env_key: str,
-    environments: dict[str, Any],
-    resolving: set[str],
-    cache: dict[str, dict[str, Any]],
-) -> dict[str, Any]:
-    if env_key in cache:
-        return cache[env_key]
-    if env_key in resolving:
-        raise ValueError(f"environments.yaml: extends cycle detected at {env_key}")
-    if env_key not in environments:
-        raise ValueError(f"environments.yaml: missing environment {env_key}")
-    resolving.add(env_key)
-    raw_env = environments[env_key]
-    if not isinstance(raw_env, dict):
-        raise ValueError(f"environments.yaml: environment {env_key} must be an object")
-
-    parent_key = raw_env.get("extends")
-    merged: dict[str, Any] = {
-        "id": raw_env.get("id", env_key),
-        "runtime": raw_env.get("runtime"),
-        "abstract": raw_env.get("abstract") is True,
-        "deploy": {"targets": {}},
-    }
-
-    if isinstance(parent_key, str) and parent_key:
-        parent = resolve_environment(parent_key, environments, resolving, cache)
-        merged["runtime"] = merged["runtime"] or parent.get("runtime")
-        merged["deploy"] = {
-            "targets": dict(parent.get("deploy", {}).get("targets", {}))
-        }
-
-    deploy = raw_env.get("deploy")
-    deploy_targets = deploy.get("targets") if isinstance(deploy, dict) else None
-    if isinstance(deploy_targets, dict):
-        next_targets = dict(merged.get("deploy", {}).get("targets", {}))
-        for provider, target in deploy_targets.items():
-            if not isinstance(target, dict):
-                continue
-            parent_target = next_targets.get(provider, {})
-            if not isinstance(parent_target, dict):
-                parent_target = {}
-            next_targets[provider] = merge_target(parent_target, target)
-        merged["deploy"] = {"targets": next_targets}
-
-    resolving.remove(env_key)
-    cache[env_key] = merged
-    return merged
-
-
 def collect_interpolation_tokens(value: str) -> list[str]:
     return [token.strip() for token in re.findall(r"\{\{\s*([^}]+)\s*\}\}", value)]
 
 
 def extract_tf_outputs(tf_source: str) -> set[str]:
     return set(re.findall(r'output\s+"([^"]+)"\s*\{', tf_source))
+
+
+def normalize_preset_file_doc(doc: Any) -> dict[str, Any] | None:
+    if not isinstance(doc, dict):
+        return None
+    preset = doc.get("preset")
+    if isinstance(preset, dict):
+        return preset
+    return doc
+
+
+def validate_namespace_preset(
+    template_path: Path,
+    template_dir: str,
+    env_id: str,
+    namespace: str,
+    errors: list[str],
+    yaml: Any,
+) -> None:
+    if not re.match(r"^[^/]+/[^/]+$", namespace):
+        errors.append(
+            f"{template_dir}/environments.yaml: environment '{env_id}' has invalid preset namespace '{namespace}' (expected provider/preset)"
+        )
+        return
+    provider, preset_id = namespace.split("/", 1)
+    package_path = template_path / "infra" / provider / preset_id
+    preset_yaml_path = package_path / "preset.yaml"
+    if not preset_yaml_path.exists():
+        errors.append(
+            f"{template_dir}/environments.yaml: environment '{env_id}' references missing preset package '{namespace}'"
+        )
+        return
+
+    with open(preset_yaml_path, encoding="utf-8") as f:
+        raw_doc = yaml.safe_load(f) or {}
+    preset_doc = normalize_preset_file_doc(raw_doc)
+    if not isinstance(preset_doc, dict):
+        errors.append(f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: invalid preset.yaml structure")
+        return
+
+    required_fields = ["provider", "id", "label", "engine", "source", "outputs"]
+    for field in required_fields:
+        if field not in preset_doc:
+            errors.append(
+                f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: missing required field '{field}'"
+            )
+    if preset_doc.get("provider") != provider:
+        errors.append(
+            f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: provider must be '{provider}'"
+        )
+    if preset_doc.get("id") != preset_id:
+        errors.append(
+            f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: id must be '{preset_id}'"
+        )
+    source = preset_doc.get("source")
+    if isinstance(source, str) and source.strip():
+        source_path = (package_path / source.strip()).resolve()
+        if not source_path.exists():
+            errors.append(
+                f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: source '{source}' does not exist in package"
+            )
+        else:
+            outputs = preset_doc.get("outputs")
+            output_keys = set()
+            if isinstance(outputs, list):
+                tf_outputs = extract_tf_outputs(source_path.read_text(encoding="utf-8"))
+                for row in outputs:
+                    if not isinstance(row, dict):
+                        continue
+                    key = row.get("key")
+                    value = row.get("value")
+                    if isinstance(key, str) and key.strip():
+                        output_keys.add(key.strip())
+                    if isinstance(value, str):
+                        for token in collect_interpolation_tokens(value):
+                            if "." in token:
+                                continue
+                            if token and token not in tf_outputs:
+                                errors.append(
+                                    f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: outputs references '{{{{ {token} }}}}' but source '{source}' has no output '{token}'"
+                                )
+            for required_output in ["public_url", "dns_name"]:
+                if required_output not in output_keys:
+                    errors.append(
+                        f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: outputs must include '{required_output}'"
+                    )
+            if provider == "aws" and "canonical_hosted_zone_id" not in output_keys:
+                errors.append(
+                    f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: outputs must include 'canonical_hosted_zone_id' for AWS"
+                )
+    else:
+        errors.append(
+            f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: source must be a non-empty string"
+        )
+
+    ui = preset_doc.get("ui")
+    if isinstance(ui, dict):
+        images = ui.get("images")
+        if images is not None and not isinstance(images, list):
+            errors.append(
+                f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: ui.images must be an array"
+            )
+        if isinstance(images, list):
+            for image_path in images:
+                if not isinstance(image_path, str) or not image_path.strip():
+                    errors.append(
+                        f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: ui.images entries must be non-empty strings"
+                    )
+                    continue
+                absolute_image_path = template_path / image_path.strip().lstrip("/")
+                if not absolute_image_path.exists():
+                    errors.append(
+                        f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: ui.images references missing file '{image_path}'"
+                    )
 
 
 def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> list[str]:
@@ -163,100 +179,47 @@ def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> lis
 
     with open(env_path, encoding="utf-8") as f:
         env_doc = yaml.safe_load(f) or {}
+    if env_doc.get("schemaVersion") != 2:
+        errors.append(f"{template_dir}/environments.yaml: schemaVersion must be 2")
+        return errors
     envs = env_doc.get("environments")
     if not isinstance(envs, dict):
-        return [f"{template_dir}/environments.yaml: missing or invalid environments object"]
+        errors.append(f"{template_dir}/environments.yaml: missing or invalid environments object")
+        return errors
 
-    resolved_cache: dict[str, dict[str, Any]] = {}
-    for env_key in envs.keys():
-        try:
-            resolved_env = resolve_environment(env_key, envs, set(), resolved_cache)
-        except ValueError as exc:
-            errors.append(f"{template_dir}/environments.yaml: {exc}")
+    for env_key, env_raw in envs.items():
+        if not isinstance(env_raw, dict):
+            errors.append(f"{template_dir}/environments.yaml: environment '{env_key}' must be an object")
             continue
-
-        if resolved_env.get("abstract") is True:
-            continue
-        if resolved_env.get("runtime") != "cloud":
-            continue
-
-        targets = resolved_env.get("deploy", {}).get("targets", {})
-        if not isinstance(targets, dict):
-            continue
-
-        for provider, target in targets.items():
-            if not isinstance(target, dict):
-                continue
-            engine = target.get("engine")
-            source = target.get("source")
-            if not isinstance(engine, str) or not isinstance(source, str):
+        env_id = env_raw.get("id", env_key)
+        runtime = env_raw.get("runtime")
+        if runtime == "cloud":
+            deploy = env_raw.get("deploy")
+            presets = deploy.get("presets") if isinstance(deploy, dict) else None
+            if not isinstance(presets, list) or len(presets) == 0:
                 errors.append(
-                    f"{template_dir}/environments.yaml: environment '{resolved_env.get('id', env_key)}' "
-                    f"deploy.targets.{provider} must define engine and source"
+                    f"{template_dir}/environments.yaml: environment '{env_id}' runtime cloud requires deploy.presets"
                 )
                 continue
-
-            source_path = template_path / "_resources" / source
-            if not source_path.exists():
-                errors.append(
-                    f"{template_dir}/environments.yaml: deploy.targets.{provider}.source "
-                    f"references missing file '{source}'"
-                )
-                continue
-
-            outputs = target.get("outputs")
-            if not isinstance(outputs, list):
-                errors.append(
-                    f"{template_dir}/environments.yaml: environment '{resolved_env.get('id', env_key)}' "
-                    f"deploy.targets.{provider}.outputs must be an array"
-                )
-                continue
-
-            key_counts: dict[str, int] = {}
-            for row in outputs:
-                if not isinstance(row, dict):
-                    continue
-                key = row.get("key")
-                if isinstance(key, str) and key.strip():
-                    key_counts[key.strip()] = key_counts.get(key.strip(), 0) + 1
-
-            for key, count in key_counts.items():
-                if count > 1:
+            seen_namespaces: set[str] = set()
+            for namespace in presets:
+                if not isinstance(namespace, str):
                     errors.append(
-                        f"{template_dir}/environments.yaml: environment '{resolved_env.get('id', env_key)}' "
-                        f"deploy.targets.{provider}.outputs has duplicate key '{key}'"
+                        f"{template_dir}/environments.yaml: environment '{env_id}' deploy.presets entries must be strings"
                     )
-
-            for required_key in ["public_url", "dns_name"]:
-                if key_counts.get(required_key, 0) == 0:
+                    continue
+                ns = namespace.strip()
+                if ns in seen_namespaces:
                     errors.append(
-                        f"{template_dir}/environments.yaml: environment '{resolved_env.get('id', env_key)}' "
-                        f"deploy.targets.{provider}.outputs must include '{required_key}'"
+                        f"{template_dir}/environments.yaml: environment '{env_id}' deploy.presets has duplicate namespace '{ns}'"
                     )
-
-            if provider == "aws" and key_counts.get("canonical_hosted_zone_id", 0) == 0:
-                errors.append(
-                    f"{template_dir}/environments.yaml: environment '{resolved_env.get('id', env_key)}' "
-                    f"deploy.targets.{provider}.outputs must include 'canonical_hosted_zone_id'"
-                )
-
-            tf_outputs = extract_tf_outputs(source_path.read_text(encoding="utf-8"))
-            for row in outputs:
-                if not isinstance(row, dict):
                     continue
-                value = row.get("value")
-                if not isinstance(value, str):
-                    continue
-                for token in collect_interpolation_tokens(value):
-                    # Skip dynamic path variables like environment.id/release.tag.
-                    if "." in token:
-                        continue
-                    if token and token not in tf_outputs:
-                        errors.append(
-                            f"{template_dir}/environments.yaml: environment '{resolved_env.get('id', env_key)}' "
-                            f"deploy.targets.{provider}.outputs references '{{{{ {token} }}}}' "
-                            f"but '{source}' does not declare output \"{token}\""
-                        )
+                seen_namespaces.add(ns)
+                validate_namespace_preset(template_path, template_dir, str(env_id), ns, errors, yaml)
+        if "abstract" in env_raw or "extends" in env_raw:
+            errors.append(
+                f"{template_dir}/environments.yaml: environment '{env_id}' cannot use abstract/extends in schema v2"
+            )
     return errors
 
 

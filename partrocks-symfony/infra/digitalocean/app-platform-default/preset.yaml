@@ -1,0 +1,22 @@
+preset:
+  provider: digitalocean
+  id: app-platform-default
+  label: App Platform Default
+  description: Managed app platform deployment on DigitalOcean.
+  engine: opentofu
+  source: opentofu.tf
+  capabilities: []
+  constraints: {}
+  outputs:
+    - key: public_url
+      value: "{{ APP_BASE_URL }}"
+    - key: dns_name
+      value: "{{ APP_DNS_NAME }}"
+  ui:
+    badges:
+      - managed-platform
+    securityPosture: edge-tls-only
+    costTier: medium
+    complexity: low
+    images:
+      - infra/digitalocean/app-platform-default/diagram.svg

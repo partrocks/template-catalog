@@ -1,3 +1,0 @@
-pipeline:
-  - steps:
-      - copy-app-files
