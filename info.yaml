@@ -1,24 +1,24 @@
 templates:
-  - id: static-html-site
-    name: Static HTML Site
-    description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
-    version: 3.0.0
-    tags:
-      - static
-      - html
-      - css
-      - javascript
-      - aws
-      - s3
-      - web
-  - id: partrocks-symfony
-    name: PartRocks Symfony
-    description: PartRocks Symfony is an opinionated template for building Symfony applications.
-    version: 3.0.0
-    tags:
-      - symfony
-      - php
-      - framework
-      - web
-      - api
-      - partrocks
+- id: static-html-site
+  name: Static HTML Site
+  description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
+  version: 3.0.0
+  tags:
+  - static
+  - html
+  - css
+  - javascript
+  - aws
+  - s3
+  - web
+- id: partrocks-symfony
+  name: PartRocks Symfony
+  description: PartRocks Symfony is an opinionated template for building Symfony applications.
+  version: 3.0.0
+  tags:
+  - symfony
+  - php
+  - framework
+  - web
+  - api
+  - partrocks
