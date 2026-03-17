@@ -1,9 +1,0 @@
-manifest:
-  id: simple-demo
-  name: Simple Demo
-  description: A basic template for fast demoing PartRocks features.
-  tags:
-  - simple
-  version: 1.0.4
-  author: PartRocks
-  license: MIT

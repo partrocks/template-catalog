@@ -1,0 +1,34 @@
+preset:
+  provider: aws
+  id: secure-edge
+  label: Secure Edge (CloudFront + ACM)
+  description: Static site with CloudFront front door and edge TLS.
+  engine: opentofu
+  source: opentofu.tf
+  capabilities:
+    - envConfig
+  constraints: {}
+  outputs:
+    - key: public_url
+      value: "{{ FRONT_DOOR_URL }}"
+    - key: dns_name
+      value: "{{ FRONT_DOOR_DNS_NAME }}"
+    - key: canonical_hosted_zone_id
+      value: "{{ FRONT_DOOR_HOSTED_ZONE_ID }}"
+  preflights:
+    artifacts:
+      type: archive
+      archive:
+        path: .
+  teardown:
+    policy: cleanup
+  ui:
+    badges:
+      - edge-tls
+      - production-ready
+    securityPosture: edge-tls-only
+    costTier: medium
+    complexity: medium
+    notes: Recommended for production domains and HTTPS.
+    images:
+      - infra/aws/secure-edge/diagram.svg

@@ -1,5 +1,0 @@
-options:
-  - id: app_port
-    label: Local app port
-    type: auto-port-local
-    range: app
