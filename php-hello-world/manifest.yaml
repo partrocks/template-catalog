@@ -4,11 +4,11 @@ manifest:
   description: Minimal PHP template with local Docker and AWS prod deployment.
   baseImage: php:8.3-cli-alpine
   tags:
-    - php
-    - hello-world
-    - docker
-    - aws
-    - web
-  version: 1.0.3
+  - php
+  - hello-world
+  - docker
+  - aws
+  - web
+  version: 1.0.4
   author: PartRocks
   license: MIT
