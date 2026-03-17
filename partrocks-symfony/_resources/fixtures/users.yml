@@ -4,4 +4,3 @@ App\Entity\User:
     firstname: "Admin"
     lastname: "Person"
     password: "admin"
-    roles: ["ROLE_USER", "ROLE_ADMIN"]
