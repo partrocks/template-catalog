@@ -21,7 +21,7 @@ environments:
         - load-fixtures:
           run:
             - label: Load fixtures
-            - command: "php bin/console doctrine:fixtures:load --no-interaction"
+            - command: "php bin/console hautelook:fixtures:load --no-interaction"
     vars:
       DATABASE_URL:
         required: true

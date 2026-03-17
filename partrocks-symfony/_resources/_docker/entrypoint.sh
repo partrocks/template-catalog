@@ -33,6 +33,6 @@ echo "[bootstrap] Migrating database..."
 php bin/console doctrine:migrations:migrate --no-interaction || true
 
 echo "[bootstrap] Loading fixtures..."
-php bin/console doctrine:fixtures:load --no-interaction || true
+php bin/console hautelook:fixtures:load --no-interaction || true
 
 exec "$@"
