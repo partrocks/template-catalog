@@ -35,7 +35,6 @@ locals {
   pr_provider_id         = "{{ provider.id }}"
   pr_release_tag         = "{{ release.tag }}"
   pr_safe_release_tag    = "{{ release.safeTag }}"
-  pr_release_archive_path = "{{ release.archivePath }}"
 
   app_scope = substr(
     "${local.pr_safe_release_tag != "" ? local.pr_safe_release_tag : "site"}-${local.pr_safe_environment_id}",
@@ -99,23 +98,18 @@ resource "aws_s3_bucket_policy" "site_public_read" {
 resource "terraform_data" "sync_site_files" {
   triggers_replace = {
     release_tag  = local.pr_release_tag
-    archive_path = local.pr_release_archive_path
     bucket_name  = aws_s3_bucket.site.id
   }
 
   lifecycle {
     precondition {
-      condition     = trimspace(local.pr_release_archive_path) != ""
-      error_message = "release.archivePath was not provided. Ensure deploy preflight artifacts.type is archive."
-    }
-    precondition {
-      condition     = fileexists("${local.pr_release_archive_path}/index.html")
-      error_message = "index.html not found in staged release archive path."
+      condition     = trimspace(local.pr_release_tag) != ""
+      error_message = "release.tag is required to materialize static site files."
     }
   }
 
   provisioner "local-exec" {
-    command = "aws s3 sync \"${local.pr_release_archive_path}\" \"s3://${aws_s3_bucket.site.id}\" --delete --region \"${var.aws_region}\""
+    command = "tmp_dir=$(mktemp -d) && git -C /app archive --format=tar \"${local.pr_release_tag}\" | tar -xf - -C \"$tmp_dir\" && test -f \"$tmp_dir/index.html\" && aws s3 sync \"$tmp_dir\" \"s3://${aws_s3_bucket.site.id}\" --delete --region \"${var.aws_region}\" && rm -rf \"$tmp_dir\""
   }
 
   depends_on = [
