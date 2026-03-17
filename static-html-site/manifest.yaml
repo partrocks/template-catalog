@@ -3,13 +3,13 @@ manifest:
   name: Static HTML Site
   description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
   tags:
-    - static
-    - html
-    - css
-    - javascript
-    - aws
-    - s3
-    - web
-  version: 1.0.4
+  - static
+  - html
+  - css
+  - javascript
+  - aws
+  - s3
+  - web
+  version: 1.0.5
   author: PartRocks
   license: MIT
