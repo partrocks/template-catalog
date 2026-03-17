@@ -1,52 +1,51 @@
 templates:
-  - id: static-html-site
-    name: Static HTML Site
-    description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
-    version: 1.0.2
-    tags:
-      - static
-      - html
-      - css
-      - javascript
-      - aws
-      - s3
-      - web
-  - id: php-hello-world
-    name: PHP Hello World
-    description: Minimal PHP template with local Docker and AWS prod deployment.
-    version: 1.0.4
-    tags:
-      - php
-      - hello-world
-      - docker
-      - aws
-      - web
-  - id: partrocks-symfony
-    name: PartRocks Symfony
-    description: PartRocks Symfony is an opinionated template for building Symfony applications.
-    version: 1.0.41
-    tags:
-      - symfony
-      - php
-      - framework
-      - web
-      - api
-      - partrocks
-  - id: nextjs
-    name: Next.js
-    description:
-      A basic Next.js template that installs the official create-next-app
-      starter.
-    version: 1.0.1
-    tags:
-      - nextjs
-      - react
-      - javascript
-      - typescript
-      - web
-  - id: simple-demo
-    name: Simple Demo
-    description: A basic template for fast demoing PartRocks features.
-    version: 1.0.4
-    tags:
-      - simple
+- id: static-html-site
+  name: Static HTML Site
+  description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
+  version: 1.0.2
+  tags:
+  - static
+  - html
+  - css
+  - javascript
+  - aws
+  - s3
+  - web
+- id: php-hello-world
+  name: PHP Hello World
+  description: Minimal PHP template with local Docker and AWS prod deployment.
+  version: 1.0.4
+  tags:
+  - php
+  - hello-world
+  - docker
+  - aws
+  - web
+- id: partrocks-symfony
+  name: PartRocks Symfony
+  description: PartRocks Symfony is an opinionated template for building Symfony applications.
+  version: 1.0.41
+  tags:
+  - symfony
+  - php
+  - framework
+  - web
+  - api
+  - partrocks
+- id: nextjs
+  name: Next.js
+  description: A basic Next.js template that installs the official create-next-app
+    starter.
+  version: 1.0.1
+  tags:
+  - nextjs
+  - react
+  - javascript
+  - typescript
+  - web
+- id: simple-demo
+  name: Simple Demo
+  description: A basic template for fast demoing PartRocks features.
+  version: 1.0.4
+  tags:
+  - simple
