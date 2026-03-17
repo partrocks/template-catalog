@@ -127,3 +127,8 @@ output "SITE_DNS_NAME" {
   description = "DNS name for the S3 website endpoint."
   value       = aws_s3_bucket_website_configuration.site.website_endpoint
 }
+
+output "SITE_HOSTED_ZONE_ID" {
+  description = "Route53 hosted zone id for aliasing to the S3 website endpoint."
+  value       = aws_s3_bucket.site.hosted_zone_id
+}
