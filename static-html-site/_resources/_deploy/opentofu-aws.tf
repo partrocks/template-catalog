@@ -52,7 +52,9 @@ locals {
   website_bucket_name = trimsuffix(trimprefix(local.website_bucket_name_raw, "-"), "-")
 
   # Release snapshot files staged by preflight (inside deploy runner container).
-  site_files = fileset(local.pr_release_archive_path, "**")
+  release_site_files = can(fileset(local.pr_release_archive_path, "**"))
+    ? fileset(local.pr_release_archive_path, "**")
+    : []
 
   content_type_map = {
     html = "text/html; charset=utf-8"
@@ -73,6 +75,21 @@ locals {
 
 resource "aws_s3_bucket" "site" {
   bucket = local.website_bucket_name
+
+  lifecycle {
+    precondition {
+      condition = trimspace(local.pr_release_archive_path) != ""
+      error_message = "release.archivePath was not provided. Ensure deploy preflight artifacts.type is archive."
+    }
+    precondition {
+      condition = length(local.release_site_files) > 0
+      error_message = "No files were found in the staged release archive path. Ensure the selected release contains website files."
+    }
+    precondition {
+      condition = contains(local.release_site_files, "index.html")
+      error_message = "The selected release archive is missing index.html at the archive root."
+    }
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "site" {
@@ -115,7 +132,7 @@ resource "aws_s3_bucket_policy" "site_public_read" {
 }
 
 resource "aws_s3_object" "site_files" {
-  for_each = toset(local.site_files)
+  for_each = toset(local.release_site_files)
 
   bucket       = aws_s3_bucket.site.id
   key          = each.value
