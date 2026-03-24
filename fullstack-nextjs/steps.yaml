@@ -1,5 +1,5 @@
 steps:
-  - step: stub-placeholder
-    label: Placeholder (stub template)
+  - step: create-next-app
+    label: Creating Next.js app (App Router, TypeScript, Tailwind)
     run:
-      - command: "true"
+      - command: 'npx create-next-app@latest . --typescript --eslint --tailwind --app --src-dir --import-alias "@/*" --use-npm --yes'

@@ -4,7 +4,7 @@ environments:
     id: dev
     runtime: docker
     docker:
-      composeFile: _resources/_docker/docker-compose.yml
+      composeFile: _docker/docker-compose.yml
       service: app
       url:
         scheme: http
