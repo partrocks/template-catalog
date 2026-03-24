@@ -51,6 +51,25 @@ locals {
   # capture groups, so regex() returns a STRING (not a list) — works on all Terraform/OpenTofu versions.
   do_region_app = regex("^[a-z]+", local.do_region_db)
 
+  # Managed Postgres clusters require datacenter slugs (e.g. lon1). Constraints may use App
+  # Platform–style names (lon) — map those; full slugs pass through unchanged.
+  do_pg_region_slug = lookup(
+    {
+      lon = "lon1"
+      nyc = "nyc1"
+      sfo = "sfo3"
+      ams = "ams3"
+      fra = "fra1"
+      sgp = "sgp1"
+      blr = "blr1"
+      tor = "tor1"
+      syd = "syd1"
+      atl = "atl1"
+    },
+    local.do_region_db,
+    local.do_region_db
+  )
+
   image_ref_parts   = split(":", local.pr_release_ref)
   image_tag         = length(local.image_ref_parts) > 1 ? local.image_ref_parts[length(local.image_ref_parts) - 1] : "latest"
   image_without_tag = length(local.image_ref_parts) > 1 ? join(":", slice(local.image_ref_parts, 0, length(local.image_ref_parts) - 1)) : local.pr_release_ref
@@ -78,7 +97,7 @@ resource "digitalocean_database_cluster" "postgres" {
   engine     = "pg"
   version    = "16"
   size       = "db-s-1vcpu-1gb"
-  region     = local.do_region_db
+  region     = local.do_pg_region_slug
   node_count = 1
 }
 
