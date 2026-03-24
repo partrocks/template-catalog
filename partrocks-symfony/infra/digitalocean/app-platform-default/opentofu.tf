@@ -35,9 +35,11 @@ locals {
   app_service_name = substr("partrocks-${local.app_scope}", 0, 40)
   database_name = "appdb"
 
+  # Preset must define constraints.doRegion; if interpolation failed, placeholder still contains "{{".
+  # Lowercase DO slugs here so DB + app always match (UI may send LON1).
   pr_do_region_resolved = (
     length(regexall("\\{\\{", local.pr_do_region)) > 0 || trimspace(local.pr_do_region) == "" ?
-    "nyc1" : trimspace(local.pr_do_region)
+    "nyc1" : lower(trimspace(local.pr_do_region))
   )
   pr_do_instance_size_resolved = (
     length(regexall("\\{\\{", local.pr_do_instance_size)) > 0 || trimspace(local.pr_do_instance_size) == "" ?
@@ -45,9 +47,9 @@ locals {
   )
 
   do_region_db = local.pr_do_region_resolved
-  # App Platform region is the slug without the trailing digit (e.g. lon from lon1). Capture group
-  # yields a list — use [0] before lower(). Works for LON1/lon1 (older runtimes lack regexreplace).
-  do_region_app = lower(regex("^([a-zA-Z]+)[0-9]*$", local.do_region_db)[0])
+  # App Platform wants the region slug without the trailing digit (lon from lon1). Pattern has no
+  # capture groups, so regex() returns a STRING (not a list) — works on all Terraform/OpenTofu versions.
+  do_region_app = regex("^[a-z]+", local.do_region_db)
 
   image_ref_parts   = split(":", local.pr_release_ref)
   image_tag         = length(local.image_ref_parts) > 1 ? local.image_ref_parts[length(local.image_ref_parts) - 1] : "latest"
