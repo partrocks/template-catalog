@@ -5,7 +5,8 @@ preset:
   description: Managed app platform deployment on DigitalOcean.
   engine: opentofu
   source: opentofu.tf
-  capabilities: []
+  capabilities:
+    - appRuntime
   constraints:
     appPort: 3000
     appHealthPath: /
@@ -21,6 +22,14 @@ preset:
       value: "{{ APP_BASE_URL }}"
     - key: dns_name
       value: "{{ APP_DNS_NAME }}"
+  preflights:
+    artifacts:
+      type: container_image
+      containerImage:
+        dockerfile: _docker/Dockerfile.cloud
+        context: .
+        repositoryName: partrocks/{{projectName}}
+        tagStrategy: releaseTag
   ui:
     badges:
       - managed-platform
