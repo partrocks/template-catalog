@@ -45,8 +45,10 @@ locals {
     "basic-xxs" : trimspace(local.pr_do_instance_size)
   )
 
-  do_region_db  = local.pr_do_region_resolved
-  do_region_app = regex("^([a-z]+)[0-9]*$", local.do_region_db)
+  do_region_db = local.pr_do_region_resolved
+  # App Platform uses the region slug without the trailing digit (e.g. lon from lon1). Uppercase
+  # slugs (e.g. LON1 from UI) must be normalized — the previous [a-z]+ pattern failed on those.
+  do_region_app = lower(regex("^([a-zA-Z]+)[0-9]*$", local.do_region_db))
 
   image_ref_parts   = split(":", local.pr_release_ref)
   image_tag         = length(local.image_ref_parts) > 1 ? local.image_ref_parts[length(local.image_ref_parts) - 1] : "latest"
