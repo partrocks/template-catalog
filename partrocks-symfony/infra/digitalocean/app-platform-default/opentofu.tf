@@ -33,9 +33,18 @@ locals {
   app_scope        = substr("${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}-${local.app_scope_hash}", 0, 45)
   app_scope_short  = substr(local.app_scope, 0, 25)
   app_service_name = substr("partrocks-${local.app_scope}", 0, 40)
-  database_name    = "appdb"
+  database_name = "appdb"
 
-  do_region_db  = local.pr_do_region != "" ? local.pr_do_region : "nyc1"
+  pr_do_region_resolved = (
+    length(regexall("\\{\\{", local.pr_do_region)) > 0 || trimspace(local.pr_do_region) == "" ?
+    "nyc1" : trimspace(local.pr_do_region)
+  )
+  pr_do_instance_size_resolved = (
+    length(regexall("\\{\\{", local.pr_do_instance_size)) > 0 || trimspace(local.pr_do_instance_size) == "" ?
+    "basic-xxs" : trimspace(local.pr_do_instance_size)
+  )
+
+  do_region_db  = local.pr_do_region_resolved
   do_region_app = regex("^([a-z]+)[0-9]*$", local.do_region_db)
 
   image_ref_parts   = split(":", local.pr_release_ref)
@@ -97,7 +106,7 @@ resource "digitalocean_app" "app" {
     service {
       name               = "web"
       instance_count     = try(tonumber(local.pr_do_instance_count), 1)
-      instance_size_slug = local.pr_do_instance_size != "" ? local.pr_do_instance_size : "basic-xxs"
+      instance_size_slug = local.pr_do_instance_size_resolved
       http_port          = tonumber(local.pr_app_port)
 
       image {

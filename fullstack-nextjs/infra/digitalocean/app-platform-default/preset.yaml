@@ -9,6 +9,13 @@ preset:
   constraints:
     appPort: 3000
     appHealthPath: /
+    # doRegion: slugs like nyc1, lon1 (see DigitalOcean regions). Required so
+    # {{ constraints.doRegion }} interpolates in opentofu.tf. At deploy time the
+    # app merges profile preferences over this map (see user-profile
+    # CONSTRAINT_PREFERENCE_OVERRIDES: doRegion <- digitaloceanDefaultRegion).
+    doRegion: nyc1
+    doInstanceSize: basic-xxs
+    doInstanceCount: 1
   outputs:
     - key: public_url
       value: "{{ APP_BASE_URL }}"

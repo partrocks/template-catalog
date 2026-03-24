@@ -6,7 +6,14 @@ preset:
   engine: opentofu
   source: opentofu.tf
   capabilities: []
-  constraints: {}
+  constraints:
+    appPort: 9000
+    appHealthPath: /
+    # Default region slug; profile `digitaloceanDefaultRegion` overrides at deploy
+    # (mergeProviderConstraintsFromPreferences in user-profile).
+    doRegion: nyc1
+    doInstanceSize: basic-xxs
+    doInstanceCount: 1
   outputs:
     - key: public_url
       value: "{{ APP_BASE_URL }}"
