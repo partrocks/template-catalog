@@ -1,0 +1,15 @@
+manifest:
+  id: python-django
+  name: Django
+  description: Django for admin-heavy and server-rendered web apps.
+  version: 0.1.0-stub
+  tags:
+  - python
+  - django
+  categories:
+  - python-web-app
+  capabilities: |
+    ORM, admin, migrations, templates; suited for data-driven sites and internal tools.
+  logos:
+  - django
+  - python

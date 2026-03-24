@@ -1,0 +1,15 @@
+manifest:
+  id: php-symfony
+  name: Symfony
+  description: Symfony web, API, or hybrid PHP application with Doctrine and console.
+  version: 0.1.0-stub
+  tags:
+  - php
+  - symfony
+  categories:
+  - php-web-app
+  capabilities: |
+    HTTP kernel, DI, Messenger, API Platform optional; choose web, API, or hybrid mode when scaffolding.
+  logos:
+  - symfony
+  - php

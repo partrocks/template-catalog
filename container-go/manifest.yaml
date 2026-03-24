@@ -1,0 +1,15 @@
+manifest:
+  id: container-go
+  name: Go
+  description: Go service packaged as a Docker image.
+  version: 0.1.0-stub
+  tags:
+  - go
+  - docker
+  - container
+  categories:
+  - container-app
+  capabilities: |
+    Static binary, small images, high concurrency; bring your own framework.
+  logos:
+  - go

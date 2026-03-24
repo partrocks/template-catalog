@@ -1,0 +1,14 @@
+manifest:
+  id: container-custom
+  name: Custom Docker app
+  description: Bring any Dockerfile; framework-agnostic container deploy.
+  version: 0.1.0-stub
+  tags:
+  - docker
+  - container
+  categories:
+  - container-app
+  capabilities: |
+    Full control of base image, build, and runtime; language-agnostic.
+  logos:
+  - docker

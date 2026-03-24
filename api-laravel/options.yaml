@@ -1,0 +1,24 @@
+options:
+  - id: projectName
+    label: Project name
+    type: string
+    required: true
+    default: my-app
+  - id: localPort
+    label: Local HTTP port
+    type: auto-port-local
+    range: app
+    required: true
+
+  - id: appMode
+    label: Application mode
+    type: select
+    required: true
+    default: web
+    options:
+      - label: Web (server-rendered)
+        value: web
+      - label: API only
+        value: api
+      - label: Hybrid
+        value: hybrid

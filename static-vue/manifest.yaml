@@ -1,0 +1,15 @@
+manifest:
+  id: static-vue
+  name: Vue
+  description: Vue static site or SPA built for static hosting.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - vue
+  - javascript
+  categories:
+  - static-web-app
+  capabilities: |
+    Vue 3 composition or options API, static site generation or SPA build.
+  logos:
+  - vue

@@ -1,0 +1,15 @@
+manifest:
+  id: fullstack-sveltekit
+  name: SvelteKit
+  description: Full stack Svelte with SSR, endpoints, and adapters.
+  version: 0.1.0-stub
+  tags:
+  - sveltekit
+  - svelte
+  - fullstack
+  categories:
+  - fullstack-js-web-app
+  capabilities: |
+    File-based routing, server endpoints, adapter-based deploy.
+  logos:
+  - svelte

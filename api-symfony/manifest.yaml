@@ -1,0 +1,16 @@
+manifest:
+  id: api-symfony
+  name: Symfony API
+  description: API-focused Symfony (JSON, serialization, API Platform path).
+  version: 0.1.0-stub
+  tags:
+  - php
+  - symfony
+  - api
+  categories:
+  - api-service
+  capabilities: |
+    JSON APIs, Symfony Serializer, API Platform optional; pairs with PHP Symfony stack.
+  logos:
+  - symfony
+  - php

@@ -1,0 +1,16 @@
+manifest:
+  id: container-rails
+  name: Rails
+  description: Ruby on Rails app containerized for web or API.
+  version: 0.1.0-stub
+  tags:
+  - rails
+  - ruby
+  - docker
+  categories:
+  - container-app
+  capabilities: |
+    Convention over configuration, ActiveRecord, Sidekiq-friendly.
+  logos:
+  - rails
+  - ruby

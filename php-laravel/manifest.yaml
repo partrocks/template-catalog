@@ -1,0 +1,15 @@
+manifest:
+  id: php-laravel
+  name: Laravel
+  description: Laravel MVC, API resources, queues, and Eloquent ORM.
+  version: 0.1.0-stub
+  tags:
+  - php
+  - laravel
+  categories:
+  - php-web-app
+  capabilities: |
+    Blade or API-first, Sanctum/Passport, Horizon queues; mode selector for API/web/hybrid.
+  logos:
+  - laravel
+  - php

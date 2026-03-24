@@ -1,0 +1,16 @@
+manifest:
+  id: api-laravel
+  name: Laravel API
+  description: Laravel as API backend (resources, Sanctum, queues).
+  version: 0.1.0-stub
+  tags:
+  - php
+  - laravel
+  - api
+  categories:
+  - api-service
+  capabilities: |
+    REST resources, form requests, policies; API-first Laravel deployment.
+  logos:
+  - laravel
+  - php

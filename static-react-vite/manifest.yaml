@@ -1,0 +1,17 @@
+manifest:
+  id: static-react-vite
+  name: React (Vite)
+  description: Static or SPA build with React and Vite; deploy as static assets.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - react
+  - vite
+  - javascript
+  categories:
+  - static-web-app
+  capabilities: |
+    Client-side React, Vite bundler, static export/CDN-friendly output.
+  logos:
+  - react
+  - vite

@@ -1,0 +1,15 @@
+manifest:
+  id: api-node
+  name: Node API (Express / Fastify / Nest)
+  description: Node.js REST/GraphQL-style API with interchangeable framework preference.
+  version: 0.1.0-stub
+  tags:
+  - node
+  - api
+  - javascript
+  categories:
+  - api-service
+  capabilities: |
+    HTTP APIs, middleware, validation; pick Express, Fastify, or Nest when generating.
+  logos:
+  - nodejs

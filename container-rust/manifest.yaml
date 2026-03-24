@@ -1,0 +1,15 @@
+manifest:
+  id: container-rust
+  name: Rust
+  description: Rust binary or web service in a slim container.
+  version: 0.1.0-stub
+  tags:
+  - rust
+  - docker
+  - container
+  categories:
+  - container-app
+  capabilities: |
+    Memory safety, performance, multi-stage Dockerfile patterns.
+  logos:
+  - rust

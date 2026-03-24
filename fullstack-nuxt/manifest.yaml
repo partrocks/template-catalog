@@ -1,0 +1,16 @@
+manifest:
+  id: fullstack-nuxt
+  name: Nuxt
+  description: Full stack Vue with SSR, Nitro server, and modules.
+  version: 0.1.0-stub
+  tags:
+  - nuxt
+  - vue
+  - fullstack
+  categories:
+  - fullstack-js-web-app
+  capabilities: |
+    Vue SSR, server API, file-based routing, Nitro engine.
+  logos:
+  - nuxt
+  - vue

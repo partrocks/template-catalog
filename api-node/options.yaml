@@ -1,0 +1,24 @@
+options:
+  - id: projectName
+    label: Project name
+    type: string
+    required: true
+    default: my-app
+  - id: localPort
+    label: Local HTTP port
+    type: auto-port-local
+    range: app
+    required: true
+
+  - id: nodeFramework
+    label: Node framework
+    type: select
+    required: true
+    default: express
+    options:
+      - label: Express
+        value: express
+      - label: Fastify
+        value: fastify
+      - label: NestJS
+        value: nest

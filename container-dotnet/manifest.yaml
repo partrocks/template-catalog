@@ -1,0 +1,15 @@
+manifest:
+  id: container-dotnet
+  name: .NET
+  description: .NET application in a Linux container image.
+  version: 0.1.0-stub
+  tags:
+  - dotnet
+  - docker
+  - container
+  categories:
+  - container-app
+  capabilities: |
+    ASP.NET Core, minimal APIs, worker services.
+  logos:
+  - dotnet

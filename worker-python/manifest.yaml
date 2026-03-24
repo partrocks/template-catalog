@@ -1,0 +1,15 @@
+manifest:
+  id: worker-python
+  name: Python worker
+  description: Celery, RQ, or async Python job processors.
+  version: 0.1.0-stub
+  tags:
+  - python
+  - worker
+  - queue
+  categories:
+  - worker-job-service
+  capabilities: |
+    Queue workers, cron-style schedules, batch pipelines.
+  logos:
+  - python

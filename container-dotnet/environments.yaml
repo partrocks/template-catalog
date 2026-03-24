@@ -1,0 +1,16 @@
+schemaVersion: 2
+environments:
+  dev:
+    id: dev
+    runtime: docker
+    docker:
+      composeFile: _resources/_docker/docker-compose.yml
+      service: app
+      url:
+        scheme: http
+        domain: localhost
+        port: "{{localPort}}"
+    vars:
+      localPort:
+        required: true
+        default: "8080"

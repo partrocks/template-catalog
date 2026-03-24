@@ -1,0 +1,15 @@
+manifest:
+  id: static-svelte
+  name: Svelte (static)
+  description: Svelte compiled to static assets for edge/CDN delivery.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - svelte
+  - javascript
+  categories:
+  - static-web-app
+  capabilities: |
+    Svelte components, small bundle, static adapter output.
+  logos:
+  - svelte

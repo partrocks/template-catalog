@@ -1,0 +1,15 @@
+manifest:
+  id: worker-container
+  name: Generic container worker
+  description: Any containerized worker image (language-agnostic).
+  version: 0.1.0-stub
+  tags:
+  - docker
+  - worker
+  - container
+  categories:
+  - worker-job-service
+  capabilities: |
+    Custom entrypoint, scale-to-zero patterns, job runners.
+  logos:
+  - docker
