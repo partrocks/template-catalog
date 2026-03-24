@@ -2,7 +2,7 @@ manifest:
   id: fullstack-nextjs
   name: Next.js
   description: Full stack React with SSR, API routes, and app router patterns.
-  version: 1.0.0
+  version: 1.0.1
   baseImage: node:20-alpine
   tags:
   - nextjs
@@ -10,8 +10,9 @@ manifest:
   - fullstack
   categories:
   - fullstack-js-web-app
-  capabilities: |
-    Server components, API routes, SSR/SSG, Node runtime.
+  capabilities: 'Server components, API routes, SSR/SSG, Node runtime.
+
+    '
   logos:
   - nextjs
   - react
