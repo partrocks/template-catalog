@@ -14,3 +14,12 @@ environments:
       localPort:
         required: true
         default: "8080"
+
+  prod:
+    id: prod
+    runtime: cloud
+    deploy:
+      presets:
+        - aws/cheap-and-cheerful
+        - aws/maximum-effort-at-a-price
+        - digitalocean/app-platform-default
