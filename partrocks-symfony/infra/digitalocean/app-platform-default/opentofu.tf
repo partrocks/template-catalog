@@ -73,22 +73,36 @@ locals {
   image_ref_parts   = split(":", local.pr_release_ref)
   image_tag         = length(local.image_ref_parts) > 1 ? local.image_ref_parts[length(local.image_ref_parts) - 1] : "latest"
   image_without_tag = length(local.image_ref_parts) > 1 ? join(":", slice(local.image_ref_parts, 0, length(local.image_ref_parts) - 1)) : local.pr_release_ref
-  image_path_parts  = split("/", local.image_without_tag)
-  release_ref_tail  = length(local.image_path_parts) > 0 ? local.image_path_parts[length(local.image_path_parts) - 1] : "app"
   registry_type = (
     can(regex("registry\\.digitalocean\\.com", local.pr_release_ref)) ? "DOCR" :
     can(regex("ghcr\\.io", local.pr_release_ref)) ? "GHCR" :
     "DOCKER_HUB"
   )
+
+  # App spec requires non-empty repository. Path after registry host; docker.io/nginx:tag must not
+  # use slice(2,...) on a two-segment path (that produced an empty repository).
+  do_image_stripped = (
+    trimspace(local.image_without_tag) == "" ? "" :
+    local.registry_type == "DOCR" ? trimprefix(local.image_without_tag, "registry.digitalocean.com/") :
+    local.registry_type == "GHCR" ? trimprefix(local.image_without_tag, "ghcr.io/") :
+    trimprefix(trimprefix(local.image_without_tag, "docker.io/"), "registry-1.docker.io/")
+  )
+  do_repo_segments = local.do_image_stripped != "" ? split("/", local.do_image_stripped) : []
   do_registry = (
-    local.registry_type == "DOCR" ? (length(local.image_path_parts) >= 2 ? local.image_path_parts[1] : "") :
-    local.registry_type == "GHCR" ? (length(local.image_path_parts) >= 2 ? local.image_path_parts[1] : "") :
-    length(local.image_path_parts) >= 2 ? (local.image_path_parts[0] == "docker.io" ? local.image_path_parts[1] : local.image_path_parts[0]) : ""
+    local.registry_type == "DOCR" ? (length(local.do_repo_segments) >= 1 ? local.do_repo_segments[0] : "") :
+    local.registry_type == "GHCR" ? (length(local.do_repo_segments) >= 1 ? local.do_repo_segments[0] : "") :
+    ""
   )
   do_repository = (
-    local.registry_type == "DOCR" ? (length(local.image_path_parts) >= 3 ? join("/", slice(local.image_path_parts, 2, length(local.image_path_parts))) : local.release_ref_tail) :
-    local.registry_type == "GHCR" ? (length(local.image_path_parts) >= 3 ? join("/", slice(local.image_path_parts, 2, length(local.image_path_parts))) : local.release_ref_tail) :
-    length(local.image_path_parts) >= 2 ? (local.image_path_parts[0] == "docker.io" ? join("/", slice(local.image_path_parts, 2, length(local.image_path_parts))) : (length(local.image_path_parts) >= 3 ? join("/", slice(local.image_path_parts, 1, length(local.image_path_parts))) : local.image_path_parts[1])) : local.release_ref_tail
+    local.registry_type == "DOCR" ? (
+      length(local.do_repo_segments) >= 2 ? join("/", slice(local.do_repo_segments, 1, length(local.do_repo_segments))) : ""
+    ) :
+    local.registry_type == "GHCR" ? (
+      length(local.do_repo_segments) >= 2 ? join("/", slice(local.do_repo_segments, 1, length(local.do_repo_segments))) : ""
+    ) :
+    length(local.do_repo_segments) == 0 ? "" : (
+      length(local.do_repo_segments) == 1 && local.do_repo_segments[0] != "" ? "library/${local.do_repo_segments[0]}" : join("/", local.do_repo_segments)
+    )
   )
 }
 
