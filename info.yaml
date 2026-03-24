@@ -83,7 +83,7 @@ templates:
 - id: partrocks-symfony
   name: PartRocks Symfony
   description: PartRocks Symfony is an opinionated template for building Symfony applications.
-  version: 3.0.11
+  version: 3.0.12
   tags:
   - symfony
   - php
@@ -127,7 +127,7 @@ templates:
 - id: fullstack-nextjs
   name: Next.js
   description: Full stack React with SSR, API routes, and app router patterns.
-  version: 1.0.7
+  version: 1.0.8
   tags:
   - nextjs
   - react
