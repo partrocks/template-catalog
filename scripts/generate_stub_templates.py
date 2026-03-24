@@ -439,8 +439,76 @@ def write_stub(s: dict) -> None:
     print(f"wrote {tid}")
 
 
+def _capability_lines(text: str) -> list[str]:
+    """Lines for `capabilities: |` block (indented under template entry)."""
+    inner = text.rstrip("\n")
+    lines = inner.split("\n") if inner else [""]
+    out = ["    capabilities: |"]
+    for ln in lines:
+        out.append("      " + ln)
+    return out
+
+
+def write_info_yaml() -> None:
+    """Emit repo-root info.yaml (source of truth for catalog listing; includes logos)."""
+    lines: list[str] = ["templates:"]
+    # Legacy — display name only; ids unchanged
+    lines.append("  - id: static-html-site")
+    lines.append('    name: "__(legacy)__ Static HTML Site"')
+    lines.append(
+        "    description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting."
+    )
+    lines.append("    version: 3.0.0")
+    lines.append("    tags:")
+    for t in [
+        "static",
+        "html",
+        "css",
+        "javascript",
+        "aws",
+        "s3",
+        "web",
+        "legacy",
+    ]:
+        lines.append(f"      - {t}")
+    lines.append("  - id: partrocks-symfony")
+    lines.append('    name: "__(legacy)__ PartRocks Symfony"')
+    lines.append(
+        "    description: PartRocks Symfony is an opinionated template for building Symfony applications."
+    )
+    lines.append("    version: 3.0.5")
+    lines.append("    tags:")
+    for t in ["symfony", "php", "framework", "web", "api", "partrocks", "legacy"]:
+        lines.append(f"      - {t}")
+
+    for s in STUBS:
+        lines.append(f"  - id: {s['id']}")
+        lines.append(f"    name: {s['name']!r}")
+        lines.append(f"    description: {s['desc']!r}")
+        lines.append("    version: 0.1.0-stub")
+        lines.append("    tags:")
+        for t in s["tags"]:
+            lines.append(f"      - {t}")
+        lines.append("    categories:")
+        for c in s["cats"]:
+            lines.append(f"      - {c}")
+        lines.extend(_capability_lines(s["caps"]))
+        lines.append("    logos:")
+        for logo in s["logos"]:
+            lines.append(f"      - {logo}")
+
+    out_path = ROOT / "info.yaml"
+    out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Wrote {out_path}")
+
+
 def main() -> None:
+    import sys
+
     os.chdir(ROOT)
+    if len(sys.argv) > 1 and sys.argv[1] in ("info", "--info", "write-info"):
+        write_info_yaml()
+        return
     for s in STUBS:
         write_stub(s)
 
