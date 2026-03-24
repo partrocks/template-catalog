@@ -1,399 +1,228 @@
 templates:
-  - id: static-html-site
-    name: "__(legacy)__ Static HTML Site"
-    description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
-    version: 3.0.0
-    tags:
-      - static
-      - html
-      - css
-      - javascript
-      - aws
-      - s3
-      - web
-      - legacy
-  - id: partrocks-symfony
-    name: "__(legacy)__ PartRocks Symfony"
-    description: PartRocks Symfony is an opinionated template for building Symfony applications.
-    version: 3.0.5
-    tags:
-      - symfony
-      - php
-      - framework
-      - web
-      - api
-      - partrocks
-      - legacy
-  - id: static-react-vite
-    name: React (Vite)
-    description: Static or SPA build with React and Vite; deploy as static assets.
-    version: 0.1.0-stub
-    tags:
-      - static
-      - react
-      - vite
-      - javascript
-    categories:
-      - static-web-app
-    capabilities: |
-      Client-side React, Vite bundler, static export/CDN-friendly output.
-    logos:
-      - react
-      - vite
-  - id: static-react-cra
-    name: React (CRA-style)
-    description: React single-page app with a classic CRA-style static build output.
-    version: 0.1.0-stub
-    tags:
-      - static
-      - react
-      - javascript
-    categories:
-      - static-web-app
-    capabilities: |
-      React SPA, static build directory suitable for CDN or object storage hosting.
-    logos:
-      - react
-  - id: static-vue
-    name: Vue
-    description: Vue static site or SPA built for static hosting.
-    version: 0.1.0-stub
-    tags:
-      - static
-      - vue
-      - javascript
-    categories:
-      - static-web-app
-    capabilities: |
-      Vue 3 composition or options API, static site generation or SPA build.
-    logos:
-      - vue
-  - id: static-svelte
-    name: Svelte (static)
-    description: Svelte compiled to static assets for edge/CDN delivery.
-    version: 0.1.0-stub
-    tags:
-      - static
-      - svelte
-      - javascript
-    categories:
-      - static-web-app
-    capabilities: |
-      Svelte components, small bundle, static adapter output.
-    logos:
-      - svelte
-  - id: static-astro
-    name: Astro (static)
-    description: Astro content-focused static site with optional islands.
-    version: 0.1.0-stub
-    tags:
-      - static
-      - astro
-      - javascript
-    categories:
-      - static-web-app
-    capabilities: |
-      Static generation, partial hydration, MD/MDX content.
-    logos:
-      - astro
-  - id: fullstack-nextjs
-    name: Next.js
-    description: Full stack React with SSR, API routes, and app router patterns.
-    version: 0.1.0-stub
-    tags:
-      - nextjs
-      - react
-      - fullstack
-    categories:
-      - fullstack-js-web-app
-    capabilities: |
-      Server components, API routes, SSR/SSG, Node runtime.
-    logos:
-      - nextjs
-      - react
-  - id: fullstack-sveltekit
-    name: SvelteKit
-    description: Full stack Svelte with SSR, endpoints, and adapters.
-    version: 0.1.0-stub
-    tags:
-      - sveltekit
-      - svelte
-      - fullstack
-    categories:
-      - fullstack-js-web-app
-    capabilities: |
-      File-based routing, server endpoints, adapter-based deploy.
-    logos:
-      - svelte
-  - id: fullstack-nuxt
-    name: Nuxt
-    description: Full stack Vue with SSR, Nitro server, and modules.
-    version: 0.1.0-stub
-    tags:
-      - nuxt
-      - vue
-      - fullstack
-    categories:
-      - fullstack-js-web-app
-    capabilities: |
-      Vue SSR, server API, file-based routing, Nitro engine.
-    logos:
-      - nuxt
-      - vue
-  - id: php-symfony
-    name: Symfony
-    description: Symfony web, API, or hybrid PHP application with Doctrine and console.
-    version: 0.1.0-stub
-    tags:
-      - php
-      - symfony
-    categories:
-      - php-web-app
-    capabilities: |
-      HTTP kernel, DI, Messenger, API Platform optional; choose web, API, or hybrid mode when scaffolding.
-    logos:
-      - symfony
-      - php
-  - id: php-laravel
-    name: Laravel
-    description: Laravel MVC, API resources, queues, and Eloquent ORM.
-    version: 0.1.0-stub
-    tags:
-      - php
-      - laravel
-    categories:
-      - php-web-app
-    capabilities: |
-      Blade or API-first, Sanctum/Passport, Horizon queues; mode selector for API/web/hybrid.
-    logos:
-      - laravel
-      - php
-  - id: python-django
-    name: Django
-    description: Django for admin-heavy and server-rendered web apps.
-    version: 0.1.0-stub
-    tags:
-      - python
-      - django
-    categories:
-      - python-web-app
-    capabilities: |
-      ORM, admin, migrations, templates; suited for data-driven sites and internal tools.
-    logos:
-      - django
-      - python
-  - id: python-fastapi
-    name: FastAPI
-    description: FastAPI for high-performance APIs (also listed under API Service).
-    version: 0.1.0-stub
-    tags:
-      - python
-      - fastapi
-      - api
-    categories:
-      - python-web-app
-      - api-service
-    capabilities: |
-      Async Python, OpenAPI docs, Pydantic models; ideal for API-first and microservices.
-    logos:
-      - fastapi
-      - python
-  - id: python-flask
-    name: Flask
-    description: Lightweight Python web framework for small services and prototypes.
-    version: 0.1.0-stub
-    tags:
-      - python
-      - flask
-    categories:
-      - python-web-app
-    capabilities: |
-      Minimal core, blueprints, Jinja; flexible stack choice.
-    logos:
-      - flask
-      - python
-  - id: api-node
-    name: Node API (Express / Fastify / Nest)
-    description: Node.js REST/GraphQL-style API with interchangeable framework preference.
-    version: 0.1.0-stub
-    tags:
-      - node
-      - api
-      - javascript
-    categories:
-      - api-service
-    capabilities: |
-      HTTP APIs, middleware, validation; pick Express, Fastify, or Nest when generating.
-    logos:
-      - nodejs
-  - id: api-symfony
-    name: Symfony API
-    description: API-focused Symfony (JSON, serialization, API Platform path).
-    version: 0.1.0-stub
-    tags:
-      - php
-      - symfony
-      - api
-    categories:
-      - api-service
-    capabilities: |
-      JSON APIs, Symfony Serializer, API Platform optional; pairs with PHP Symfony stack.
-    logos:
-      - symfony
-      - php
-  - id: api-laravel
-    name: Laravel API
-    description: Laravel as API backend (resources, Sanctum, queues).
-    version: 0.1.0-stub
-    tags:
-      - php
-      - laravel
-      - api
-    categories:
-      - api-service
-    capabilities: |
-      REST resources, form requests, policies; API-first Laravel deployment.
-    logos:
-      - laravel
-      - php
-  - id: container-go
-    name: Go
-    description: Go service packaged as a Docker image.
-    version: 0.1.0-stub
-    tags:
-      - go
-      - docker
-      - container
-    categories:
-      - container-app
-    capabilities: |
-      Static binary, small images, high concurrency; bring your own framework.
-    logos:
-      - go
-  - id: container-java-spring
-    name: Java (Spring)
-    description: Spring Boot (or similar) in a container image.
-    version: 0.1.0-stub
-    tags:
-      - java
-      - spring
-      - docker
-    categories:
-      - container-app
-    capabilities: |
-      JVM ecosystem, Spring ecosystem, production-ready defaults.
-    logos:
-      - spring
-      - java
-  - id: container-dotnet
-    name: .NET
-    description: .NET application in a Linux container image.
-    version: 0.1.0-stub
-    tags:
-      - dotnet
-      - docker
-      - container
-    categories:
-      - container-app
-    capabilities: |
-      ASP.NET Core, minimal APIs, worker services.
-    logos:
-      - dotnet
-  - id: container-rust
-    name: Rust
-    description: Rust binary or web service in a slim container.
-    version: 0.1.0-stub
-    tags:
-      - rust
-      - docker
-      - container
-    categories:
-      - container-app
-    capabilities: |
-      Memory safety, performance, multi-stage Dockerfile patterns.
-    logos:
-      - rust
-  - id: container-rails
-    name: Rails
-    description: Ruby on Rails app containerized for web or API.
-    version: 0.1.0-stub
-    tags:
-      - rails
-      - ruby
-      - docker
-    categories:
-      - container-app
-    capabilities: |
-      Convention over configuration, ActiveRecord, Sidekiq-friendly.
-    logos:
-      - rails
-      - ruby
-  - id: container-custom
-    name: Custom Docker app
-    description: Bring any Dockerfile; framework-agnostic container deploy.
-    version: 0.1.0-stub
-    tags:
-      - docker
-      - container
-    categories:
-      - container-app
-    capabilities: |
-      Full control of base image, build, and runtime; language-agnostic.
-    logos:
-      - docker
-  - id: worker-node
-    name: Node worker
-    description: Background jobs and queue consumers in Node.js.
-    version: 0.1.0-stub
-    tags:
-      - node
-      - worker
-      - queue
-    categories:
-      - worker-job-service
-    capabilities: |
-      BullMQ, SQS, scheduled tasks, event-driven workers.
-    logos:
-      - nodejs
-  - id: worker-python
-    name: Python worker
-    description: Celery, RQ, or async Python job processors.
-    version: 0.1.0-stub
-    tags:
-      - python
-      - worker
-      - queue
-    categories:
-      - worker-job-service
-    capabilities: |
-      Queue workers, cron-style schedules, batch pipelines.
-    logos:
-      - python
-  - id: worker-php
-    name: PHP worker
-    description: Symfony Messenger or Laravel queue workers in PHP.
-    version: 0.1.0-stub
-    tags:
-      - php
-      - worker
-      - queue
-    categories:
-      - worker-job-service
-    capabilities: |
-      Message consumers, retry policies, supervisor-friendly.
-    logos:
-      - php
-  - id: worker-container
-    name: Generic container worker
-    description: Any containerized worker image (language-agnostic).
-    version: 0.1.0-stub
-    tags:
-      - docker
-      - worker
-      - container
-    categories:
-      - worker-job-service
-    capabilities: |
-      Custom entrypoint, scale-to-zero patterns, job runners.
-    logos:
-      - docker
+- id: static-html-site
+  name: Static HTML Site
+  description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
+  version: 3.0.0
+  tags:
+  - static
+  - html
+  - css
+  - javascript
+  - aws
+  - s3
+  - web
+- id: container-go
+  name: Go
+  description: Go service packaged as a Docker image.
+  version: 0.1.0-stub
+  tags:
+  - go
+  - docker
+  - container
+- id: fullstack-sveltekit
+  name: SvelteKit
+  description: Full stack Svelte with SSR, endpoints, and adapters.
+  version: 0.1.0-stub
+  tags:
+  - sveltekit
+  - svelte
+  - fullstack
+- id: python-django
+  name: Django
+  description: Django for admin-heavy and server-rendered web apps.
+  version: 0.1.0-stub
+  tags:
+  - python
+  - django
+- id: worker-php
+  name: PHP worker
+  description: Symfony Messenger or Laravel queue workers in PHP.
+  version: 0.1.0-stub
+  tags:
+  - php
+  - worker
+  - queue
+- id: container-rust
+  name: Rust
+  description: Rust binary or web service in a slim container.
+  version: 0.1.0-stub
+  tags:
+  - rust
+  - docker
+  - container
+- id: container-custom
+  name: Custom Docker app
+  description: Bring any Dockerfile; framework-agnostic container deploy.
+  version: 0.1.0-stub
+  tags:
+  - docker
+  - container
+- id: php-symfony
+  name: Symfony
+  description: Symfony web, API, or hybrid PHP application with Doctrine and console.
+  version: 0.1.0-stub
+  tags:
+  - php
+  - symfony
+- id: static-react-cra
+  name: React (CRA-style)
+  description: React single-page app with a classic CRA-style static build output.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - react
+  - javascript
+- id: worker-node
+  name: Node worker
+  description: Background jobs and queue consumers in Node.js.
+  version: 0.1.0-stub
+  tags:
+  - node
+  - worker
+  - queue
+- id: partrocks-symfony
+  name: PartRocks Symfony
+  description: PartRocks Symfony is an opinionated template for building Symfony applications.
+  version: 3.0.5
+  tags:
+  - symfony
+  - php
+  - framework
+  - web
+  - api
+  - partrocks
+- id: static-react-vite
+  name: React (Vite)
+  description: Static or SPA build with React and Vite; deploy as static assets.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - react
+  - vite
+  - javascript
+- id: worker-python
+  name: Python worker
+  description: Celery, RQ, or async Python job processors.
+  version: 0.1.0-stub
+  tags:
+  - python
+  - worker
+  - queue
+- id: api-laravel
+  name: Laravel API
+  description: Laravel as API backend (resources, Sanctum, queues).
+  version: 0.1.0-stub
+  tags:
+  - php
+  - laravel
+  - api
+- id: api-node
+  name: Node API (Express / Fastify / Nest)
+  description: Node.js REST/GraphQL-style API with interchangeable framework preference.
+  version: 0.1.0-stub
+  tags:
+  - node
+  - api
+  - javascript
+- id: fullstack-nextjs
+  name: Next.js
+  description: Full stack React with SSR, API routes, and app router patterns.
+  version: 0.1.0-stub
+  tags:
+  - nextjs
+  - react
+  - fullstack
+- id: container-java-spring
+  name: Java (Spring)
+  description: Spring Boot (or similar) in a container image.
+  version: 0.1.0-stub
+  tags:
+  - java
+  - spring
+  - docker
+- id: container-rails
+  name: Rails
+  description: Ruby on Rails app containerized for web or API.
+  version: 0.1.0-stub
+  tags:
+  - rails
+  - ruby
+  - docker
+- id: php-laravel
+  name: Laravel
+  description: Laravel MVC, API resources, queues, and Eloquent ORM.
+  version: 0.1.0-stub
+  tags:
+  - php
+  - laravel
+- id: worker-container
+  name: Generic container worker
+  description: Any containerized worker image (language-agnostic).
+  version: 0.1.0-stub
+  tags:
+  - docker
+  - worker
+  - container
+- id: static-vue
+  name: Vue
+  description: Vue static site or SPA built for static hosting.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - vue
+  - javascript
+- id: static-astro
+  name: Astro (static)
+  description: Astro content-focused static site with optional islands.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - astro
+  - javascript
+- id: api-symfony
+  name: Symfony API
+  description: API-focused Symfony (JSON, serialization, API Platform path).
+  version: 0.1.0-stub
+  tags:
+  - php
+  - symfony
+  - api
+- id: python-fastapi
+  name: FastAPI
+  description: FastAPI for high-performance APIs (also listed under API Service).
+  version: 0.1.0-stub
+  tags:
+  - python
+  - fastapi
+  - api
+- id: container-dotnet
+  name: .NET
+  description: .NET application in a Linux container image.
+  version: 0.1.0-stub
+  tags:
+  - dotnet
+  - docker
+  - container
+- id: static-svelte
+  name: Svelte (static)
+  description: Svelte compiled to static assets for edge/CDN delivery.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - svelte
+  - javascript
+- id: python-flask
+  name: Flask
+  description: Lightweight Python web framework for small services and prototypes.
+  version: 0.1.0-stub
+  tags:
+  - python
+  - flask
+- id: fullstack-nuxt
+  name: Nuxt
+  description: Full stack Vue with SSR, Nitro server, and modules.
+  version: 0.1.0-stub
+  tags:
+  - nuxt
+  - vue
+  - fullstack
