@@ -44,6 +44,7 @@ preset:
         dockerfile: _docker/Dockerfile.cloud
         context: .
         repositoryName: partrocks/{{projectName}}
+        registryRequirementId: appRegistry
         tagStrategy: releaseTag
   teardown:
     policy: cleanup

@@ -31,7 +31,10 @@ preset:
       containerImage:
         dockerfile: _docker/Dockerfile.cloud
         context: .
+        # Fallback image path when no registry binding is used (legacy). When registryRequirementId
+        # is set, repositoryName on the RegistryBinding.config is preferred after interpolation.
         repositoryName: partrocks/{{projectName}}
+        registryRequirementId: appRegistry
         tagStrategy: releaseTag
   ui:
     badges:
