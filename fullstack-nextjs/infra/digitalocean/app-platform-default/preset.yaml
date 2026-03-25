@@ -33,11 +33,15 @@ preset:
       containerImage:
         dockerfile: _docker/Dockerfile.cloud
         context: .
-        # Fallback image path when no registry binding is used (legacy). When registryRequirementId
-        # is set, repositoryName on the RegistryBinding.config is preferred after interpolation.
-        repositoryName: partrocks/{{projectName}}
+        # DOCR entry tiers allow only one repository. Use a single path for every app on this
+        # registry; push tags are appId-envId-releaseTag. If the registry already has a repo
+        # from an older preset, set metadata imageRepositoryPath on the container-registry resource.
+        repositoryName: partrocks/workspace
+        singleRepositoryImageLayout: true
         registryRequirementId: appRegistry
         tagStrategy: releaseTag
+  teardown:
+    policy: cleanup
   ui:
     badges:
       - managed-platform
