@@ -127,7 +127,7 @@ templates:
 - id: fullstack-nextjs
   name: Next.js
   description: Full stack React with SSR, API routes, and app router patterns.
-  version: 1.0.11
+  version: 1.0.12
   tags:
   - nextjs
   - react
