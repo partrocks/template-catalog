@@ -29,9 +29,10 @@ locals {
     0,
     8
   )
-  app_scope        = substr("${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}-${local.app_scope_hash}", 0, 45)
-  app_scope_short  = substr(local.app_scope, 0, 25)
-  app_service_name = substr("partrocks-${local.app_scope}", 0, 40)
+  app_scope = substr("${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}-${local.app_scope_hash}", 0, 45)
+  # DO spec.name: pr-{scope}, scope = hash-app-env (hash first so 32-char cap trims app/env tail, not uniqueness).
+  do_app_name_scope = "${local.app_scope_hash}-${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}"
+  app_service_name  = substr("pr-${local.do_app_name_scope}", 0, 32)
 
   # Preset must define constraints.doRegion; if interpolation failed, placeholder still contains "{{".
   # Lowercase DO slugs here so DB + app always match (UI may send LON1).
