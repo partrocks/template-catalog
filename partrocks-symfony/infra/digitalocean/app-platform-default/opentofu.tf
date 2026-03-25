@@ -6,10 +6,6 @@ terraform {
       source  = "digitalocean/digitalocean"
       version = "~> 2.0"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.0"
-    }
   }
 }
 
@@ -25,6 +21,9 @@ locals {
   pr_do_region           = "{{ constraints.doRegion }}"
   pr_do_instance_size    = "{{ constraints.doInstanceSize }}"
   pr_do_instance_count   = "{{ constraints.doInstanceCount }}"
+  pr_database_url        = "{{ constraints.databaseUrl }}"
+  pr_app_secret          = "{{ constraints.appSecret }}"
+  pr_jwt_secret_key      = "{{ constraints.jwtSecretKey }}"
   app_scope_hash = substr(
     sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.pr_safe_environment_id),
     0,
@@ -33,7 +32,6 @@ locals {
   app_scope        = substr("${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}-${local.app_scope_hash}", 0, 45)
   app_scope_short  = substr(local.app_scope, 0, 25)
   app_service_name = substr("partrocks-${local.app_scope}", 0, 40)
-  database_name = "appdb"
 
   # Preset must define constraints.doRegion; if interpolation failed, placeholder still contains "{{".
   # Lowercase DO slugs here so DB + app always match (UI may send LON1).
@@ -50,25 +48,6 @@ locals {
   # App Platform wants the region slug without the trailing digit (lon from lon1). Pattern has no
   # capture groups, so regex() returns a STRING (not a list) — works on all Terraform/OpenTofu versions.
   do_region_app = regex("^[a-z]+", local.do_region_db)
-
-  # Managed Postgres clusters require datacenter slugs (e.g. lon1). Constraints may use App
-  # Platform–style names (lon) — map those; full slugs pass through unchanged.
-  do_pg_region_slug = lookup(
-    {
-      lon = "lon1"
-      nyc = "nyc1"
-      sfo = "sfo3"
-      ams = "ams3"
-      fra = "fra1"
-      sgp = "sgp1"
-      blr = "blr1"
-      tor = "tor1"
-      syd = "syd1"
-      atl = "atl1"
-    },
-    local.do_region_db,
-    local.do_region_db
-  )
 
   image_ref_parts   = split(":", local.pr_release_ref)
   image_tag         = length(local.image_ref_parts) > 1 ? local.image_ref_parts[length(local.image_ref_parts) - 1] : "latest"
@@ -106,32 +85,7 @@ locals {
   )
 }
 
-resource "digitalocean_database_cluster" "postgres" {
-  name       = "partrocks-${local.app_scope}-postgres"
-  engine     = "pg"
-  version    = "16"
-  size       = "db-s-1vcpu-1gb"
-  region     = local.do_pg_region_slug
-  node_count = 1
-}
-
-resource "digitalocean_database_db" "appdb" {
-  cluster_id = digitalocean_database_cluster.postgres.id
-  name       = local.database_name
-}
-
-resource "random_password" "app_secret" {
-  length  = 64
-  special = false
-}
-
-resource "random_password" "jwt_secret_key" {
-  length  = 96
-  special = false
-}
-
 locals {
-  database_url = "postgresql://${digitalocean_database_cluster.postgres.user}:${urlencode(digitalocean_database_cluster.postgres.password)}@${digitalocean_database_cluster.postgres.host}:${digitalocean_database_cluster.postgres.port}/${local.database_name}?sslmode=require&serverVersion=16&charset=utf8"
   app_dns_name = split("/", trimprefix(digitalocean_app.app.live_url, "https://"))[0]
 }
 
@@ -170,31 +124,22 @@ resource "digitalocean_app" "app" {
 
       env {
         key   = "DATABASE_URL"
-        value = local.database_url
+        value = local.pr_database_url
         type  = "SECRET"
       }
 
       env {
         key   = "APP_SECRET"
-        value = random_password.app_secret.result
+        value = local.pr_app_secret
         type  = "SECRET"
       }
 
       env {
         key   = "JWT_SECRET_KEY"
-        value = random_password.jwt_secret_key.result
+        value = local.pr_jwt_secret_key
         type  = "SECRET"
       }
     }
-  }
-}
-
-resource "digitalocean_database_firewall" "postgres" {
-  cluster_id = digitalocean_database_cluster.postgres.id
-
-  rule {
-    type  = "app"
-    value = digitalocean_app.app.id
   }
 }
 
@@ -209,20 +154,20 @@ output "APP_DNS_NAME" {
 }
 
 output "DATABASE_URL" {
-  description = "Database connection string (sensitive)."
-  value       = local.database_url
+  description = "Resolved DATABASE_URL injected via shared resource binding."
+  value       = local.pr_database_url
   sensitive   = true
 }
 
 output "APP_SECRET" {
-  description = "APP_SECRET value (sensitive)."
-  value       = random_password.app_secret.result
+  description = "Resolved APP_SECRET injected via environment/binding secrets."
+  value       = local.pr_app_secret
   sensitive   = true
 }
 
 output "JWT_SECRET_KEY" {
-  description = "JWT secret key (sensitive)."
-  value       = random_password.jwt_secret_key.result
+  description = "Resolved JWT secret key injected via environment/binding secrets."
+  value       = local.pr_jwt_secret_key
   sensitive   = true
 }
 

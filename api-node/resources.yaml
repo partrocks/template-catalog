@@ -1,0 +1,18 @@
+resources:
+  - id: primaryDatabase
+    kind: database
+    shareable: true
+    constraints:
+      engine: postgres
+      version: ">=17"
+    binding:
+      mode: schema-per-app
+      credentials: dedicated-user
+  - id: publicGateway
+    kind: gateway
+    shareable: true
+    constraints:
+      protocol: https
+      routing: host
+    binding:
+      scope: environment

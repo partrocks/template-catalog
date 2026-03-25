@@ -6,10 +6,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.0"
-    }
   }
 }
 
@@ -32,19 +28,23 @@ provider "aws" {
 }
 
 locals {
-  pr_environment_id        = "{{ environment.id }}"
-  pr_safe_environment_id   = "{{ environment.safeId }}"
-  pr_provider_id           = "{{ provider.id }}"
-  pr_release_tag           = "{{ release.tag }}"
-  pr_release_ref           = "{{ release.imageRef }}"
+  pr_environment_id         = "{{ environment.id }}"
+  pr_safe_environment_id    = "{{ environment.safeId }}"
+  pr_provider_id            = "{{ provider.id }}"
+  pr_release_ref            = "{{ release.imageRef }}"
   pr_safe_release_repo_name = "{{ release.safeImageName }}"
-  pr_app_port              = "{{ constraints.appPort }}"
-  pr_app_health_path       = "{{ constraints.appHealthPath }}"
-  pr_apprunner_cpu         = "{{ constraints.appRunnerCpu }}"
-  pr_apprunner_memory      = "{{ constraints.appRunnerMemory }}"
-  pr_apprunner_min_size    = "{{ constraints.appRunnerMinSize }}"
-  pr_apprunner_max_size    = "{{ constraints.appRunnerMaxSize }}"
-  pr_start_command         = "{{ constraints.appRunnerStartCommand }}"
+  pr_app_port               = "{{ constraints.appPort }}"
+  pr_app_health_path        = "{{ constraints.appHealthPath }}"
+  pr_apprunner_cpu          = "{{ constraints.appRunnerCpu }}"
+  pr_apprunner_memory       = "{{ constraints.appRunnerMemory }}"
+  pr_apprunner_min_size     = "{{ constraints.appRunnerMinSize }}"
+  pr_apprunner_max_size     = "{{ constraints.appRunnerMaxSize }}"
+  pr_start_command          = "{{ constraints.appRunnerStartCommand }}"
+
+  # Shared resources now provide database and secret values.
+  pr_database_url   = "{{ constraints.databaseUrl }}"
+  pr_app_secret     = "{{ constraints.appSecret }}"
+  pr_jwt_secret_key = "{{ constraints.jwtSecretKey }}"
 
   scope_seed = "${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}"
   app_scope_hash = substr(
@@ -57,144 +57,8 @@ locals {
     0,
     45
   )
-  app_scope_short   = substr(local.app_scope, 0, 25)
-  app_service_name  = substr("partrocks-${local.app_scope}", 0, 40)
-  app_shared_seed = local.pr_safe_release_repo_name
-  app_shared_hash = substr(
-    sha1(local.app_shared_seed),
-    0,
-    8
-  )
-  app_shared_scope = substr(
-    "${local.pr_safe_release_repo_name}-${local.app_shared_hash}",
-    0,
-    45
-  )
-  database_name     = "appdb"
-  database_username = "appuser"
-}
-
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default_vpc_subnets" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-}
-
-resource "aws_security_group" "postgres" {
-  name_prefix = "partrocks-${local.app_scope}-postgres-"
-  description = "Postgres access within default VPC CIDR"
-  vpc_id      = data.aws_vpc.default.id
-
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.apprunner_vpc_connector.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_security_group" "apprunner_vpc_connector" {
-  name_prefix = "partrocks-${local.app_scope}-apprunner-vpc-"
-  description = "App Runner VPC connector egress"
-  vpc_id      = data.aws_vpc.default.id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_db_subnet_group" "postgres" {
-  name       = "partrocks-${local.app_scope}-postgres-subnets"
-  subnet_ids = data.aws_subnets.default_vpc_subnets.ids
-}
-
-resource "random_password" "database_password" {
-  length  = 32
-  special = false
-}
-
-resource "aws_db_instance" "postgres" {
-  identifier                 = "partrocks-${local.app_scope}-postgres"
-  allocated_storage          = 20
-  max_allocated_storage      = 100
-  storage_type               = "gp3"
-  engine                     = "postgres"
-  instance_class             = "db.t3.micro"
-  db_name                    = local.database_name
-  username                   = local.database_username
-  password                   = random_password.database_password.result
-  db_subnet_group_name       = aws_db_subnet_group.postgres.name
-  vpc_security_group_ids     = [aws_security_group.postgres.id]
-  backup_retention_period    = 7
-  storage_encrypted          = true
-  auto_minor_version_upgrade = true
-  deletion_protection        = false
-  skip_final_snapshot        = true
-  apply_immediately          = true
-}
-
-locals {
-  database_url = "postgresql://${local.database_username}:${random_password.database_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/${local.database_name}?serverVersion=16&charset=utf8"
-}
-
-resource "aws_secretsmanager_secret" "database_url" {
-  name                    = "partrocks/${local.app_scope}/DATABASE_URL"
-  description             = "Symfony DATABASE_URL for ${local.pr_environment_id}"
-  recovery_window_in_days = 0
-}
-
-resource "aws_secretsmanager_secret_version" "database_url" {
-  secret_id     = aws_secretsmanager_secret.database_url.id
-  secret_string = local.database_url
-}
-
-resource "random_password" "app_secret" {
-  length           = 32
-  special          = true
-  override_special = "!#&*+-.:=?@^_"
-}
-
-resource "aws_secretsmanager_secret" "app_secret" {
-  name                    = "partrocks/${local.app_scope}/APP_SECRET"
-  description             = "Symfony APP_SECRET for ${local.pr_environment_id}"
-  recovery_window_in_days = 0
-}
-
-resource "aws_secretsmanager_secret_version" "app_secret" {
-  secret_id     = aws_secretsmanager_secret.app_secret.id
-  secret_string = random_password.app_secret.result
-}
-
-resource "random_password" "jwt_secret_key" {
-  length           = 48
-  special          = true
-  override_special = "!#&*+-.:=?@^_"
-}
-
-resource "aws_secretsmanager_secret" "jwt_secret_key" {
-  name                    = "partrocks/${local.app_scope}/JWT_SECRET_KEY"
-  description             = "Symfony JWT secret key for ${local.pr_environment_id}"
-  recovery_window_in_days = 0
-}
-
-resource "aws_secretsmanager_secret_version" "jwt_secret_key" {
-  secret_id     = aws_secretsmanager_secret.jwt_secret_key.id
-  secret_string = random_password.jwt_secret_key.result
+  app_scope_short  = substr(local.app_scope, 0, 25)
+  app_service_name = substr("partrocks-${local.app_scope}", 0, 40)
 }
 
 resource "aws_iam_role" "apprunner_access" {
@@ -216,56 +80,6 @@ resource "aws_iam_role" "apprunner_access" {
 resource "aws_iam_role_policy_attachment" "apprunner_access_ecr" {
   role       = aws_iam_role.apprunner_access.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
-}
-
-resource "aws_iam_role" "apprunner_instance" {
-  name = "${local.app_scope}-apprunner-instance"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = "tasks.apprunner.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "apprunner_secrets" {
-  name = "${local.app_scope}-apprunner-secrets"
-  role = aws_iam_role.apprunner_instance.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetSecretValue"
-        ]
-        Resource = [
-          aws_secretsmanager_secret.database_url.arn,
-          aws_secretsmanager_secret.app_secret.arn,
-          aws_secretsmanager_secret.jwt_secret_key.arn
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "kms:Decrypt"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-resource "aws_apprunner_vpc_connector" "app" {
-  vpc_connector_name = "${local.app_scope_short}-apprunner-vpc"
-  subnets            = data.aws_subnets.default_vpc_subnets.ids
-  security_groups    = [aws_security_group.apprunner_vpc_connector.id]
 }
 
 resource "aws_apprunner_auto_scaling_configuration_version" "app" {
@@ -293,32 +107,23 @@ resource "aws_apprunner_service" "app" {
         port          = local.pr_app_port
         start_command = local.pr_start_command
 
-        runtime_environment_variables = {
-          APP_ENV = "prod"
-          APP_DEBUG = "0"
-          APP_RUN_COMMAND = "php -S 0.0.0.0:${local.pr_app_port} -t public"
-        }
-
-        runtime_environment_secrets = {
-          DATABASE_URL   = aws_secretsmanager_secret.database_url.arn
-          APP_SECRET     = aws_secretsmanager_secret.app_secret.arn
-          JWT_SECRET_KEY = aws_secretsmanager_secret.jwt_secret_key.arn
-        }
+        runtime_environment_variables = merge(
+          {
+            APP_ENV         = "prod"
+            APP_DEBUG       = "0"
+            APP_RUN_COMMAND = "php -S 0.0.0.0:${local.pr_app_port} -t public"
+          },
+          trimspace(local.pr_database_url) != "" ? { DATABASE_URL = local.pr_database_url } : {},
+          trimspace(local.pr_app_secret) != "" ? { APP_SECRET = local.pr_app_secret } : {},
+          trimspace(local.pr_jwt_secret_key) != "" ? { JWT_SECRET_KEY = local.pr_jwt_secret_key } : {}
+        )
       }
     }
   }
 
   instance_configuration {
-    cpu               = local.pr_apprunner_cpu
-    memory            = local.pr_apprunner_memory
-    instance_role_arn = aws_iam_role.apprunner_instance.arn
-  }
-
-  network_configuration {
-    egress_configuration {
-      egress_type       = "VPC"
-      vpc_connector_arn = aws_apprunner_vpc_connector.app.arn
-    }
+    cpu    = local.pr_apprunner_cpu
+    memory = local.pr_apprunner_memory
   }
 
   health_check_configuration {
@@ -326,66 +131,11 @@ resource "aws_apprunner_service" "app" {
     path     = local.pr_app_health_path
   }
 
-  depends_on = [
-    aws_iam_role_policy_attachment.apprunner_access_ecr,
-    aws_iam_role_policy.apprunner_secrets,
-    aws_secretsmanager_secret_version.database_url,
-    aws_secretsmanager_secret_version.app_secret,
-    aws_secretsmanager_secret_version.jwt_secret_key
-  ]
+  depends_on = [aws_iam_role_policy_attachment.apprunner_access_ecr]
 }
 
-resource "aws_cloudfront_distribution" "app_frontdoor" {
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "PartRocks App Runner front door"
-  default_root_object = ""
-  price_class         = "PriceClass_100"
-  tags = {
-    PartrocksSharedFrontDoorKey = local.app_shared_scope
-  }
-
-  origin {
-    domain_name = aws_apprunner_service.app.service_url
-    origin_id   = "apprunner-${local.app_scope_hash}"
-
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "https-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
-  }
-
-  default_cache_behavior {
-    target_origin_id       = "apprunner-${local.app_scope_hash}"
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"]
-    cached_methods         = ["GET", "HEAD", "OPTIONS"]
-    compress               = true
-
-    forwarded_values {
-      query_string = true
-      headers      = []
-      cookies {
-        forward = "all"
-      }
-    }
-
-    min_ttl     = 0
-    default_ttl = 0
-    max_ttl     = 0
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
+locals {
+  app_dns_name = split("/", trimprefix(aws_apprunner_service.app.service_url, "https://"))[0]
 }
 
 output "APP_BASE_URL" {
@@ -394,18 +144,21 @@ output "APP_BASE_URL" {
 }
 
 output "DATABASE_URL" {
-  description = "Secrets Manager reference for DATABASE_URL."
-  value       = aws_secretsmanager_secret.database_url.arn
+  description = "Resolved DATABASE_URL injected via shared resource binding."
+  value       = local.pr_database_url
+  sensitive   = true
 }
 
 output "APP_SECRET" {
-  description = "Secrets Manager reference for APP_SECRET."
-  value       = aws_secretsmanager_secret.app_secret.arn
+  description = "Resolved APP_SECRET injected via environment/binding secrets."
+  value       = local.pr_app_secret
+  sensitive   = true
 }
 
 output "JWT_SECRET_KEY" {
-  description = "Secrets Manager reference for JWT secret key."
-  value       = aws_secretsmanager_secret.jwt_secret_key.arn
+  description = "Resolved JWT secret key injected via environment/binding secrets."
+  value       = local.pr_jwt_secret_key
+  sensitive   = true
 }
 
 output "APP_ENV" {
@@ -413,16 +166,16 @@ output "APP_ENV" {
 }
 
 output "FRONT_DOOR_URL" {
-  description = "CloudFront URL intended for domain routing."
-  value       = "https://${aws_cloudfront_distribution.app_frontdoor.domain_name}"
+  description = "Public app URL; gateway routing is managed outside template IaC."
+  value       = "https://${aws_apprunner_service.app.service_url}"
 }
 
 output "FRONT_DOOR_DNS_NAME" {
-  description = "Alias-compatible DNS target for Route53."
-  value       = aws_cloudfront_distribution.app_frontdoor.domain_name
+  description = "DNS name for direct app ingress when shared gateway is external."
+  value       = local.app_dns_name
 }
 
 output "FRONT_DOOR_HOSTED_ZONE_ID" {
-  description = "Route53 hosted zone id for the CloudFront target."
-  value       = aws_cloudfront_distribution.app_frontdoor.hosted_zone_id
+  description = "Hosted zone id is managed by shared ingress binding."
+  value       = ""
 }

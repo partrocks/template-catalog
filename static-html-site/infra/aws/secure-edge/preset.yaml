@@ -1,8 +1,8 @@
 preset:
   provider: aws
   id: secure-edge
-  label: Secure Edge (CloudFront + ACM)
-  description: Static site with CloudFront front door and edge TLS.
+  label: Secure Edge (Shared Gateway Ready)
+  description: Static site origin deployment for shared gateway + TLS routing.
   engine: opentofu
   source: opentofu.tf
   capabilities:
@@ -29,6 +29,6 @@ preset:
     securityPosture: edge-tls-only
     costTier: medium
     complexity: medium
-    notes: Recommended for production domains and HTTPS.
+    notes: Recommended for production domains with shared gateway managed TLS.
     images:
       - infra/aws/secure-edge/diagram.svg

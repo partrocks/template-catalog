@@ -17,6 +17,9 @@ preset:
     doRegion: nyc1
     doInstanceSize: basic-xxs
     doInstanceCount: 1
+    databaseUrl: ""
+    appSecret: ""
+    jwtSecretKey: ""
   outputs:
     - key: public_url
       value: "{{ APP_BASE_URL }}"

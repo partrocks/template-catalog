@@ -1,0 +1,9 @@
+resources:
+  - id: publicGateway
+    kind: gateway
+    shareable: true
+    constraints:
+      protocol: https
+      routing: host
+    binding:
+      scope: environment

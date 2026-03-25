@@ -118,53 +118,17 @@ resource "terraform_data" "sync_site_files" {
   ]
 }
 
-resource "aws_cloudfront_distribution" "site_frontdoor" {
-  enabled = true
-  aliases = []
-  origin {
-    domain_name = aws_s3_bucket_website_configuration.site.website_endpoint
-    origin_id   = "s3-website-origin"
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
-  }
-  default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-    cached_methods         = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id       = "s3-website-origin"
-    viewer_protocol_policy = "redirect-to-https"
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-  }
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
-  default_root_object = "index.html"
-}
-
 output "FRONT_DOOR_URL" {
-  description = "CloudFront URL for the static site."
-  value       = "https://${aws_cloudfront_distribution.site_frontdoor.domain_name}"
+  description = "Public site URL; gateway routing is managed outside template IaC."
+  value       = "http://${aws_s3_bucket_website_configuration.site.website_endpoint}"
 }
 
 output "FRONT_DOOR_DNS_NAME" {
-  description = "DNS name for the CloudFront distribution."
-  value       = aws_cloudfront_distribution.site_frontdoor.domain_name
+  description = "DNS name for site origin when shared gateway is external."
+  value       = aws_s3_bucket_website_configuration.site.website_endpoint
 }
 
 output "FRONT_DOOR_HOSTED_ZONE_ID" {
-  description = "Route53 hosted zone id for CloudFront alias records."
-  value       = aws_cloudfront_distribution.site_frontdoor.hosted_zone_id
+  description = "Route53 hosted zone id for the S3 website endpoint."
+  value       = aws_s3_bucket.site.hosted_zone_id
 }

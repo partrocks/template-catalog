@@ -17,6 +17,9 @@ preset:
     appRunnerMemory: 4096
     appRunnerMinSize: 2
     appRunnerMaxSize: 8
+    databaseUrl: ""
+    appSecret: ""
+    jwtSecretKey: ""
   outputs:
     - key: APP_BASE_URL
       value: "{{ APP_BASE_URL }}"
