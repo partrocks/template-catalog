@@ -9,8 +9,10 @@ manifest:
   - api
   categories:
   - api-service
-  capabilities: |
-    JSON APIs, Symfony Serializer, API Platform optional; pairs with PHP Symfony stack.
+  capabilities: 'JSON APIs, Symfony Serializer, API Platform optional; pairs with
+    PHP Symfony stack.
+
+    '
   logos:
   - symfony
   - php

@@ -9,7 +9,8 @@ manifest:
   - container
   categories:
   - worker-job-service
-  capabilities: |
-    Custom entrypoint, scale-to-zero patterns, job runners.
+  capabilities: 'Custom entrypoint, scale-to-zero patterns, job runners.
+
+    '
   logos:
   - docker

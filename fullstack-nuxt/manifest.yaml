@@ -9,8 +9,9 @@ manifest:
   - fullstack
   categories:
   - fullstack-js-web-app
-  capabilities: |
-    Vue SSR, server API, file-based routing, Nitro engine.
+  capabilities: 'Vue SSR, server API, file-based routing, Nitro engine.
+
+    '
   logos:
   - nuxt
   - vue

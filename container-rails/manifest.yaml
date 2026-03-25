@@ -9,8 +9,9 @@ manifest:
   - docker
   categories:
   - container-app
-  capabilities: |
-    Convention over configuration, ActiveRecord, Sidekiq-friendly.
+  capabilities: 'Convention over configuration, ActiveRecord, Sidekiq-friendly.
+
+    '
   logos:
   - rails
   - ruby

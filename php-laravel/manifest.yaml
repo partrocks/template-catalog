@@ -8,8 +8,10 @@ manifest:
   - laravel
   categories:
   - php-web-app
-  capabilities: |
-    Blade or API-first, Sanctum/Passport, Horizon queues; mode selector for API/web/hybrid.
+  capabilities: 'Blade or API-first, Sanctum/Passport, Horizon queues; mode selector
+    for API/web/hybrid.
+
+    '
   logos:
   - laravel
   - php

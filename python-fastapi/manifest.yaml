@@ -10,8 +10,10 @@ manifest:
   categories:
   - python-web-app
   - api-service
-  capabilities: |
-    Async Python, OpenAPI docs, Pydantic models; ideal for API-first and microservices.
+  capabilities: 'Async Python, OpenAPI docs, Pydantic models; ideal for API-first
+    and microservices.
+
+    '
   logos:
   - fastapi
   - python

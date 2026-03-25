@@ -9,7 +9,8 @@ manifest:
   - container
   categories:
   - container-app
-  capabilities: |
-    ASP.NET Core, minimal APIs, worker services.
+  capabilities: 'ASP.NET Core, minimal APIs, worker services.
+
+    '
   logos:
   - dotnet

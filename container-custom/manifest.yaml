@@ -8,7 +8,8 @@ manifest:
   - container
   categories:
   - container-app
-  capabilities: |
-    Full control of base image, build, and runtime; language-agnostic.
+  capabilities: 'Full control of base image, build, and runtime; language-agnostic.
+
+    '
   logos:
   - docker

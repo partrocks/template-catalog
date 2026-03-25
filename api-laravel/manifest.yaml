@@ -9,8 +9,9 @@ manifest:
   - api
   categories:
   - api-service
-  capabilities: |
-    REST resources, form requests, policies; API-first Laravel deployment.
+  capabilities: 'REST resources, form requests, policies; API-first Laravel deployment.
+
+    '
   logos:
   - laravel
   - php

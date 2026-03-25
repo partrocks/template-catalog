@@ -8,8 +8,10 @@ manifest:
   - symfony
   categories:
   - php-web-app
-  capabilities: |
-    HTTP kernel, DI, Messenger, API Platform optional; choose web, API, or hybrid mode when scaffolding.
+  capabilities: 'HTTP kernel, DI, Messenger, API Platform optional; choose web, API,
+    or hybrid mode when scaffolding.
+
+    '
   logos:
   - symfony
   - php

@@ -9,7 +9,8 @@ manifest:
   - javascript
   categories:
   - static-web-app
-  capabilities: |
-    Static generation, partial hydration, MD/MDX content.
+  capabilities: 'Static generation, partial hydration, MD/MDX content.
+
+    '
   logos:
   - astro

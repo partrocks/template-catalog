@@ -9,7 +9,9 @@ manifest:
   - javascript
   categories:
   - static-web-app
-  capabilities: |
-    React SPA, static build directory suitable for CDN or object storage hosting.
+  capabilities: 'React SPA, static build directory suitable for CDN or object storage
+    hosting.
+
+    '
   logos:
   - react

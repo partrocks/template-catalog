@@ -9,7 +9,8 @@ manifest:
   - container
   categories:
   - container-app
-  capabilities: |
-    Memory safety, performance, multi-stage Dockerfile patterns.
+  capabilities: 'Memory safety, performance, multi-stage Dockerfile patterns.
+
+    '
   logos:
   - rust

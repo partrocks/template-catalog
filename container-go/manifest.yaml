@@ -9,7 +9,8 @@ manifest:
   - container
   categories:
   - container-app
-  capabilities: |
-    Static binary, small images, high concurrency; bring your own framework.
+  capabilities: 'Static binary, small images, high concurrency; bring your own framework.
+
+    '
   logos:
   - go

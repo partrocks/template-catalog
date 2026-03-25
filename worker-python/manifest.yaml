@@ -9,7 +9,8 @@ manifest:
   - queue
   categories:
   - worker-job-service
-  capabilities: |
-    Queue workers, cron-style schedules, batch pipelines.
+  capabilities: 'Queue workers, cron-style schedules, batch pipelines.
+
+    '
   logos:
   - python

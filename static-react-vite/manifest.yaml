@@ -10,8 +10,9 @@ manifest:
   - javascript
   categories:
   - static-web-app
-  capabilities: |
-    Client-side React, Vite bundler, static export/CDN-friendly output.
+  capabilities: 'Client-side React, Vite bundler, static export/CDN-friendly output.
+
+    '
   logos:
   - react
   - vite

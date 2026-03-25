@@ -8,8 +8,10 @@ manifest:
   - django
   categories:
   - python-web-app
-  capabilities: |
-    ORM, admin, migrations, templates; suited for data-driven sites and internal tools.
+  capabilities: 'ORM, admin, migrations, templates; suited for data-driven sites and
+    internal tools.
+
+    '
   logos:
   - django
   - python

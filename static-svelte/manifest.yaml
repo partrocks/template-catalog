@@ -9,7 +9,8 @@ manifest:
   - javascript
   categories:
   - static-web-app
-  capabilities: |
-    Svelte components, small bundle, static adapter output.
+  capabilities: 'Svelte components, small bundle, static adapter output.
+
+    '
   logos:
   - svelte

@@ -9,7 +9,8 @@ manifest:
   - fullstack
   categories:
   - fullstack-js-web-app
-  capabilities: |
-    File-based routing, server endpoints, adapter-based deploy.
+  capabilities: 'File-based routing, server endpoints, adapter-based deploy.
+
+    '
   logos:
   - svelte

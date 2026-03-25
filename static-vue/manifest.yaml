@@ -9,7 +9,8 @@ manifest:
   - javascript
   categories:
   - static-web-app
-  capabilities: |
-    Vue 3 composition or options API, static site generation or SPA build.
+  capabilities: 'Vue 3 composition or options API, static site generation or SPA build.
+
+    '
   logos:
   - vue

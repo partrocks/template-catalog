@@ -9,7 +9,9 @@ manifest:
   - javascript
   categories:
   - api-service
-  capabilities: |
-    HTTP APIs, middleware, validation; pick Express, Fastify, or Nest when generating.
+  capabilities: 'HTTP APIs, middleware, validation; pick Express, Fastify, or Nest
+    when generating.
+
+    '
   logos:
   - nodejs

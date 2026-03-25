@@ -9,7 +9,7 @@ manifest:
   - web
   - api
   - partrocks
-  version: 3.0.12
+  version: 3.0.13
   author: PartRocks
   license: MIT
   repository: https://github.com/partrocks/partrocks-symfony

@@ -9,8 +9,9 @@ manifest:
   - docker
   categories:
   - container-app
-  capabilities: |
-    JVM ecosystem, Spring ecosystem, production-ready defaults.
+  capabilities: 'JVM ecosystem, Spring ecosystem, production-ready defaults.
+
+    '
   logos:
   - spring
   - java

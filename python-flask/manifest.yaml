@@ -8,8 +8,9 @@ manifest:
   - flask
   categories:
   - python-web-app
-  capabilities: |
-    Minimal core, blueprints, Jinja; flexible stack choice.
+  capabilities: 'Minimal core, blueprints, Jinja; flexible stack choice.
+
+    '
   logos:
   - flask
   - python
