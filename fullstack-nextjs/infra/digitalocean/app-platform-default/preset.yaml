@@ -25,6 +25,8 @@ preset:
       value: "{{ APP_BASE_URL }}"
     - key: dns_name
       value: "{{ APP_DNS_NAME }}"
+    - key: APP_PLATFORM_ID
+      value: "{{ APP_PLATFORM_ID }}"
   preflights:
     artifacts:
       type: container_image

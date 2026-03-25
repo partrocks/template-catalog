@@ -5,3 +5,7 @@
 > **Syntax reference** — The template-engine that reads these files has its syntax
 > definition documented at:
 > [partrocks/desktop › template-engine/syntax.md](https://github.com/partrocks/desktop/blob/main/packages/template-engine/syntax.md)
+
+## Custom domains and edge TLS
+
+See [docs/template-edge-ssl-contract.md](docs/template-edge-ssl-contract.md) for required DNS outputs, DigitalOcean `APP_PLATFORM_ID`, and how presets interact with PartRocks domain automation.

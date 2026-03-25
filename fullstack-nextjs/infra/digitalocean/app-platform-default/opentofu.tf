@@ -148,6 +148,11 @@ output "APP_BASE_URL" {
   value       = digitalocean_app.app.live_url
 }
 
+output "APP_PLATFORM_ID" {
+  description = "DigitalOcean App Platform app id (UUID) for API-driven custom domain / edge TLS automation."
+  value       = digitalocean_app.app.id
+}
+
 output "APP_DNS_NAME" {
   description = "DNS hostname for the application URL."
   value       = local.app_dns_name
