@@ -60,3 +60,16 @@ Without `APP_PLATFORM_ID` (or alias), DNS can still be automated; App Platform h
 ## AWS certificate / CloudFront (legacy note)
 
 Templates that front the app with **CloudFront** should expose outputs that resolve to a **CloudFront DNS name** so the AWS provider can run ACM + alias attachment. Non-CloudFront targets skip that path by design (`certificateStatus: not_required` where applicable).
+
+## Traffic route snapshot (DNS / TLS diagram)
+
+PartRocks persists a **declared** `TrafficRouteModel` (schema v1) on each managed domain assignment (`assignment.trafficRoute` in `domains.json`). It is recomputed when you **apply** a domain link, when **DNS-configured URLs** sync for an environment, and after **deploy apply** completes (so new `environment.outputs` refresh LB/App/CF hops).
+
+**Builder inputs:** DNS provider, public hostname (`domainName` + optional `recordName`), resolved **DNS target** (`dns_name` / structured DNS outputs), `deploymentProvider`, and `buildHostingEdgeBindingContext` **resource refs** from env outputs (same keys as in the tables above).
+
+**Topology rules (current):**
+
+- **DNS zone** → optional **Cloudflare proxy** (when default orange-cloud applies to the record type) → **ingress** node derived from `resolveDomainTargetProfile` (e.g. CDN vs hostname vs IP).
+- **Deployment hops** come from `expandDeclaredDeploymentHops` in `@partrocks/provider-control`: e.g. DigitalOcean **load balancer** → **App Platform** when both ids exist; AWS **ACM** → **CloudFront** when refs exist; Cloudflare zone / Pages / Workers when the deploy provider is Cloudflare and outputs include those refs.
+
+**Future / optional:** Templates may expose a structured `routing_topology` output (ordered hops) to override or extend inferred chains. **Observed** TLS (live cert fetch) is a separate optional `TrafficRouteObserver` port and does not block the declared diagram.
