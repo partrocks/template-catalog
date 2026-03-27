@@ -1,9 +1,9 @@
 steps:
   - step: create-symfony-skeleton
-    label: Creating Symfony 7 skeleton
+    label: Creating Symfony 8 skeleton
     run:
       - command: >-
-          composer create-project symfony/skeleton:"7.2.*" . --no-interaction --no-ansi
+          composer create-project symfony/skeleton:"^8.0" . --no-interaction --no-ansi
 
   - step: require-webapp
     label: Installing webapp pack (Twig, Doctrine, security)

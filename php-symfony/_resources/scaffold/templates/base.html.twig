@@ -73,6 +73,35 @@
                 font-size: 0.85rem;
                 color: var(--muted);
             }
+            .status {
+                display: inline-block;
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-left: 0.35rem;
+                padding: 0.15em 0.5em;
+                border-radius: 4px;
+            }
+            .status--ok {
+                color: #0d9f4c;
+                background: rgba(13, 159, 76, 0.15);
+            }
+            @media (prefers-color-scheme: light) {
+                .status--ok {
+                    color: #067a3a;
+                    background: rgba(13, 159, 76, 0.12);
+                }
+            }
+            .status--bad {
+                color: #f06363;
+                background: rgba(240, 99, 99, 0.15);
+            }
+            .status-detail {
+                display: block;
+                margin-top: 0.35rem;
+                font-size: 0.82rem;
+                font-weight: 400;
+                color: var(--muted);
+            }
         </style>
         {% block stylesheets %}{% endblock %}
     </head>

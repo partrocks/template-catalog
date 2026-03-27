@@ -19,6 +19,17 @@
         <ul>
             <li><strong>Symfony</strong> {{ symfonyVersion }} · <strong>PHP</strong> {{ phpVersion }}</li>
             <li><strong>APP_ENV</strong> (runtime): <code>{{ appEnv }}</code></li>
+            <li>
+                <strong>PostgreSQL</strong>
+                {% if dbConnected %}
+                    <span class="status status--ok">Connected</span>
+                {% else %}
+                    <span class="status status--bad">Not connected</span>
+                    {% if dbError %}
+                        <span class="status-detail">{{ dbError }}</span>
+                    {% endif %}
+                {% endif %}
+            </li>
             <li>Replace this landing page in <code>templates/home/</code> and <code>DefaultController</code> when you are ready.</li>
         </ul>
         <footer>
