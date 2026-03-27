@@ -4,10 +4,10 @@ FROM composer:2 AS vendor
 WORKDIR /app
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-COPY composer.json composer.lock ./
+COPY app/composer.json app/composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader
 
-COPY . .
+COPY app/ /app
 
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
