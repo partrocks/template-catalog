@@ -11,7 +11,7 @@ preset:
     - envConfig
   constraints:
     appPort: 8080
-    appHealthPath: /
+    appHealthPath: /health
     appRunnerStartCommand: "frankenphp run --config /app/docker/frankenphp/Caddyfile"
     appRunnerCpu: 2048
     appRunnerMemory: 4096
