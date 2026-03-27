@@ -33,8 +33,8 @@ locals {
   # DO spec.name: pr-{scope}, scope = hash-app-env (hash first so 32-char cap trims app/env tail, not uniqueness).
   do_app_name_scope = "${local.app_scope_hash}-${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}"
   # Name must match ^[a-z][a-z0-9-]{0,30}[a-z0-9]$ — max 32 chars and cannot end with '-'.
-  # substr(0,32) commonly ends on '-' (e.g. before env segment). Strip trailing '-' without
-  # regexreplace (some deploy runners ship an older OpenTofu that lacks that builtin).
+  # substr(0,32) commonly ends on '-' (e.g. before env segment). Strip the final '-' using
+  # only substr/length (works on older OpenTofu in deploy runners).
   app_service_name_trunc = substr(lower("pr-${local.do_app_name_scope}"), 0, 32)
   app_service_name_len   = length(local.app_service_name_trunc)
   app_service_name_last = (
