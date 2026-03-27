@@ -4,3 +4,4 @@ pipeline:
       - require-webapp
       - prune-demo-controllers
       - copy-scaffold-files
+      - patch-env-local-port

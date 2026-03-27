@@ -18,7 +18,15 @@ steps:
           rm -f src/Controller/DemoController.php src/Controller/HelloController.php 2>/dev/null; true
 
   - step: copy-scaffold-files
-    label: Adding PartRocks landing page, FrankenPHP Caddyfile, and .dockerignore
+    label: Adding PartRocks landing page, FrankenPHP Caddyfile, .env (Docker dev defaults), and .dockerignore
     copy:
       from: scaffold
       to: .
+
+  - step: patch-env-local-port
+    label: Setting DEFAULT_URI to match chosen local HTTP port
+    modify:
+      file: .env
+      replacements:
+        - search: DEFAULT_URI=http://localhost:8080
+          replace: DEFAULT_URI=http://localhost:{{localPort}}
