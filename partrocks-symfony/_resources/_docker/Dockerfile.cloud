@@ -52,4 +52,4 @@ RUN php bin/console asset-map:compile --env=prod
 
 EXPOSE 9000
 
-# Container is started by environments.yaml (deploy.targets.[PROVIDER].constraints.appRunnerStartCommand)
+# Runtime: sh /opt/partrocks/hooks/cloud-boot.sh (see environments.yaml boot.script and deploy presets).
