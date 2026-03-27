@@ -77,7 +77,7 @@ templates:
 - id: partrocks-symfony
   name: PartRocks Symfony
   description: PartRocks Symfony is an opinionated template for building Symfony applications.
-  version: 3.0.18
+  version: 3.0.19
   tags:
   - symfony
   - php
