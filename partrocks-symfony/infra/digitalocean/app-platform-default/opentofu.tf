@@ -10,20 +10,20 @@ terraform {
 }
 
 locals {
-  pr_environment_id      = "{{ environment.id }}"
-  pr_safe_environment_id = "{{ environment.safeId }}"
-  pr_provider_id         = "{{ provider.id }}"
-  pr_release_tag         = "{{ release.tag }}"
-  pr_release_ref         = "{{ release.imageRef }}"
+  pr_environment_id         = "{{ environment.id }}"
+  pr_safe_environment_id    = "{{ environment.safeId }}"
+  pr_provider_id            = "{{ provider.id }}"
+  pr_release_tag            = "{{ release.tag }}"
+  pr_release_ref            = "{{ release.imageRef }}"
   pr_safe_release_repo_name = "{{ release.safeImageName }}"
-  pr_app_port            = "{{ constraints.appPort }}"
-  pr_app_health_path     = "{{ constraints.appHealthPath }}"
-  pr_do_region           = "{{ constraints.doRegion }}"
-  pr_do_instance_size    = "{{ constraints.doInstanceSize }}"
-  pr_do_instance_count   = "{{ constraints.doInstanceCount }}"
-  pr_database_url        = "{{ constraints.databaseUrl }}"
-  pr_app_secret          = "{{ constraints.appSecret }}"
-  pr_jwt_secret_key      = "{{ constraints.jwtSecretKey }}"
+  pr_app_port               = "{{ constraints.appPort }}"
+  pr_app_health_path        = "{{ constraints.appHealthPath }}"
+  pr_do_region              = "{{ constraints.doRegion }}"
+  pr_do_instance_size       = "{{ constraints.doInstanceSize }}"
+  pr_do_instance_count      = "{{ constraints.doInstanceCount }}"
+  pr_database_url           = "{{ constraints.databaseUrl }}"
+  pr_app_secret             = "{{ constraints.appSecret }}"
+  pr_jwt_secret_key         = "{{ constraints.jwtSecretKey }}"
   app_scope_hash = substr(
     sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.pr_safe_environment_id),
     0,
@@ -32,7 +32,13 @@ locals {
   app_scope = substr("${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}-${local.app_scope_hash}", 0, 45)
   # DO spec.name: pr-{scope}, scope = hash-app-env (hash first so 32-char cap trims app/env tail, not uniqueness).
   do_app_name_scope = "${local.app_scope_hash}-${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}"
-  app_service_name  = substr("pr-${local.do_app_name_scope}", 0, 32)
+  # Name must match ^[a-z][a-z0-9-]{0,30}[a-z0-9]$ — max 32 chars and cannot end with '-'.
+  # substr(0,32) commonly ends on a hyphen when the image/repo slug is long (e.g. partrocks-workspace).
+  app_service_name = regexreplace(
+    substr(lower(regexreplace("pr-${local.do_app_name_scope}", "[^a-z0-9-]", "")), 0, 32),
+    "-+$",
+    ""
+  )
 
   # Preset must define constraints.doRegion; if interpolation failed, placeholder still contains "{{".
   # Lowercase DO slugs here so DB + app always match (UI may send LON1).
