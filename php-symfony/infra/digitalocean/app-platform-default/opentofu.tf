@@ -116,6 +116,9 @@ resource "digitalocean_app" "app" {
       instance_count     = try(tonumber(local.pr_do_instance_count), 1)
       instance_size_slug = local.pr_do_instance_size_resolved
       http_port          = tonumber(local.pr_app_port)
+      # App Platform does not run PartRocks lifecycle hooks from environments.yaml; migrate before
+      # FrankenPHP (matches Dockerfile.cloud CMD).
+      run_command = "sh -c 'php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration && exec frankenphp run --config /app/docker/frankenphp/Caddyfile'"
 
       image {
         registry_type = local.registry_type
