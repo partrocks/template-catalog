@@ -190,8 +190,9 @@ templates:
   - api
 - id: php-symfony
   name: Symfony
-  description: Symfony web, API, or hybrid PHP application with Doctrine and console.
-  version: 0.1.0-stub
+  description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
+    and Docker dev.
+  version: 1.0.0
   tags:
   - php
   - symfony
