@@ -3,7 +3,7 @@ manifest:
   name: Symfony
   description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
     and Docker dev.
-  version: 1.0.14
+  version: 1.0.15
   baseImage: php:8.4-cli-alpine
   tags:
   - php
