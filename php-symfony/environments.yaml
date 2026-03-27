@@ -10,6 +10,16 @@ environments:
         scheme: http
         domain: localhost
         port: "{{localPort}}"
+      commands:
+        make-migrations:
+          label: Make migration(s)
+          command: php bin/console make:migration --no-interaction
+        migrate:
+          label: Run migrations
+          command: php bin/console doctrine:migrations:migrate --no-interaction
+        clear-cache:
+          label: Clear cache
+          command: php bin/console cache:clear --no-interaction
     vars:
       localPort:
         required: true
