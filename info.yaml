@@ -192,7 +192,7 @@ templates:
   name: Symfony
   description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
     and Docker dev.
-  version: 1.0.11
+  version: 1.0.12
   tags:
   - php
   - symfony
@@ -207,7 +207,7 @@ templates:
 - id: fullstack-nextjs
   name: Next.js
   description: Full stack React with SSR, API routes, and app router patterns.
-  version: 1.0.14
+  version: 1.0.15
   tags:
   - nextjs
   - react
