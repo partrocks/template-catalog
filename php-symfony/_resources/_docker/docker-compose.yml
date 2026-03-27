@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: ..
-      dockerfile: _docker/Dockerfile
+      dockerfile: Dockerfile
     working_dir: /app
     command: ["frankenphp", "run", "--config", "/app/docker/frankenphp/Caddyfile"]
     ports:
