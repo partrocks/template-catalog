@@ -24,6 +24,9 @@ environments:
       localPort:
         required: true
         default: "8080"
+      localDbPort:
+        required: true
+        default: "5432"
 
   staging:
     id: staging

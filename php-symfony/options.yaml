@@ -10,6 +10,12 @@ options:
     range: app
     required: true
 
+  - id: localDbPort
+    label: Local database port (host)
+    type: auto-port-local
+    range: resource
+    required: true
+
   - id: appMode
     label: Application mode
     type: select
