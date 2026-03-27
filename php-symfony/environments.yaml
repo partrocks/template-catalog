@@ -31,6 +31,21 @@ environments:
   staging:
     id: staging
     runtime: cloud
+    lifecycle:
+      hooks:
+        release:
+          runPolicy: once_per_release_per_env
+          onFailure: abort_deploy
+          timeoutSeconds: 900
+          steps:
+            - id: db-create-if-missing
+              run: "php bin/console doctrine:database:create --if-not-exists --no-interaction || true"
+            - id: db-migrate
+              run: "php bin/console doctrine:migrations:migrate --no-interaction || true"
+            - id: cache-clear
+              run: "php bin/console cache:clear --no-interaction || true"
+            - id: cache-warmup
+              run: "php bin/console cache:warmup --no-interaction || true"
     deploy:
       presets:
         - aws/cheap-and-cheerful
@@ -40,6 +55,21 @@ environments:
   prod:
     id: prod
     runtime: cloud
+    lifecycle:
+      hooks:
+        release:
+          runPolicy: once_per_release_per_env
+          onFailure: abort_deploy
+          timeoutSeconds: 900
+          steps:
+            - id: db-create-if-missing
+              run: "php bin/console doctrine:database:create --if-not-exists --no-interaction || true"
+            - id: db-migrate
+              run: "php bin/console doctrine:migrations:migrate --no-interaction || true"
+            - id: cache-clear
+              run: "php bin/console cache:clear --no-interaction || true"
+            - id: cache-warmup
+              run: "php bin/console cache:warmup --no-interaction || true"
     deploy:
       presets:
         - aws/cheap-and-cheerful
