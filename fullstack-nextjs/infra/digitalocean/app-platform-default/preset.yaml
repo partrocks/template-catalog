@@ -33,10 +33,10 @@ preset:
       containerImage:
         dockerfile: _docker/Dockerfile.cloud
         context: .
-        # DOCR entry tiers allow only one repository. Use a single path for every app on this
-        # registry; push tags are appId-envId-releaseTag. If the registry already has a repo
-        # from an older preset, set metadata imageRepositoryPath on the container-registry resource.
-        repositoryName: partrocks/workspace
+        # DOCR Starter allows 1 repository. Use one shared path + unique tags (appId-envId-tag).
+        # Single segment path avoids Starter-tier push errors seen with slash-separated names.
+        # Delete legacy partrocks/workspace in DO if needed, or set imageRepositoryPath.
+        repositoryName: partrocks-workspace
         singleRepositoryImageLayout: true
         registryRequirementId: appRegistry
         tagStrategy: releaseTag
