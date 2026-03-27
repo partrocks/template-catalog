@@ -1,6 +1,8 @@
 services:
   app:
-    image: dunglas/frankenphp:1-php8.4-alpine
+    build:
+      context: ..
+      dockerfile: _docker/Dockerfile
     working_dir: /app
     command: ["frankenphp", "run", "--config", "/app/docker/frankenphp/Caddyfile"]
     ports:
