@@ -8,4 +8,4 @@
 
 ## Custom domains and edge TLS
 
-See [docs/template-edge-ssl-contract.md](docs/template-edge-ssl-contract.md) for required DNS outputs, DigitalOcean `APP_PLATFORM_ID`, and how presets interact with PartRocks domain automation.
+See [partrocks/desktop › template-engine/template-edge-ssl-contract.md](https://github.com/partrocks/desktop/blob/main/packages/template-engine/template-edge-ssl-contract.md) for required DNS outputs, DigitalOcean `APP_PLATFORM_ID`, and how presets interact with PartRocks domain automation.
