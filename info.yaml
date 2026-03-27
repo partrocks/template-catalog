@@ -1,4 +1,20 @@
 templates:
+- id: container-rails
+  name: Rails
+  description: Ruby on Rails app containerized for web or API.
+  version: 0.1.0-stub
+  tags:
+  - rails
+  - ruby
+  - docker
+- id: api-node
+  name: Node API (Express / Fastify / Nest)
+  description: Node.js REST/GraphQL-style API with interchangeable framework preference.
+  version: 0.1.0-stub
+  tags:
+  - node
+  - api
+  - javascript
 - id: static-html-site
   name: Static HTML Site
   description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
@@ -11,14 +27,22 @@ templates:
   - aws
   - s3
   - web
-- id: container-go
-  name: Go
-  description: Go service packaged as a Docker image.
+- id: worker-container
+  name: Generic container worker
+  description: Any containerized worker image (language-agnostic).
   version: 0.1.0-stub
   tags:
-  - go
   - docker
+  - worker
   - container
+- id: static-astro
+  name: Astro (static)
+  description: Astro content-focused static site with optional islands.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - astro
+  - javascript
 - id: fullstack-sveltekit
   name: SvelteKit
   description: Full stack Svelte with SSR, endpoints, and adapters.
@@ -27,6 +51,22 @@ templates:
   - sveltekit
   - svelte
   - fullstack
+- id: worker-python
+  name: Python worker
+  description: Celery, RQ, or async Python job processors.
+  version: 0.1.0-stub
+  tags:
+  - python
+  - worker
+  - queue
+- id: python-fastapi
+  name: FastAPI
+  description: FastAPI for high-performance APIs (also listed under API Service).
+  version: 0.1.0-stub
+  tags:
+  - python
+  - fastapi
+  - api
 - id: python-django
   name: Django
   description: Django for admin-heavy and server-rendered web apps.
@@ -34,14 +74,40 @@ templates:
   tags:
   - python
   - django
-- id: worker-php
-  name: PHP worker
-  description: Symfony Messenger or Laravel queue workers in PHP.
+- id: partrocks-symfony
+  name: PartRocks Symfony
+  description: PartRocks Symfony is an opinionated template for building Symfony applications.
+  version: 3.0.14
+  tags:
+  - symfony
+  - php
+  - framework
+  - web
+  - api
+  - partrocks
+- id: container-dotnet
+  name: .NET
+  description: .NET application in a Linux container image.
+  version: 0.1.0-stub
+  tags:
+  - dotnet
+  - docker
+  - container
+- id: php-laravel
+  name: Laravel
+  description: Laravel MVC, API resources, queues, and Eloquent ORM.
   version: 0.1.0-stub
   tags:
   - php
-  - worker
-  - queue
+  - laravel
+- id: fullstack-nuxt
+  name: Nuxt
+  description: Full stack Vue with SSR, Nitro server, and modules.
+  version: 0.1.0-stub
+  tags:
+  - nuxt
+  - vue
+  - fullstack
 - id: container-rust
   name: Rust
   description: Rust binary or web service in a slim container.
@@ -50,6 +116,47 @@ templates:
   - rust
   - docker
   - container
+- id: static-svelte
+  name: Svelte (static)
+  description: Svelte compiled to static assets for edge/CDN delivery.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - svelte
+  - javascript
+- id: container-go
+  name: Go
+  description: Go service packaged as a Docker image.
+  version: 0.1.0-stub
+  tags:
+  - go
+  - docker
+  - container
+- id: worker-php
+  name: PHP worker
+  description: Symfony Messenger or Laravel queue workers in PHP.
+  version: 0.1.0-stub
+  tags:
+  - php
+  - worker
+  - queue
+- id: static-react-vite
+  name: React (Vite)
+  description: Static or SPA build with React and Vite; deploy as static assets.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - react
+  - vite
+  - javascript
+- id: worker-node
+  name: Node worker
+  description: Background jobs and queue consumers in Node.js.
+  version: 0.1.0-stub
+  tags:
+  - node
+  - worker
+  - queue
 - id: container-custom
   name: Custom Docker app
   description: Bring any Dockerfile; framework-agnostic container deploy.
@@ -57,6 +164,30 @@ templates:
   tags:
   - docker
   - container
+- id: static-vue
+  name: Vue
+  description: Vue static site or SPA built for static hosting.
+  version: 0.1.0-stub
+  tags:
+  - static
+  - vue
+  - javascript
+- id: container-java-spring
+  name: Java (Spring)
+  description: Spring Boot (or similar) in a container image.
+  version: 0.1.0-stub
+  tags:
+  - java
+  - spring
+  - docker
+- id: api-laravel
+  name: Laravel API
+  description: Laravel as API backend (resources, Sanctum, queues).
+  version: 0.1.0-stub
+  tags:
+  - php
+  - laravel
+  - api
 - id: php-symfony
   name: Symfony
   description: Symfony web, API, or hybrid PHP application with Doctrine and console.
@@ -72,58 +203,6 @@ templates:
   - static
   - react
   - javascript
-- id: worker-node
-  name: Node worker
-  description: Background jobs and queue consumers in Node.js.
-  version: 0.1.0-stub
-  tags:
-  - node
-  - worker
-  - queue
-- id: partrocks-symfony
-  name: PartRocks Symfony
-  description: PartRocks Symfony is an opinionated template for building Symfony applications.
-  version: 3.0.14
-  tags:
-  - symfony
-  - php
-  - framework
-  - web
-  - api
-  - partrocks
-- id: static-react-vite
-  name: React (Vite)
-  description: Static or SPA build with React and Vite; deploy as static assets.
-  version: 0.1.0-stub
-  tags:
-  - static
-  - react
-  - vite
-  - javascript
-- id: worker-python
-  name: Python worker
-  description: Celery, RQ, or async Python job processors.
-  version: 0.1.0-stub
-  tags:
-  - python
-  - worker
-  - queue
-- id: api-laravel
-  name: Laravel API
-  description: Laravel as API backend (resources, Sanctum, queues).
-  version: 0.1.0-stub
-  tags:
-  - php
-  - laravel
-  - api
-- id: api-node
-  name: Node API (Express / Fastify / Nest)
-  description: Node.js REST/GraphQL-style API with interchangeable framework preference.
-  version: 0.1.0-stub
-  tags:
-  - node
-  - api
-  - javascript
 - id: fullstack-nextjs
   name: Next.js
   description: Full stack React with SSR, API routes, and app router patterns.
@@ -132,53 +211,6 @@ templates:
   - nextjs
   - react
   - fullstack
-- id: container-java-spring
-  name: Java (Spring)
-  description: Spring Boot (or similar) in a container image.
-  version: 0.1.0-stub
-  tags:
-  - java
-  - spring
-  - docker
-- id: container-rails
-  name: Rails
-  description: Ruby on Rails app containerized for web or API.
-  version: 0.1.0-stub
-  tags:
-  - rails
-  - ruby
-  - docker
-- id: php-laravel
-  name: Laravel
-  description: Laravel MVC, API resources, queues, and Eloquent ORM.
-  version: 0.1.0-stub
-  tags:
-  - php
-  - laravel
-- id: worker-container
-  name: Generic container worker
-  description: Any containerized worker image (language-agnostic).
-  version: 0.1.0-stub
-  tags:
-  - docker
-  - worker
-  - container
-- id: static-vue
-  name: Vue
-  description: Vue static site or SPA built for static hosting.
-  version: 0.1.0-stub
-  tags:
-  - static
-  - vue
-  - javascript
-- id: static-astro
-  name: Astro (static)
-  description: Astro content-focused static site with optional islands.
-  version: 0.1.0-stub
-  tags:
-  - static
-  - astro
-  - javascript
 - id: api-symfony
   name: Symfony API
   description: API-focused Symfony (JSON, serialization, API Platform path).
@@ -187,30 +219,6 @@ templates:
   - php
   - symfony
   - api
-- id: python-fastapi
-  name: FastAPI
-  description: FastAPI for high-performance APIs (also listed under API Service).
-  version: 0.1.0-stub
-  tags:
-  - python
-  - fastapi
-  - api
-- id: container-dotnet
-  name: .NET
-  description: .NET application in a Linux container image.
-  version: 0.1.0-stub
-  tags:
-  - dotnet
-  - docker
-  - container
-- id: static-svelte
-  name: Svelte (static)
-  description: Svelte compiled to static assets for edge/CDN delivery.
-  version: 0.1.0-stub
-  tags:
-  - static
-  - svelte
-  - javascript
 - id: python-flask
   name: Flask
   description: Lightweight Python web framework for small services and prototypes.
@@ -218,11 +226,3 @@ templates:
   tags:
   - python
   - flask
-- id: fullstack-nuxt
-  name: Nuxt
-  description: Full stack Vue with SSR, Nitro server, and modules.
-  version: 0.1.0-stub
-  tags:
-  - nuxt
-  - vue
-  - fullstack
