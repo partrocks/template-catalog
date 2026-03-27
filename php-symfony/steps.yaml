@@ -1,5 +1,24 @@
 steps:
-  - step: stub-placeholder
-    label: Placeholder (stub template)
+  - step: create-symfony-skeleton
+    label: Creating Symfony 7 skeleton
     run:
-      - command: "true"
+      - command: >-
+          composer create-project symfony/skeleton:"7.2.*" . --no-interaction --no-ansi
+
+  - step: require-webapp
+    label: Installing webapp pack (Twig, Doctrine, security)
+    run:
+      - command: >-
+          COMPOSER_MEMORY_LIMIT=-1 composer require webapp --no-interaction --no-ansi
+
+  - step: prune-demo-controllers
+    label: Removing demo controllers if present
+    run:
+      - command: >-
+          rm -f src/Controller/DemoController.php src/Controller/HelloController.php 2>/dev/null; true
+
+  - step: copy-scaffold-files
+    label: Adding PartRocks landing page, FrankenPHP Caddyfile, and .dockerignore
+    copy:
+      from: scaffold
+      to: .

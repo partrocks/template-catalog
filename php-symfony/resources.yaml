@@ -16,3 +16,9 @@ resources:
       routing: host
     binding:
       scope: environment
+  - id: appRegistry
+    kind: container-registry
+    shareable: true
+    constraints: {}
+    binding:
+      scope: environment

@@ -1,0 +1,59 @@
+preset:
+  provider: aws
+  id: cheap-and-cheerful
+  label: Cheap and cheerful
+  description: Lowest baseline cost with conservative autoscaling (Symfony / FrankenPHP on App Runner).
+  engine: opentofu
+  source: opentofu.tf
+  capabilities:
+    - appRuntime
+    - postgres
+    - envConfig
+  constraints:
+    appPort: 8080
+    appHealthPath: /
+    appRunnerStartCommand: "frankenphp run --config /app/docker/frankenphp/Caddyfile"
+    appRunnerCpu: 1024
+    appRunnerMemory: 2048
+    appRunnerMinSize: 1
+    appRunnerMaxSize: 1
+    databaseUrl: ""
+    appSecret: ""
+    jwtSecretKey: ""
+  outputs:
+    - key: APP_BASE_URL
+      value: "{{ APP_BASE_URL }}"
+    - key: public_url
+      value: "{{ FRONT_DOOR_URL }}"
+    - key: dns_name
+      value: "{{ FRONT_DOOR_DNS_NAME }}"
+    - key: canonical_hosted_zone_id
+      value: "{{ FRONT_DOOR_HOSTED_ZONE_ID }}"
+    - key: DATABASE_URL
+      value: "{{ DATABASE_URL }}"
+    - key: APP_SECRET
+      value: "{{ APP_SECRET }}"
+    - key: JWT_SECRET_KEY
+      value: "{{ JWT_SECRET_KEY }}"
+    - key: APP_ENV
+      value: "{{ APP_ENV }}"
+  preflights:
+    artifacts:
+      type: container_image
+      containerImage:
+        dockerfile: _docker/Dockerfile.cloud
+        context: .
+        repositoryName: partrocks/{{projectName}}
+        registryRequirementId: appRegistry
+        tagStrategy: releaseTag
+  teardown:
+    policy: cleanup
+  ui:
+    badges:
+      - balanced
+      - edge-tls
+    securityPosture: edge-tls-only
+    costTier: medium
+    complexity: medium
+    images:
+      - infra/aws/cheap-and-cheerful/diagram.svg

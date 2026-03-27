@@ -1,0 +1,59 @@
+preset:
+  provider: aws
+  id: maximum-effort-at-a-price
+  label: Maximum effort at a price
+  description: Higher resource profile and wider autoscaling envelope (Symfony / FrankenPHP on App Runner).
+  engine: opentofu
+  source: opentofu.tf
+  capabilities:
+    - appRuntime
+    - postgres
+    - envConfig
+  constraints:
+    appPort: 8080
+    appHealthPath: /
+    appRunnerStartCommand: "frankenphp run --config /app/docker/frankenphp/Caddyfile"
+    appRunnerCpu: 2048
+    appRunnerMemory: 4096
+    appRunnerMinSize: 2
+    appRunnerMaxSize: 8
+    databaseUrl: ""
+    appSecret: ""
+    jwtSecretKey: ""
+  outputs:
+    - key: APP_BASE_URL
+      value: "{{ APP_BASE_URL }}"
+    - key: public_url
+      value: "{{ FRONT_DOOR_URL }}"
+    - key: dns_name
+      value: "{{ FRONT_DOOR_DNS_NAME }}"
+    - key: canonical_hosted_zone_id
+      value: "{{ FRONT_DOOR_HOSTED_ZONE_ID }}"
+    - key: DATABASE_URL
+      value: "{{ DATABASE_URL }}"
+    - key: APP_SECRET
+      value: "{{ APP_SECRET }}"
+    - key: JWT_SECRET_KEY
+      value: "{{ JWT_SECRET_KEY }}"
+    - key: APP_ENV
+      value: "{{ APP_ENV }}"
+  preflights:
+    artifacts:
+      type: container_image
+      containerImage:
+        dockerfile: _docker/Dockerfile.cloud
+        context: .
+        repositoryName: partrocks/{{projectName}}
+        registryRequirementId: appRegistry
+        tagStrategy: releaseTag
+  teardown:
+    policy: cleanup
+  ui:
+    badges:
+      - premium
+      - edge-tls
+    securityPosture: edge-tls-only
+    costTier: high
+    complexity: high
+    images:
+      - infra/aws/maximum-effort-at-a-price/diagram.svg

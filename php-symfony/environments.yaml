@@ -4,7 +4,7 @@ environments:
     id: dev
     runtime: docker
     docker:
-      composeFile: _resources/_docker/docker-compose.yml
+      composeFile: _docker/docker-compose.yml
       service: app
       url:
         scheme: http
@@ -14,3 +14,21 @@ environments:
       localPort:
         required: true
         default: "8080"
+
+  staging:
+    id: staging
+    runtime: cloud
+    deploy:
+      presets:
+        - aws/cheap-and-cheerful
+        - aws/maximum-effort-at-a-price
+        - digitalocean/app-platform-default
+
+  prod:
+    id: prod
+    runtime: cloud
+    deploy:
+      presets:
+        - aws/cheap-and-cheerful
+        - aws/maximum-effort-at-a-price
+        - digitalocean/app-platform-default

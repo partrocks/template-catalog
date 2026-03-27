@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome · PartRocks Symfony{% endblock %}
+
+{% block body %}
+<main>
+    <article class="card">
+        <div class="badge">PartRocks template</div>
+        <h1>Your new Symfony application</h1>
+        <p>
+            This project was generated from the PartRocks <strong>php-symfony</strong> catalog template.
+            You have a working Symfony web app with <strong>Twig</strong>, <strong>Doctrine</strong>, and
+            <strong>PostgreSQL</strong> configured for local Docker development and for cloud bindings when you deploy.
+        </p>
+        <p>
+            <strong>Quick start:</strong> from the project root, start the stack with Docker Compose (dev environment in PartRocks),
+            then open this page at the mapped port. Run <code>composer install</code> if you cloned a fresh copy without <code>vendor/</code>.
+        </p>
+        <ul>
+            <li><strong>Symfony</strong> {{ symfonyVersion }} · <strong>PHP</strong> {{ phpVersion }}</li>
+            <li><strong>APP_ENV</strong> (runtime): <code>{{ appEnv }}</code></li>
+            <li>Replace this landing page in <code>templates/home/</code> and <code>DefaultController</code> when you are ready.</li>
+        </ul>
+        <footer>
+            Production images use FrankenPHP on port 8080 (AWS App Runner and DigitalOcean App Platform presets).
+        </footer>
+    </article>
+</main>
+{% endblock %}

@@ -1,1 +1,8 @@
-dependencies: []
+dependencies:
+  - name: php-extensions-and-composer
+    install: >-
+      apk add --no-cache icu-dev libpq-dev oniguruma-dev unzip linux-headers $PHPIZE_DEPS &&
+      docker-php-ext-configure intl &&
+      docker-php-ext-install -j$(nproc) intl pdo pdo_pgsql opcache &&
+      apk del $PHPIZE_DEPS linux-headers &&
+      curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

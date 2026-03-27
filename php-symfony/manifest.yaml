@@ -1,17 +1,18 @@
 manifest:
   id: php-symfony
   name: Symfony
-  description: Symfony web, API, or hybrid PHP application with Doctrine and console.
-  version: 0.1.0-stub
+  description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production, and Docker dev.
+  version: 1.0.0
+  baseImage: php:8.4-cli-alpine
   tags:
   - php
   - symfony
   categories:
   - php-web-app
-  capabilities: 'HTTP kernel, DI, Messenger, API Platform optional; choose web, API,
-    or hybrid mode when scaffolding.
-
-    '
+  capabilities: |
+    Fresh Symfony 7 skeleton + webapp pack (Twig, Doctrine, security). PostgreSQL in dev (Compose) and via PartRocks bindings in cloud.
+    Default landing page at / with PartRocks-oriented copy. Deploy: AWS App Runner or DigitalOcean App Platform (FrankenPHP :8080).
+    The appMode option is reserved for future variants; the scaffold always includes the web landing page.
   logos:
   - symfony
   - php

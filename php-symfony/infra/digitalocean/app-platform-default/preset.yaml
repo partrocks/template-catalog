@@ -1,0 +1,52 @@
+preset:
+  provider: digitalocean
+  id: app-platform-default
+  label: App Platform Default
+  description: Managed App Platform deployment on DigitalOcean (Symfony / FrankenPHP).
+  engine: opentofu
+  source: opentofu.tf
+  capabilities:
+    - appRuntime
+  constraints:
+    appPort: 8080
+    appHealthPath: /
+    # doRegion: slugs like nyc1, lon1 (see DigitalOcean regions). Required so
+    # {{ constraints.doRegion }} interpolates in opentofu.tf. At deploy time the
+    # app merges profile preferences over this map (see user-profile
+    # CONSTRAINT_PREFERENCE_OVERRIDES: doRegion <- digitaloceanDefaultRegion).
+    doRegion: nyc1
+    doInstanceSize: basic-xxs
+    doInstanceCount: 1
+    databaseUrl: ""
+    appSecret: ""
+    jwtSecretKey: ""
+  outputs:
+    - key: public_url
+      value: "{{ APP_BASE_URL }}"
+    - key: dns_name
+      value: "{{ APP_DNS_NAME }}"
+    - key: APP_PLATFORM_ID
+      value: "{{ APP_PLATFORM_ID }}"
+  preflights:
+    artifacts:
+      type: container_image
+      containerImage:
+        dockerfile: _docker/Dockerfile.cloud
+        context: .
+        # DOCR entry tiers allow only one repository. Use a single path for every app on this
+        # registry; push tags are appId-envId-releaseTag. If the registry already has a repo
+        # from an older preset, set metadata imageRepositoryPath on the container-registry resource.
+        repositoryName: partrocks/workspace
+        singleRepositoryImageLayout: true
+        registryRequirementId: appRegistry
+        tagStrategy: releaseTag
+  teardown:
+    policy: cleanup
+  ui:
+    badges:
+      - managed-platform
+    securityPosture: edge-tls-only
+    costTier: medium
+    complexity: low
+    images:
+      - infra/digitalocean/app-platform-default/diagram.svg
