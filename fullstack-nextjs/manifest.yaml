@@ -2,7 +2,7 @@ manifest:
   id: fullstack-nextjs
   name: Next.js
   description: Full stack React with SSR, API routes, and app router patterns.
-  version: 1.0.15
+  version: 1.0.16
   baseImage: node:20-alpine
   tags:
   - nextjs
