@@ -9,8 +9,11 @@ COPY app/ /app
 
 RUN npm run build && npm prune --omit=dev
 
+COPY _partrocks/_deploy/hooks /opt/partrocks/hooks
+RUN chmod +x /opt/partrocks/hooks/*
+
 ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "/opt/partrocks/hooks/cloud-boot.sh"]

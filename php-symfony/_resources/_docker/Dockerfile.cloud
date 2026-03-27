@@ -24,6 +24,9 @@ ENV APP_DEBUG=0
 
 COPY --from=vendor /app /app
 
+COPY _partrocks/_deploy/hooks /opt/partrocks/hooks
+RUN chmod +x /opt/partrocks/hooks/*
+
 EXPOSE 8080
 
-CMD ["frankenphp", "run", "--config", "/app/docker/frankenphp/Caddyfile"]
+CMD ["sh", "/opt/partrocks/hooks/cloud-boot.sh"]

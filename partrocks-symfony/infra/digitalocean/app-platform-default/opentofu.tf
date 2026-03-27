@@ -116,9 +116,8 @@ resource "digitalocean_app" "app" {
       instance_count     = try(tonumber(local.pr_do_instance_count), 1)
       instance_size_slug = local.pr_do_instance_size_resolved
       http_port          = tonumber(local.pr_app_port)
-      # App Platform does not run PartRocks environments.yaml release hooks; apply DB schema before
-      # the web server (idempotent; safe when instances scale out).
-      run_command = "sh -c 'php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration && exec sh /opt/partrocks/hooks/startup.sh'"
+      # Single entrypoint: idempotent DB + bootstrap + startup (see environments.yaml boot.script).
+      run_command = "sh /opt/partrocks/hooks/cloud-boot.sh"
 
       image {
         registry_type = local.registry_type

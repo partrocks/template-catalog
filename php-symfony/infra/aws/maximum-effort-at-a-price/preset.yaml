@@ -12,7 +12,7 @@ preset:
   constraints:
     appPort: 8080
     appHealthPath: /health
-    appRunnerStartCommand: "frankenphp run --config /app/docker/frankenphp/Caddyfile"
+    appRunnerStartCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
     appRunnerCpu: 2048
     appRunnerMemory: 4096
     appRunnerMinSize: 2

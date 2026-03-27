@@ -18,6 +18,8 @@ environments:
   prod:
     id: prod
     runtime: cloud
+    boot:
+      script: _deploy/hooks/cloud-boot.sh
     deploy:
       presets:
         - aws/cheap-and-cheerful

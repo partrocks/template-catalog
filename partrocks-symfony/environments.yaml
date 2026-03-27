@@ -33,6 +33,8 @@ environments:
   uat:
     id: uat
     runtime: cloud
+    boot:
+      script: _deploy/hooks/cloud-boot.sh
     vars:
       DATABASE_URL:
         required: true
@@ -40,26 +42,6 @@ environments:
       APP_MODE:
         required: true
         default: prod
-    lifecycle:
-      hooks:
-        release:
-          runPolicy: once_per_release_per_env
-          onFailure: abort_deploy
-          timeoutSeconds: 900
-          steps:
-            - id: db-create-if-missing
-              run: "php bin/console doctrine:database:create --if-not-exists --no-interaction || true"
-            - id: db-migrate
-              run: "php bin/console doctrine:migrations:migrate --no-interaction || true"
-        startup:
-          runPolicy: per_instance_start
-          onFailure: restart_instance
-          timeoutSeconds: 180
-          steps:
-            - id: instance-bootstrap
-              run: "sh _deploy/hooks/instance-bootstrap.sh"
-            - id: cache-warmup
-              run: "php bin/console cache:warmup --no-interaction || true"
     deploy:
       presets:
         - aws/cheap-and-cheerful
@@ -69,6 +51,8 @@ environments:
   prod:
     id: prod
     runtime: cloud
+    boot:
+      script: _deploy/hooks/cloud-boot.sh
     vars:
       DATABASE_URL:
         required: true
@@ -76,27 +60,8 @@ environments:
       APP_MODE:
         required: true
         default: prod
-    lifecycle:
-      hooks:
-        release:
-          runPolicy: once_per_release_per_env
-          onFailure: abort_deploy
-          timeoutSeconds: 900
-          steps:
-            - id: db-create-if-missing
-              run: "php bin/console doctrine:database:create --if-not-exists --no-interaction || true"
-            - id: db-migrate
-              run: "php bin/console doctrine:migrations:migrate --no-interaction || true"
-        startup:
-          runPolicy: per_instance_start
-          onFailure: restart_instance
-          timeoutSeconds: 180
-          steps:
-            - id: instance-bootstrap
-              run: "sh _deploy/hooks/instance-bootstrap.sh"
-            - id: cache-warmup
-              run: "php bin/console cache:warmup --no-interaction || true"
     deploy:
       presets:
         - aws/cheap-and-cheerful
         - aws/maximum-effort-at-a-price
+        - digitalocean/app-platform-default

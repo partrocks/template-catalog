@@ -116,6 +116,7 @@ resource "digitalocean_app" "app" {
       instance_count     = try(tonumber(local.pr_do_instance_count), 1)
       instance_size_slug = local.pr_do_instance_size_resolved
       http_port          = tonumber(local.pr_app_port)
+      run_command        = "sh /opt/partrocks/hooks/cloud-boot.sh"
 
       image {
         registry_type = local.registry_type

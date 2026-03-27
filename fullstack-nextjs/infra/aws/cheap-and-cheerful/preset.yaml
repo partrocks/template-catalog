@@ -12,7 +12,7 @@ preset:
   constraints:
     appPort: 3000
     appHealthPath: /
-    appRunnerStartCommand: "npm run start"
+    appRunnerStartCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
     appRunnerCpu: 1024
     appRunnerMemory: 2048
     appRunnerMinSize: 1
