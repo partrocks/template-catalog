@@ -28,7 +28,7 @@ locals {
     sha1(trimspace(local.pr_release_ref) != "" ? local.pr_release_ref : local.pr_safe_environment_id),
     0,
     8
-  )
+  ) 
   app_scope = substr("${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}-${local.app_scope_hash}", 0, 45)
   # # DO spec.name: pr-{scope}, scope = hash-app-env (hash first so 32-char cap trims app/env tail, not uniqueness).
   # do_app_name_scope = "${local.app_scope_hash}-${local.pr_safe_release_repo_name}-${local.pr_safe_environment_id}"
