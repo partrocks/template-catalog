@@ -35,20 +35,21 @@ locals {
   # Name must match ^[a-z][a-z0-9-]{0,30}[a-z0-9]$ — max 32 chars and cannot end with '-'.
   # substr(0,32) commonly ends on '-' (e.g. before env segment). Strip the final '-' using
   # only substr/length (works on older OpenTofu in deploy runners).
-  app_service_name_trunc = substr(lower("pr-${local.do_app_name_scope}"), 0, 32)
-  app_service_name_len   = length(local.app_service_name_trunc)
-  app_service_name_last = (
-    local.app_service_name_len > 0 ?
-    substr(local.app_service_name_trunc, local.app_service_name_len - 1, 1) : ""
-  )
-  app_service_name_core = (
-    local.app_service_name_last == "-" && local.app_service_name_len > 1 ?
-    substr(local.app_service_name_trunc, 0, local.app_service_name_len - 1) :
-    local.app_service_name_trunc
-  )
-  app_service_name = (
-    local.app_service_name_core != "" ? local.app_service_name_core : "pr-${local.app_scope_hash}"
-  )
+  # app_service_name_trunc = substr(lower("pr-${local.do_app_name_scope}"), 0, 32)
+  # app_service_name_len   = length(local.app_service_name_trunc)
+  # app_service_name_last = (
+  #   local.app_service_name_len > 0 ?
+  #   substr(local.app_service_name_trunc, local.app_service_name_len - 1, 1) : ""
+  # )
+  # app_service_name_core = (
+  #   local.app_service_name_last == "-" && local.app_service_name_len > 1 ?
+  #   substr(local.app_service_name_trunc, 0, local.app_service_name_len - 1) :
+  #   local.app_service_name_trunc
+  # )
+  # app_service_name = (
+  #   local.app_service_name_core != "" ? local.app_service_name_core : "pr-${local.app_scope_hash}"
+  # )
+  app_service_name = substr("partrocks-${local.app_scope}", 0, 32)
 
   # Preset must define constraints.doRegion; if interpolation failed, placeholder still contains "{{".
   # Lowercase DO slugs here so DB + app always match (UI may send LON1).
