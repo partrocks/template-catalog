@@ -28,8 +28,9 @@ function App() {
             <code>5173</code> in the container
           </li>
           <li>
-            Production builds output to <code>dist/</code>; commit that folder
-            before tagging a release for S3 sync (see template notes).
+            Production builds output to <code>dist/</code>; S3 presets run{" "}
+            <code>npm ci</code> and <code>npm run build</code> from your release tag on
+            each deploy (no stale local <code>dist/</code>).
           </li>
           <li>
             Replace this landing page in <code>src/App.tsx</code> and{" "}

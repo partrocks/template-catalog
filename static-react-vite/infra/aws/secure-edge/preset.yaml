@@ -2,7 +2,7 @@ preset:
   provider: aws
   id: secure-edge
   label: Secure Edge (Shared Gateway Ready)
-  description: S3 static origin for shared gateway TLS routing; syncs Vite dist/ from the release tag or PartRocks archive preflight.
+  description: S3 static origin for shared gateway TLS routing; runs a fresh npm production build from the release tag, then syncs dist/.
   engine: opentofu
   source: opentofu.tf
   capabilities:
@@ -20,6 +20,7 @@ preset:
       type: archive
       archive:
         path: dist
+        buildCommand: CI=true npm ci && npm run build
   teardown:
     policy: cleanup
   ui:
@@ -29,6 +30,6 @@ preset:
     securityPosture: edge-tls-only
     costTier: medium
     complexity: medium
-    notes: Pair with a shared gateway for HTTPS on your domain. Run npm run build and commit dist/ before tagging, or rely on the dist/ path from archive preflight.
+    notes: Pair with a shared gateway for HTTPS on your domain. Each deploy runs a clean npm ci && npm run build from the release tag so deploys never use a stale local dist/.
     images:
       - infra/aws/secure-edge/diagram.svg

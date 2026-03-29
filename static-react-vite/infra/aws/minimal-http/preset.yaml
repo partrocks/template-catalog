@@ -2,7 +2,7 @@ preset:
   provider: aws
   id: minimal-http
   label: Minimal HTTP (S3 website)
-  description: Lowest-cost static hosting with a dedicated S3 bucket; syncs Vite dist/ from the release tag or PartRocks archive preflight. Use a shared gateway for HTTPS.
+  description: Lowest-cost static hosting with a dedicated S3 bucket; runs a fresh npm production build from the release tag, then syncs dist/. Use a shared gateway for HTTPS.
   engine: opentofu
   source: opentofu.tf
   capabilities:
@@ -20,6 +20,7 @@ preset:
       type: archive
       archive:
         path: dist
+        buildCommand: CI=true npm ci && npm run build
   teardown:
     policy: cleanup
   ui:
@@ -30,7 +31,7 @@ preset:
     costTier: low
     complexity: low
     notes: >-
-      Provisions a new S3 bucket and syncs dist/. The website endpoint is HTTP at the origin; TLS on your domain comes from the PartRocks shared gateway.
-      Before tagging, run npm run build and commit dist/ (or rely on archive preflight). Secure edge preset matches this infra with FRONT_DOOR_* outputs for gateway workflows.
+      Provisions a new S3 bucket and syncs dist/. Each deploy runs CI=true npm ci && npm run build inside a clean snapshot of your release tag, so local dist/ is never reused.
+      The website endpoint is HTTP at the origin; TLS on your domain comes from the PartRocks shared gateway. Secure edge preset matches this infra with FRONT_DOOR_* outputs for gateway workflows.
     images:
       - infra/aws/minimal-http/diagram.svg
