@@ -142,7 +142,8 @@ templates:
   - queue
 - id: static-react-vite
   name: React (Vite)
-  description: Static or SPA build with React and Vite; local Docker dev and AWS S3 deploy presets.
+  description: Static or SPA build with React and Vite; deploy as static assets on
+    AWS S3.
   version: 1.0.0
   tags:
   - static
