@@ -3,8 +3,7 @@ preset:
   id: app-platform-default
   label: App Platform Default
   description: Managed app platform deployment on DigitalOcean.
-  engine: opentofu
-  source: opentofu.tf
+  engine: provider-native
   capabilities:
     - appRuntime
   constraints:

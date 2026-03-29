@@ -3,8 +3,7 @@ preset:
   id: cheap-and-cheerful
   label: Cheap and cheerful
   description: Lowest baseline cost with conservative autoscaling (Symfony / FrankenPHP on App Runner).
-  engine: opentofu
-  source: opentofu.tf
+  engine: provider-native
   capabilities:
     - appRuntime
     - postgres

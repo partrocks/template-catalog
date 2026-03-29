@@ -3,15 +3,14 @@ preset:
   id: app-platform-default
   label: App Platform Default
   description: Managed App Platform deployment on DigitalOcean (Symfony / FrankenPHP).
-  engine: opentofu
-  source: opentofu.tf
+  engine: provider-native
   capabilities:
     - appRuntime
   constraints:
     appPort: 8080
     appHealthPath: /health
     # doRegion: slugs like nyc1, lon1 (see DigitalOcean regions). Required so
-    # {{ constraints.doRegion }} interpolates in opentofu.tf. At deploy time the
+    # {{ constraints.doRegion }} is applied to the App Platform spec at deploy; the
     # app merges profile preferences over this map (see user-profile
     # CONSTRAINT_PREFERENCE_OVERRIDES: doRegion <- digitaloceanDefaultRegion).
     doRegion: nyc1

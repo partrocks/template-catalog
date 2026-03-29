@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate catalog changes for preset-namespace schema v2."""
+"""Validate catalog changes for preset-namespace schema v2 and provider-native infra presets."""
 import os
 import re
 import sys
@@ -7,10 +7,24 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+# Align with pr-desktop INFRA_SLICE_KINDS_ALL / INFRA_SLICE_TAXONOMY_VERSION 1.
+INFRA_SLICE_KINDS: frozenset[str] = frozenset(
+    {
+        "shareable_gateway",
+        "edge_workload",
+        "edge_binding",
+        "shareable_resource",
+        "database",
+        "container_registry",
+        "app_runtime",
+    }
+)
+
 
 def get_template_dirs(repo_root: Path) -> list[str]:
     return [
-        d.name for d in repo_root.iterdir()
+        d.name
+        for d in repo_root.iterdir()
         if d.is_dir() and not d.name.startswith(".") and (d / "manifest.yaml").exists()
     ]
 
@@ -34,23 +48,6 @@ def get_changed_files() -> list[str]:
     return result.stdout.strip().splitlines() if result.stdout.strip() else []
 
 
-def get_changed_template_dirs(changed_files: list[str], template_dirs: list[str]) -> set[str]:
-    changed = set()
-    for f in changed_files:
-        parts = f.split("/")
-        if len(parts) >= 2 and parts[0] in template_dirs:
-            changed.add(parts[0])
-    return changed
-
-
-def collect_interpolation_tokens(value: str) -> list[str]:
-    return [token.strip() for token in re.findall(r"\{\{\s*([^}]+)\s*\}\}", value)]
-
-
-def extract_tf_outputs(tf_source: str) -> set[str]:
-    return set(re.findall(r'output\s+"([^"]+)"\s*\{', tf_source))
-
-
 def normalize_preset_file_doc(doc: Any) -> dict[str, Any] | None:
     if not isinstance(doc, dict):
         return None
@@ -58,6 +55,142 @@ def normalize_preset_file_doc(doc: Any) -> dict[str, Any] | None:
     if isinstance(preset, dict):
         return preset
     return doc
+
+
+def validate_preset_outputs_keys(
+    preset_doc: dict[str, Any],
+    rel_display: str,
+    provider: str,
+    errors: list[str],
+) -> None:
+    outputs = preset_doc.get("outputs")
+    output_keys: set[str] = set()
+    if isinstance(outputs, list):
+        for row in outputs:
+            if not isinstance(row, dict):
+                continue
+            key = row.get("key")
+            if isinstance(key, str) and key.strip():
+                output_keys.add(key.strip())
+    for required_output in ["public_url", "dns_name"]:
+        if required_output not in output_keys:
+            errors.append(f"{rel_display}: outputs must include '{required_output}'")
+    if provider == "aws" and "canonical_hosted_zone_id" not in output_keys:
+        errors.append(f"{rel_display}: outputs must include 'canonical_hosted_zone_id' for AWS")
+
+
+def validate_provider_native_slices(
+    preset_doc: dict[str, Any],
+    rel_display: str,
+    errors: list[str],
+) -> None:
+    slices = preset_doc.get("slices")
+    if not isinstance(slices, list) or len(slices) == 0:
+        errors.append(f"{rel_display}: provider-native presets must declare a non-empty 'slices' list")
+        return
+    for i, s in enumerate(slices):
+        if not isinstance(s, dict):
+            errors.append(f"{rel_display}: slices[{i}] must be an object")
+            continue
+        sk = s.get("sliceKind")
+        sf = s.get("sliceFlavor")
+        if not isinstance(sk, str) or not sk.strip():
+            errors.append(f"{rel_display}: slices[{i}].sliceKind must be a non-empty string")
+        elif sk.strip() not in INFRA_SLICE_KINDS:
+            errors.append(
+                f"{rel_display}: slices[{i}].sliceKind '{sk.strip()}' is not a canonical "
+                f"infra slice kind (see INFRA_SLICE_TAXONOMY in PartRocks provider-control)"
+            )
+        if not isinstance(sf, str) or not sf.strip():
+            errors.append(f"{rel_display}: slices[{i}].sliceFlavor must be a non-empty string")
+        ik = s.get("instanceKey")
+        if ik is not None and (not isinstance(ik, str) or not ik.strip()):
+            errors.append(f"{rel_display}: slices[{i}].instanceKey must be a non-empty string when set")
+
+
+def validate_preset_document(
+    preset_doc: dict[str, Any],
+    rel_display: str,
+    expected_provider: str | None,
+    expected_preset_id: str | None,
+    errors: list[str],
+) -> None:
+    required_fields = ["provider", "id", "label", "engine", "outputs"]
+    for field in required_fields:
+        if field not in preset_doc:
+            errors.append(f"{rel_display}: missing required field '{field}'")
+
+    provider = preset_doc.get("provider")
+    if not isinstance(provider, str):
+        errors.append(f"{rel_display}: provider must be a string")
+        return
+    provider = provider.strip()
+    if expected_provider is not None and provider != expected_provider:
+        errors.append(f"{rel_display}: provider must be '{expected_provider}'")
+
+    preset_id = preset_doc.get("id")
+    if not isinstance(preset_id, str):
+        errors.append(f"{rel_display}: id must be a string")
+        return
+    preset_id = preset_id.strip()
+    if expected_preset_id is not None and preset_id != expected_preset_id:
+        errors.append(f"{rel_display}: id must be '{expected_preset_id}'")
+
+    engine = preset_doc.get("engine")
+    if not isinstance(engine, str) or not engine.strip():
+        errors.append(f"{rel_display}: engine must be a non-empty string")
+        return
+    engine_norm = engine.strip().lower()
+    if engine_norm in ("opentofu", "terraform", "tofu"):
+        errors.append(
+            f"{rel_display}: engine '{engine}' is retired; use 'provider-native' and declarative slices"
+        )
+        return
+    if engine_norm != "provider-native":
+        errors.append(
+            f"{rel_display}: engine must be 'provider-native' (got '{engine}')"
+        )
+
+    source = preset_doc.get("source")
+    if isinstance(source, str) and source.strip():
+        errors.append(
+            f"{rel_display}: 'source' (IaC file) must not be set for provider-native presets; remove '{source}'"
+        )
+
+    validate_provider_native_slices(preset_doc, rel_display, errors)
+    validate_preset_outputs_keys(preset_doc, rel_display, provider, errors)
+
+    ui = preset_doc.get("ui")
+    if isinstance(ui, dict):
+        images = ui.get("images")
+        if images is not None and not isinstance(images, list):
+            errors.append(f"{rel_display}: ui.images must be an array")
+        if isinstance(images, list):
+            for image_path in images:
+                if not isinstance(image_path, str) or not image_path.strip():
+                    errors.append(f"{rel_display}: ui.images entries must be non-empty strings")
+
+
+def _validate_ui_images_exist(
+    template_path: Path,
+    template_dir: str,
+    preset_yaml_path: Path,
+    preset_doc: dict[str, Any],
+    errors: list[str],
+) -> None:
+    rel_display = f"{template_dir}/{preset_yaml_path.relative_to(template_path)}"
+    ui = preset_doc.get("ui")
+    if not isinstance(ui, dict):
+        return
+    images = ui.get("images")
+    if not isinstance(images, list):
+        return
+    for image_path in images:
+        if not isinstance(image_path, str) or not image_path.strip():
+            continue
+        absolute_image_path = template_path / image_path.strip().lstrip("/")
+        if not absolute_image_path.exists():
+            errors.append(f"{rel_display}: ui.images references missing file '{image_path}'")
 
 
 def validate_namespace_preset(
@@ -70,7 +203,8 @@ def validate_namespace_preset(
 ) -> None:
     if not re.match(r"^[^/]+/[^/]+$", namespace):
         errors.append(
-            f"{template_dir}/environments.yaml: environment '{env_id}' has invalid preset namespace '{namespace}' (expected provider/preset)"
+            f"{template_dir}/environments.yaml: environment '{env_id}' has invalid preset namespace "
+            f"'{namespace}' (expected provider/preset)"
         )
         return
     provider, preset_id = namespace.split("/", 1)
@@ -86,96 +220,75 @@ def validate_namespace_preset(
         raw_doc = yaml.safe_load(f) or {}
     preset_doc = normalize_preset_file_doc(raw_doc)
     if not isinstance(preset_doc, dict):
-        errors.append(f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: invalid preset.yaml structure")
+        errors.append(
+            f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: invalid preset.yaml structure"
+        )
         return
 
-    required_fields = ["provider", "id", "label", "engine", "source", "outputs"]
-    for field in required_fields:
-        if field not in preset_doc:
-            errors.append(
-                f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: missing required field '{field}'"
-            )
+    rel_display = f"{template_dir}/{preset_yaml_path.relative_to(template_path)}"
     if preset_doc.get("provider") != provider:
-        errors.append(
-            f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: provider must be '{provider}'"
-        )
+        errors.append(f"{rel_display}: provider must be '{provider}'")
     if preset_doc.get("id") != preset_id:
+        errors.append(f"{rel_display}: id must be '{preset_id}'")
+    _validate_ui_images_exist(template_path, template_dir, preset_yaml_path, preset_doc, errors)
+
+
+def collect_terraform_paths_under_infra(template_path: Path) -> list[Path]:
+    infra = template_path / "infra"
+    if not infra.is_dir():
+        return []
+    return sorted(infra.rglob("*.tf"))
+
+
+def validate_no_terraform_under_infra(template_path: Path, template_dir: str, errors: list[str]) -> None:
+    for tf in collect_terraform_paths_under_infra(template_path):
         errors.append(
-            f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: id must be '{preset_id}'"
-        )
-    source = preset_doc.get("source")
-    if isinstance(source, str) and source.strip():
-        source_path = (package_path / source.strip()).resolve()
-        if not source_path.exists():
-            errors.append(
-                f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: source '{source}' does not exist in package"
-            )
-        else:
-            outputs = preset_doc.get("outputs")
-            output_keys = set()
-            if isinstance(outputs, list):
-                tf_outputs = extract_tf_outputs(source_path.read_text(encoding="utf-8"))
-                for row in outputs:
-                    if not isinstance(row, dict):
-                        continue
-                    key = row.get("key")
-                    value = row.get("value")
-                    if isinstance(key, str) and key.strip():
-                        output_keys.add(key.strip())
-                    if isinstance(value, str):
-                        for token in collect_interpolation_tokens(value):
-                            if "." in token:
-                                continue
-                            if token and token not in tf_outputs:
-                                errors.append(
-                                    f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: outputs references '{{{{ {token} }}}}' but source '{source}' has no output '{token}'"
-                                )
-            for required_output in ["public_url", "dns_name"]:
-                if required_output not in output_keys:
-                    errors.append(
-                        f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: outputs must include '{required_output}'"
-                    )
-            if provider == "aws" and "canonical_hosted_zone_id" not in output_keys:
-                errors.append(
-                    f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: outputs must include 'canonical_hosted_zone_id' for AWS"
-                )
-    else:
-        errors.append(
-            f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: source must be a non-empty string"
+            f"{template_dir}: OpenTofu/Terraform sources are retired; remove '{tf.relative_to(template_path)}'"
         )
 
-    ui = preset_doc.get("ui")
-    if isinstance(ui, dict):
-        images = ui.get("images")
-        if images is not None and not isinstance(images, list):
-            errors.append(
-                f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: ui.images must be an array"
-            )
-        if isinstance(images, list):
-            for image_path in images:
-                if not isinstance(image_path, str) or not image_path.strip():
-                    errors.append(
-                        f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: ui.images entries must be non-empty strings"
-                    )
-                    continue
-                absolute_image_path = template_path / image_path.strip().lstrip("/")
-                if not absolute_image_path.exists():
-                    errors.append(
-                        f"{template_dir}/{preset_yaml_path.relative_to(template_path)}: ui.images references missing file '{image_path}'"
-                    )
+
+def validate_orphan_infra_presets(template_path: Path, template_dir: str, errors: list[str], yaml: Any) -> None:
+    """Ensure every infra preset package validates even if not referenced by environments.yaml."""
+    infra = template_path / "infra"
+    if not infra.is_dir():
+        return
+    for preset_yaml_path in sorted(infra.rglob("preset.yaml")):
+        with open(preset_yaml_path, encoding="utf-8") as f:
+            raw_doc = yaml.safe_load(f) or {}
+        preset_doc = normalize_preset_file_doc(raw_doc)
+        rel_display = f"{template_dir}/{preset_yaml_path.relative_to(template_path)}"
+        if not isinstance(preset_doc, dict):
+            errors.append(f"{rel_display}: invalid preset.yaml structure")
+            continue
+        # Infer expected provider/id from path …/infra/<provider>/<preset_id>/preset.yaml
+        try:
+            rel_parts = preset_yaml_path.relative_to(infra).parts
+            if len(rel_parts) >= 3 and rel_parts[-1] == "preset.yaml":
+                exp_provider = rel_parts[0]
+                exp_id = rel_parts[1]
+            else:
+                exp_provider, exp_id = None, None
+        except ValueError:
+            exp_provider, exp_id = None, None
+        validate_preset_document(preset_doc, rel_display, exp_provider, exp_id, errors)
+        _validate_ui_images_exist(template_path, template_dir, preset_yaml_path, preset_doc, errors)
 
 
 def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> list[str]:
     errors: list[str] = []
     template_path = repo_root / template_dir
     env_path = template_path / "environments.yaml"
-    if not env_path.exists():
-        return errors
 
     try:
         import yaml
     except ImportError:
         return [f"{template_dir}: pyyaml is required for catalog validation"]
+
+    validate_no_terraform_under_infra(template_path, template_dir, errors)
+    validate_orphan_infra_presets(template_path, template_dir, errors, yaml)
+
+    if not env_path.exists():
+        return errors
 
     with open(env_path, encoding="utf-8") as f:
         env_doc = yaml.safe_load(f) or {}
@@ -253,24 +366,25 @@ def validate_yaml_files(repo_root: Path, changed_files: list[str]) -> bool:
 
 def main() -> int:
     repo_root = Path(__file__).resolve().parent.parent.parent
+    work_root = os.environ.get("GITHUB_WORKSPACE") or str(repo_root)
+    repo_root = Path(work_root).resolve()
     os.chdir(repo_root)
 
     template_dirs = get_template_dirs(repo_root)
     changed_files = get_changed_files()
-    changed_templates = get_changed_template_dirs(changed_files, template_dirs)
 
     if not validate_yaml_files(repo_root, changed_files):
         return 1
 
     contract_errors: list[str] = []
-    for template_dir in sorted(changed_templates):
+    for template_dir in sorted(template_dirs):
         contract_errors.extend(validate_template_deploy_contract(repo_root, template_dir))
     if contract_errors:
         for err_msg in contract_errors:
             print(f"ERROR: {err_msg}", file=sys.stderr)
         return 1
 
-    print(f"Validated: {', '.join(sorted(changed_templates)) if changed_templates else 'no template changes'}")
+    print(f"Validated: all {len(template_dirs)} template packages (provider-native infra guardrails)")
     return 0
 
 

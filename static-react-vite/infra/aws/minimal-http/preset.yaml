@@ -3,8 +3,7 @@ preset:
   id: minimal-http
   label: Minimal HTTP (S3 website, dev)
   description: S3 website only after npm build + sync dist/. Dev/experimental; production should use Secure Edge (CloudFront + S3) with a shareable CloudFront gateway.
-  engine: opentofu
-  source: opentofu.tf
+  engine: provider-native
   capabilities:
     - envConfig
   constraints: {}
@@ -17,8 +16,8 @@ preset:
       value: "{{ SITE_HOSTED_ZONE_ID }}"
   slices:
     - instanceKey: site
-      sliceKind: static_hosting
-      sliceFlavor: s3_website_endpoint
+      sliceKind: shareable_resource
+      sliceFlavor: s3_static_website
   preflights:
     artifacts:
       type: archive

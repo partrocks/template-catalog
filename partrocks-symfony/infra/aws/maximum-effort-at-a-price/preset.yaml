@@ -3,8 +3,7 @@ preset:
   id: maximum-effort-at-a-price
   label: Maximum effort at a price
   description: Higher resource profile and wider autoscaling envelope.
-  engine: opentofu
-  source: opentofu.tf
+  engine: provider-native
   capabilities:
     - appRuntime
     - postgres

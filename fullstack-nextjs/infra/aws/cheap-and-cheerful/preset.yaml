@@ -3,8 +3,7 @@ preset:
   id: cheap-and-cheerful
   label: Cheap and cheerful
   description: Lowest baseline cost with conservative autoscaling (Node / Next.js on App Runner).
-  engine: opentofu
-  source: opentofu.tf
+  engine: provider-native
   capabilities:
     - appRuntime
     - postgres
