@@ -144,7 +144,7 @@ templates:
   name: React (Vite)
   description: Static or SPA build with React and Vite; deploy as static assets on
     AWS S3.
-  version: 1.0.3
+  version: 1.0.4
   tags:
   - static
   - react
