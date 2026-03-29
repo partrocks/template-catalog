@@ -111,30 +111,29 @@ resource "terraform_data" "sync_site_files" {
       condition     = trimspace(local.pr_release_tag) != ""
       error_message = "release.tag is required to materialize static site files."
     }
+    precondition {
+      condition     = trimspace(local.pr_archive_path) != ""
+      error_message = "release.archivePath is missing. Deploy must run archive preflight so the built static files are staged under /materialized; check preset preflights.artifacts."
+    }
   }
 
   provisioner "local-exec" {
     command = <<-EOT
 set -e
-tmp_dir=""
-cleanup() { [ -n "$tmp_dir" ] && rm -rf "$tmp_dir" || true; }
-trap cleanup EXIT
 ARCH='${local.pr_archive_path}'
-if [ -n "$ARCH" ] && [ -d "$ARCH" ]; then
-  SYNC_SRC="$ARCH"
-else
-  tmp_dir=$(mktemp -d)
-  git -C /app archive --format=tar "${local.pr_release_tag}" | tar -xf - -C "$tmp_dir"
-  if [ -f "$tmp_dir/dist/index.html" ]; then
-    SYNC_SRC="$tmp_dir/dist"
-  elif [ -f "$tmp_dir/index.html" ]; then
-    SYNC_SRC="$tmp_dir"
-  else
-    echo "static-react-vite: expected dist/index.html after npm run build (committed) or index.html at repo root for this release tag." >&2
-    exit 1
-  fi
+if [ -z "$ARCH" ] || [ ! -d "$ARCH" ]; then
+  echo "partrocks: archive staging directory missing or not a directory: '$ARCH'" >&2
+  exit 1
 fi
-test -f "$SYNC_SRC/index.html"
+SYNC_SRC="$ARCH"
+if [ ! -f "$SYNC_SRC/index.html" ]; then
+  echo "partrocks: expected index.html under staged archive path: $SYNC_SRC" >&2
+  exit 1
+fi
+if grep -qE '/src/|src/main\\.tsx' "$SYNC_SRC/index.html"; then
+  echo "partrocks: refusing to sync Vite dev index.html (references /src/). Use production dist/ from archive preflight build, not repo root." >&2
+  exit 1
+fi
 aws s3 sync "$SYNC_SRC" "s3://${aws_s3_bucket.site.id}" --delete --region "${var.aws_region}"
 EOT
   }
