@@ -1,21 +1,23 @@
 manifest:
   id: static-react-vite
   name: React (Vite)
-  description: Static or SPA build with React and Vite; deploy as static assets on AWS S3.
-  version: 1.0.0
+  description: Static or SPA build with React and Vite; deploy as static assets on
+    AWS S3.
+  version: 1.0.1
   baseImage: node:20-alpine
   tags:
-    - static
-    - react
-    - vite
-    - javascript
-    - aws
-    - s3
+  - static
+  - react
+  - vite
+  - javascript
+  - aws
+  - s3
   categories:
-    - static-web-app
-  capabilities: 'Client-side React, Vite bundler, static export/CDN-friendly output; local Docker dev; AWS S3 website hosting presets.
+  - static-web-app
+  capabilities: 'Client-side React, Vite bundler, static export/CDN-friendly output;
+    local Docker dev; AWS S3 website hosting presets.
 
     '
   logos:
-    - react
-    - vite
+  - react
+  - vite
