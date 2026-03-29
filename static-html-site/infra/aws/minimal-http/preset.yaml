@@ -2,7 +2,7 @@ preset:
   provider: aws
   id: minimal-http
   label: Minimal HTTP (S3 website)
-  description: Cheapest possible static hosting with S3 website endpoint (HTTP only).
+  description: Lowest-cost static hosting with a dedicated S3 bucket and website endpoint; pair with a PartRocks shared gateway for HTTPS on your domain.
   engine: opentofu
   source: opentofu.tf
   capabilities:
@@ -25,10 +25,13 @@ preset:
   ui:
     badges:
       - low-cost
-      - no-edge-tls
-    securityPosture: dev-only
+      - edge-tls
+    securityPosture: edge-tls-only
     costTier: low
     complexity: low
-    notes: DNS alias works for apex domains, but HTTPS requires a TLS-capable edge.
+    notes: >-
+      Provisions a new S3 bucket and syncs your release assets. The website endpoint is HTTP at the origin;
+      TLS and public DNS are provided by your PartRocks shared gateway (Route 53 alias targets use dns_name + canonical_hosted_zone_id).
+      The Secure edge preset is the same infrastructure with output names oriented for gateway binding—either is valid for production behind the gateway.
     images:
       - infra/aws/minimal-http/diagram.svg
