@@ -18,11 +18,17 @@ provider "aws" {
   region = var.aws_region
   default_tags {
     tags = {
-      ManagedBy   = "partrocks"
-      Environment = local.pr_environment_id
-      Provider    = local.pr_provider_id
-      Partrocks   = "true"
-      Application = local.app_scope
+      Application                  = local.app_scope
+      ManagedBy                    = "partrocks"
+      Environment                  = local.pr_environment_id
+      Partrocks                    = "true"
+      Provider                     = local.pr_provider_id
+      "partrocks:app-id"           = local.pr_app_id_tag
+      "partrocks:env-id"           = local.pr_environment_id
+      "partrocks:project-scope-id" = local.pr_project_scope_id
+      "partrocks:requirement-id"   = "deploy"
+      "partrocks:resource-kind"    = "iac-template"
+      "partrocks:template-id"      = local.pr_template_id
     }
   }
 }
@@ -33,6 +39,9 @@ locals {
   pr_environment_id      = "{{ environment.id }}"
   pr_safe_environment_id = "{{ environment.safeId }}"
   pr_provider_id         = "{{ provider.id }}"
+  pr_app_id_tag          = "{{ application.safeId }}"
+  pr_template_id         = "{{ template.id }}"
+  pr_project_scope_id    = "{{ project.scopeId }}"
   pr_release_tag         = "{{ release.tag }}"
   pr_safe_release_tag    = "{{ release.safeTag }}"
   pr_archive_path_raw    = "{{ release.archivePath }}"
