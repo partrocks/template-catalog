@@ -10,6 +10,6 @@ manifest:
   - aws
   - s3
   - web
-  version: 3.0.4
+  version: 3.0.5
   author: PartRocks
   license: MIT
