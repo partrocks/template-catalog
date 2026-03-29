@@ -3,7 +3,7 @@ manifest:
   name: React (Vite)
   description: Static or SPA build with React and Vite; deploy as static assets on
     AWS S3.
-  version: 1.0.7
+  version: 1.0.8
   baseImage: node:20-alpine
   tags:
   - static
