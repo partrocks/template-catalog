@@ -141,11 +141,6 @@ def validate_preset_document(
         errors.append(f"{rel_display}: engine must be a non-empty string")
         return
     engine_norm = engine.strip().lower()
-    if engine_norm in ("opentofu", "terraform", "tofu"):
-        errors.append(
-            f"{rel_display}: engine '{engine}' is retired; use 'provider-native' and declarative slices"
-        )
-        return
     if engine_norm != "provider-native":
         errors.append(
             f"{rel_display}: engine must be 'provider-native' (got '{engine}')"
@@ -233,17 +228,18 @@ def validate_namespace_preset(
     _validate_ui_images_exist(template_path, template_dir, preset_yaml_path, preset_doc, errors)
 
 
-def collect_terraform_paths_under_infra(template_path: Path) -> list[Path]:
+def collect_dot_tf_paths_under_infra(template_path: Path) -> list[Path]:
     infra = template_path / "infra"
     if not infra.is_dir():
         return []
     return sorted(infra.rglob("*.tf"))
 
 
-def validate_no_terraform_under_infra(template_path: Path, template_dir: str, errors: list[str]) -> None:
-    for tf in collect_terraform_paths_under_infra(template_path):
+def validate_no_dot_tf_under_infra(template_path: Path, template_dir: str, errors: list[str]) -> None:
+    for path in collect_dot_tf_paths_under_infra(template_path):
         errors.append(
-            f"{template_dir}: OpenTofu/Terraform sources are retired; remove '{tf.relative_to(template_path)}'"
+            f"{template_dir}: remove '{path.relative_to(template_path)}' "
+            "(.tf under infra is not supported; use provider-native presets)"
         )
 
 
@@ -284,7 +280,7 @@ def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> lis
     except ImportError:
         return [f"{template_dir}: pyyaml is required for catalog validation"]
 
-    validate_no_terraform_under_infra(template_path, template_dir, errors)
+    validate_no_dot_tf_under_infra(template_path, template_dir, errors)
     validate_orphan_infra_presets(template_path, template_dir, errors, yaml)
 
     if not env_path.exists():

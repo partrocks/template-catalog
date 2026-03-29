@@ -20,7 +20,7 @@ if [ -n "${JWT_PRIVATE_KEY:-}" ] && [ -n "${JWT_PUBLIC_KEY:-}" ]; then
   chmod 600 config/jwt/private.pem
   chmod 644 config/jwt/public.pem
 elif [ -n "${JWT_SECRET_KEY:-}" ]; then
-  # Current mode in your Tofu: shared secret style.
+  # Typical mode: HS256-style shared secret from env.
   # No file write needed unless your Symfony config explicitly requires PEM files.
   echo "[bootstrap] using JWT_SECRET_KEY from env"
 else

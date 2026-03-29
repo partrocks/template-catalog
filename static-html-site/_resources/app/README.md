@@ -18,10 +18,10 @@ Then open `http://localhost:8080`.
 
 ## AWS deployment
 
-The template includes a low-cost OpenTofu target that creates:
+The default cloud presets (`aws/secure-edge` then `aws/minimal-http` in `environments.yaml`) provision:
 
-- One public S3 bucket
+- A public S3 bucket for static assets
 - S3 static website hosting configuration
 - Default static files (`index.html`, `css/styles.css`, `js/app.js`)
 
-This is designed as the cheapest AWS baseline for static hosting.
+This is designed as a low-cost AWS baseline for static hosting.
