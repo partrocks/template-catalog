@@ -1,5 +1,19 @@
 steps:
-  - step: stub-placeholder
-    label: Placeholder (stub template)
+  - step: create-vite-react-app
+    label: Creating React + Vite app (TypeScript)
     run:
-      - command: "true"
+      - command: 'CI=true npm create vite@latest . -- --template react-ts'
+
+  - step: copy-partrocks-landing
+    label: Adding PartRocks homepage (matches php-symfony landing style)
+    copy:
+      from: scaffold
+      to: .
+
+  - step: allow-dist-in-git-for-deploy
+    label: Stop ignoring dist/ so release tags can include the production build for S3 sync
+    modify:
+      file: .gitignore
+      replacements:
+        - search: "dist\n"
+          replace: ""

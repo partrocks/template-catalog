@@ -142,13 +142,15 @@ templates:
   - queue
 - id: static-react-vite
   name: React (Vite)
-  description: Static or SPA build with React and Vite; deploy as static assets.
-  version: 0.1.0-stub
+  description: Static or SPA build with React and Vite; local Docker dev and AWS S3 deploy presets.
+  version: 1.0.0
   tags:
   - static
   - react
   - vite
   - javascript
+  - aws
+  - s3
 - id: worker-node
   name: Node worker
   description: Background jobs and queue consumers in Node.js.

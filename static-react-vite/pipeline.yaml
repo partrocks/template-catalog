@@ -1,3 +1,5 @@
 pipeline:
   - steps:
-      - stub-placeholder
+      - create-vite-react-app
+      - copy-partrocks-landing
+      - allow-dist-in-git-for-deploy

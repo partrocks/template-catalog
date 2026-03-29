@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="220" viewBox="0 0 640 220">
+  <rect width="640" height="220" fill="#0b1220"/>
+  <rect x="24" y="70" width="180" height="80" rx="10" fill="#1f2937" stroke="#334155"/>
+  <text x="114" y="112" text-anchor="middle" font-size="14" fill="#f8fafc">Browser</text>
+  <rect x="250" y="70" width="180" height="80" rx="10" fill="#1f2937" stroke="#334155"/>
+  <text x="340" y="112" text-anchor="middle" font-size="14" fill="#f8fafc">Route53 Alias/CNAME</text>
+  <rect x="476" y="70" width="140" height="80" rx="10" fill="#1f2937" stroke="#334155"/>
+  <text x="546" y="112" text-anchor="middle" font-size="14" fill="#f8fafc">S3 Website</text>
+  <path d="M204 110H250" stroke="#38bdf8" stroke-width="3"/>
+  <path d="M430 110H476" stroke="#38bdf8" stroke-width="3"/>
+  <text x="320" y="188" text-anchor="middle" font-size="12" fill="#94a3b8">HTTP only at origin endpoint</text>
+</svg>

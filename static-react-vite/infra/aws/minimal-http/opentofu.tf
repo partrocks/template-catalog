@@ -1,0 +1,161 @@
+terraform {
+  required_version = ">= 1.6.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+variable "aws_region" {
+  description = "AWS region for resources"
+  type        = string
+}
+
+provider "aws" {
+  region = var.aws_region
+  default_tags {
+    tags = {
+      ManagedBy   = "partrocks"
+      Environment = local.pr_environment_id
+      Provider    = local.pr_provider_id
+      Partrocks   = "true"
+      Application = local.app_scope
+    }
+  }
+}
+
+data "aws_caller_identity" "current" {}
+
+locals {
+  pr_environment_id      = "{{ environment.id }}"
+  pr_safe_environment_id = "{{ environment.safeId }}"
+  pr_provider_id         = "{{ provider.id }}"
+  pr_release_tag         = "{{ release.tag }}"
+  pr_safe_release_tag    = "{{ release.safeTag }}"
+  pr_archive_path_raw    = "{{ release.archivePath }}"
+  pr_archive_path = (
+    substr(trimspace(local.pr_archive_path_raw), 0, 2) == "{{" ? "" : trimspace(local.pr_archive_path_raw)
+  )
+
+  app_scope = substr(
+    "${local.pr_safe_release_tag != "" ? local.pr_safe_release_tag : "site"}-${local.pr_safe_environment_id}",
+    0,
+    45
+  )
+
+  website_bucket_name_raw = substr(
+    "partrocks-${local.pr_safe_release_tag != "" ? local.pr_safe_release_tag : "site"}-${local.pr_safe_environment_id}-${data.aws_caller_identity.current.account_id}-${var.aws_region}",
+    0,
+    63
+  )
+
+  website_bucket_name = trimsuffix(trimprefix(local.website_bucket_name_raw, "-"), "-")
+}
+
+resource "aws_s3_bucket" "site" {
+  bucket        = local.website_bucket_name
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_public_access_block" "site" {
+  bucket = aws_s3_bucket.site.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_website_configuration" "site" {
+  bucket = aws_s3_bucket.site.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "index.html"
+  }
+}
+
+resource "aws_s3_bucket_policy" "site_public_read" {
+  bucket = aws_s3_bucket.site.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = ["s3:GetObject"]
+        Resource  = ["${aws_s3_bucket.site.arn}/*"]
+      }
+    ]
+  })
+
+  depends_on = [aws_s3_bucket_public_access_block.site]
+}
+
+resource "terraform_data" "sync_site_files" {
+  triggers_replace = {
+    release_tag     = local.pr_release_tag
+    bucket_name     = aws_s3_bucket.site.id
+    archive_path    = local.pr_archive_path
+  }
+
+  lifecycle {
+    precondition {
+      condition     = trimspace(local.pr_release_tag) != ""
+      error_message = "release.tag is required to materialize static site files."
+    }
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+set -e
+tmp_dir=""
+cleanup() { [ -n "$tmp_dir" ] && rm -rf "$tmp_dir" || true; }
+trap cleanup EXIT
+ARCH='${local.pr_archive_path}'
+if [ -n "$ARCH" ] && [ -d "$ARCH" ]; then
+  SYNC_SRC="$ARCH"
+else
+  tmp_dir=$(mktemp -d)
+  git -C /app archive --format=tar "${local.pr_release_tag}" | tar -xf - -C "$tmp_dir"
+  if [ -f "$tmp_dir/dist/index.html" ]; then
+    SYNC_SRC="$tmp_dir/dist"
+  elif [ -f "$tmp_dir/index.html" ]; then
+    SYNC_SRC="$tmp_dir"
+  else
+    echo "static-react-vite: expected dist/index.html after npm run build (committed) or index.html at repo root for this release tag." >&2
+    exit 1
+  fi
+fi
+test -f "$SYNC_SRC/index.html"
+aws s3 sync "$SYNC_SRC" "s3://${aws_s3_bucket.site.id}" --delete --region "${var.aws_region}"
+EOT
+  }
+
+  depends_on = [
+    aws_s3_bucket_website_configuration.site,
+    aws_s3_bucket_policy.site_public_read
+  ]
+}
+
+output "SITE_URL" {
+  description = "Public website URL."
+  value       = "http://${aws_s3_bucket_website_configuration.site.website_endpoint}"
+}
+
+output "SITE_DNS_NAME" {
+  description = "DNS name for the S3 website endpoint."
+  value       = aws_s3_bucket_website_configuration.site.website_endpoint
+}
+
+output "SITE_HOSTED_ZONE_ID" {
+  description = "Route53 hosted zone id for aliasing to the S3 website endpoint."
+  value       = aws_s3_bucket.site.hosted_zone_id
+}
