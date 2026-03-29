@@ -153,17 +153,87 @@ EOT
   ]
 }
 
+locals {
+  cloudfront_route53_zone_id = "Z2FDTNDATAQYW2"
+}
+
+resource "aws_cloudfront_distribution" "site" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
+  comment             = "partrocks-${local.app_scope}"
+  price_class         = "PriceClass_100"
+
+  origin {
+    domain_name = aws_s3_bucket_website_configuration.site.website_endpoint
+    origin_id    = "s3-website-${aws_s3_bucket.site.id}"
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "s3-website-${aws_s3_bucket.site.id}"
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+  custom_error_response {
+    error_code         = 403
+    response_code      = 200
+    response_page_path = "/index.html"
+  }
+
+  custom_error_response {
+    error_code         = 404
+    response_code      = 200
+    response_page_path = "/index.html"
+  }
+
+  depends_on = [terraform_data.sync_site_files]
+}
+
 output "FRONT_DOOR_URL" {
-  description = "Public site URL; gateway routing is managed outside template IaC."
-  value       = "http://${aws_s3_bucket_website_configuration.site.website_endpoint}"
+  description = "HTTPS URL for the CloudFront distribution (use with shareable CloudFront gateway and custom domains)."
+  value       = "https://${aws_cloudfront_distribution.site.domain_name}"
 }
 
 output "FRONT_DOOR_DNS_NAME" {
-  description = "DNS name for site origin when shared gateway is external."
-  value       = aws_s3_bucket_website_configuration.site.website_endpoint
+  description = "CloudFront distribution domain for Route 53 alias or CNAME."
+  value       = aws_cloudfront_distribution.site.domain_name
 }
 
 output "FRONT_DOOR_HOSTED_ZONE_ID" {
-  description = "Route53 hosted zone id for the S3 website endpoint."
-  value       = aws_s3_bucket.site.hosted_zone_id
+  description = "Route 53 alias hosted zone id for CloudFront (fixed AWS value)."
+  value       = local.cloudfront_route53_zone_id
+}
+
+output "CLOUDFRONT_DISTRIBUTION_ID" {
+  description = "Distribution id for PartRocks domain binding / ACM attach (edge context)."
+  value       = aws_cloudfront_distribution.site.id
 }

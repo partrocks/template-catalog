@@ -22,8 +22,8 @@ environments:
       script: _deploy/hooks/cloud-boot.sh
     deploy:
       presets:
-        - aws/minimal-http
         - aws/secure-edge
+        - aws/minimal-http
 
   prod:
     id: prod
@@ -32,5 +32,5 @@ environments:
       script: _deploy/hooks/cloud-boot.sh
     deploy:
       presets:
-        - aws/minimal-http
         - aws/secure-edge
+        - aws/minimal-http

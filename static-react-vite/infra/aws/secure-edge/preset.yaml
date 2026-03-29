@@ -1,8 +1,8 @@
 preset:
   provider: aws
   id: secure-edge
-  label: Secure Edge (Shared Gateway Ready)
-  description: S3 static origin for shared gateway TLS routing; runs a fresh npm production build from the release tag, then syncs dist/.
+  label: Secure Edge (CloudFront + S3)
+  description: Production static hosting with CloudFront in front of S3; npm build then sync dist/. Use with a PartRocks shareable CloudFront gateway.
   engine: opentofu
   source: opentofu.tf
   capabilities:
@@ -15,6 +15,8 @@ preset:
       value: "{{ FRONT_DOOR_DNS_NAME }}"
     - key: canonical_hosted_zone_id
       value: "{{ FRONT_DOOR_HOSTED_ZONE_ID }}"
+    - key: CLOUDFRONT_DISTRIBUTION_ID
+      value: "{{ CLOUDFRONT_DISTRIBUTION_ID }}"
   preflights:
     artifacts:
       type: archive
@@ -30,6 +32,6 @@ preset:
     securityPosture: edge-tls-only
     costTier: medium
     complexity: medium
-    notes: Pair with a shared gateway for HTTPS on your domain. Each deploy runs a clean npm ci && npm run build from the release tag so deploys never use a stale local dist/.
+    notes: Default production preset. OpenTofu creates S3 + CloudFront; dns_name is the distribution hostname. Pair with shareable gateway gatewayFlavor cloudfront. Each deploy runs npm ci && npm run build from the release tag.
     images:
       - infra/aws/secure-edge/diagram.svg

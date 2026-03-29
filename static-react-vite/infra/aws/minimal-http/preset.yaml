@@ -1,8 +1,8 @@
 preset:
   provider: aws
   id: minimal-http
-  label: Minimal HTTP (S3 website)
-  description: Lowest-cost static hosting with a dedicated S3 bucket; runs a fresh npm production build from the release tag, then syncs dist/. Use a shared gateway for HTTPS.
+  label: Minimal HTTP (S3 website, dev)
+  description: S3 website only after npm build + sync dist/. Dev/experimental; production should use Secure Edge (CloudFront + S3) with a shareable CloudFront gateway.
   engine: opentofu
   source: opentofu.tf
   capabilities:
@@ -26,12 +26,11 @@ preset:
   ui:
     badges:
       - low-cost
-      - edge-tls
+      - dev-experimental
     securityPosture: edge-tls-only
     costTier: low
     complexity: low
     notes: >-
-      Provisions a new S3 bucket and syncs dist/. Each deploy runs CI=true npm ci && npm run build inside a clean snapshot of your release tag, so local dist/ is never reused.
-      The website endpoint is HTTP at the origin; TLS on your domain comes from the PartRocks shared gateway. Secure edge preset matches this infra with FRONT_DOOR_* outputs for gateway workflows.
+      Dev/experimental only. Outputs target the S3 website endpoint, not CloudFront—mismatched with shareable CloudFront gateway in resources.yaml. Use Secure Edge for production.
     images:
       - infra/aws/minimal-http/diagram.svg

@@ -1,8 +1,8 @@
 preset:
   provider: aws
   id: secure-edge
-  label: Secure Edge (Shared Gateway Ready)
-  description: Static site origin deployment for shared gateway + TLS routing.
+  label: Secure Edge (CloudFront + S3)
+  description: Production static hosting with CloudFront in front of S3; use with a PartRocks shareable CloudFront gateway for custom domains and TLS.
   engine: opentofu
   source: opentofu.tf
   capabilities:
@@ -15,6 +15,8 @@ preset:
       value: "{{ FRONT_DOOR_DNS_NAME }}"
     - key: canonical_hosted_zone_id
       value: "{{ FRONT_DOOR_HOSTED_ZONE_ID }}"
+    - key: CLOUDFRONT_DISTRIBUTION_ID
+      value: "{{ CLOUDFRONT_DISTRIBUTION_ID }}"
   preflights:
     artifacts:
       type: archive
@@ -29,6 +31,6 @@ preset:
     securityPosture: edge-tls-only
     costTier: medium
     complexity: medium
-    notes: Recommended for production domains with shared gateway managed TLS.
+    notes: Default production preset. OpenTofu creates S3 + CloudFront; dns_name targets the distribution. Pair with a shareable gateway that has gatewayFlavor cloudfront.
     images:
       - infra/aws/secure-edge/diagram.svg
