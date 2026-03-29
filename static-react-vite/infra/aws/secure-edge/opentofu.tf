@@ -62,6 +62,15 @@ locals {
   )
 
   website_bucket_name = trimsuffix(trimprefix(local.website_bucket_name_raw, "-"), "-")
+
+  # When set (shareable gateway with gatewayFlavor cloudfront), IaC skips creating a second CloudFront;
+  # PartRocks updates the bound distribution origin after apply using output S3_WEBSITE_ENDPOINT.
+  pr_shareable_cloudfront_distribution_id   = trimspace("{{ constraints.partrocksShareableCloudFrontDistributionId }}")
+  pr_shareable_cloudfront_distribution_domain = trimspace("{{ constraints.partrocksShareableCloudFrontDistributionDomain }}")
+  use_partrocks_shareable_cloudfront_gateway = (
+    local.pr_shareable_cloudfront_distribution_id != "" &&
+    local.pr_shareable_cloudfront_distribution_domain != ""
+  )
 }
 
 resource "aws_s3_bucket" "site" {
@@ -157,7 +166,13 @@ locals {
   cloudfront_route53_zone_id = "Z2FDTNDATAQYW2"
 }
 
+moved {
+  from = aws_cloudfront_distribution.site
+  to   = aws_cloudfront_distribution.site[0]
+}
+
 resource "aws_cloudfront_distribution" "site" {
+  count = local.use_partrocks_shareable_cloudfront_gateway ? 0 : 1
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
@@ -218,14 +233,27 @@ resource "aws_cloudfront_distribution" "site" {
   depends_on = [terraform_data.sync_site_files]
 }
 
+output "S3_WEBSITE_ENDPOINT" {
+  description = "S3 website endpoint for shareable CloudFront origin sync (required when use_partrocks_shareable_cloudfront_gateway is true)."
+  value       = aws_s3_bucket_website_configuration.site.website_endpoint
+}
+
 output "FRONT_DOOR_URL" {
   description = "HTTPS URL for the CloudFront distribution (use with shareable CloudFront gateway and custom domains)."
-  value       = "https://${aws_cloudfront_distribution.site.domain_name}"
+  value = (
+    local.use_partrocks_shareable_cloudfront_gateway
+    ? "https://${local.pr_shareable_cloudfront_distribution_domain}"
+    : "https://${aws_cloudfront_distribution.site[0].domain_name}"
+  )
 }
 
 output "FRONT_DOOR_DNS_NAME" {
   description = "CloudFront distribution domain for Route 53 alias or CNAME."
-  value       = aws_cloudfront_distribution.site.domain_name
+  value = (
+    local.use_partrocks_shareable_cloudfront_gateway
+    ? local.pr_shareable_cloudfront_distribution_domain
+    : aws_cloudfront_distribution.site[0].domain_name
+  )
 }
 
 output "FRONT_DOOR_HOSTED_ZONE_ID" {
@@ -235,5 +263,9 @@ output "FRONT_DOOR_HOSTED_ZONE_ID" {
 
 output "CLOUDFRONT_DISTRIBUTION_ID" {
   description = "Distribution id for PartRocks domain binding / ACM attach (edge context)."
-  value       = aws_cloudfront_distribution.site.id
+  value = (
+    local.use_partrocks_shareable_cloudfront_gateway
+    ? local.pr_shareable_cloudfront_distribution_id
+    : aws_cloudfront_distribution.site[0].id
+  )
 }
