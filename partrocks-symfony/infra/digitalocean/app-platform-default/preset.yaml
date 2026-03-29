@@ -23,6 +23,10 @@ preset:
       value: "{{ APP_BASE_URL }}"
     - key: dns_name
       value: "{{ APP_DNS_NAME }}"
+  slices:
+    - instanceKey: app
+      sliceKind: app_runtime
+      sliceFlavor: digitalocean_app_platform
   preflights:
     artifacts:
       type: container_image

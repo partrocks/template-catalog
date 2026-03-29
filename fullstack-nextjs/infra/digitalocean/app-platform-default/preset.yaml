@@ -27,6 +27,10 @@ preset:
       value: "{{ APP_DNS_NAME }}"
     - key: APP_PLATFORM_ID
       value: "{{ APP_PLATFORM_ID }}"
+  slices:
+    - instanceKey: app
+      sliceKind: app_runtime
+      sliceFlavor: digitalocean_app_platform
   preflights:
     artifacts:
       type: container_image

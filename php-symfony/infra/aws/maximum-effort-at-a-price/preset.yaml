@@ -37,6 +37,13 @@ preset:
       value: "{{ JWT_SECRET_KEY }}"
     - key: APP_ENV
       value: "{{ APP_ENV }}"
+  slices:
+    - instanceKey: app
+      sliceKind: app_runtime
+      sliceFlavor: aws_app_runner
+    - instanceKey: database
+      sliceKind: database
+      sliceFlavor: aws_rds_postgres
   preflights:
     artifacts:
       type: container_image
