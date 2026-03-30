@@ -16,8 +16,9 @@ preset:
       value: "{{ SITE_HOSTED_ZONE_ID }}"
   slices:
     - instanceKey: site
-      sliceKind: shareable_resource
-      sliceFlavor: s3_static_website
+      sliceKind: static_site
+      sliceFlavor: s3
+      shareable: true
   preflights:
     artifacts:
       type: archive
@@ -34,6 +35,6 @@ preset:
     complexity: low
     notes: >-
       Dev/experimental only. Outputs point at the S3 website endpoint, not CloudFront.
-      PartRocks static templates require a shareable CloudFront gateway (see resources.yaml); use Secure Edge for production so dns_name matches the distribution.
+      Static templates usually declare a gateway in resources.yaml; use Secure Edge for production so dns_name matches the distribution.
     images:
       - infra/aws/minimal-http/diagram.svg

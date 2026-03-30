@@ -7,16 +7,18 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-# Align with pr-desktop INFRA_SLICE_KINDS_ALL / INFRA_SLICE_TAXONOMY_VERSION 1.
+# Align with pr-desktop INFRA_SLICE_KINDS_ALL / INFRA_SLICE_TAXONOMY_VERSION 2.
 INFRA_SLICE_KINDS: frozenset[str] = frozenset(
     {
-        "shareable_gateway",
-        "edge_workload",
-        "edge_binding",
-        "shareable_resource",
+        "gateway",
+        "static_site",
+        "object_storage",
+        "app_runtime",
         "database",
         "container_registry",
-        "app_runtime",
+        "edge_binding",
+        "edge_workload",
+        "network",
     }
 )
 
@@ -106,6 +108,9 @@ def validate_provider_native_slices(
         ik = s.get("instanceKey")
         if ik is not None and (not isinstance(ik, str) or not ik.strip()):
             errors.append(f"{rel_display}: slices[{i}].instanceKey must be a non-empty string when set")
+        sh = s.get("shareable")
+        if sh is not None and not isinstance(sh, bool):
+            errors.append(f"{rel_display}: slices[{i}].shareable must be a boolean when set")
 
 
 def validate_preset_document(

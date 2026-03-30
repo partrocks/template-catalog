@@ -16,8 +16,9 @@ preset:
       value: "{{ SITE_HOSTED_ZONE_ID }}"
   slices:
     - instanceKey: site
-      sliceKind: shareable_resource
-      sliceFlavor: s3_static_website
+      sliceKind: static_site
+      sliceFlavor: s3
+      shareable: true
   preflights:
     artifacts:
       type: archive
@@ -34,6 +35,6 @@ preset:
     costTier: low
     complexity: low
     notes: >-
-      Dev/experimental only. Outputs target the S3 website endpoint, not CloudFront—mismatched with shareable CloudFront gateway in resources.yaml. Use Secure Edge for production.
+      Dev/experimental only. Outputs target the S3 website endpoint, not CloudFront—mismatched with a gateway resource in resources.yaml. Use Secure Edge for production.
     images:
       - infra/aws/minimal-http/diagram.svg

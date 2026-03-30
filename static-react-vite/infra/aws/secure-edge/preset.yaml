@@ -18,8 +18,9 @@ preset:
       value: "{{ CLOUDFRONT_DISTRIBUTION_ID }}"
   slices:
     - instanceKey: origin
-      sliceKind: shareable_resource
-      sliceFlavor: s3_static_website
+      sliceKind: static_site
+      sliceFlavor: s3
+      shareable: true
     - instanceKey: edge
       sliceKind: edge_workload
       sliceFlavor: cloudfront_s3_origin
@@ -41,6 +42,6 @@ preset:
     securityPosture: edge-tls-only
     costTier: medium
     complexity: medium
-    notes: Default production preset. Native provisioning creates S3 + CloudFront; dns_name is the distribution hostname. Pair with shareable gateway gatewayFlavor cloudfront. Each deploy runs npm ci && npm run build from the release tag.
+    notes: Default production preset. Native provisioning creates S3 + CloudFront; dns_name is the distribution hostname. Pair a gateway resource (gatewayFlavor cloudfront, shareable if reusing PartRocks project-scoped edge). Each deploy runs npm ci && npm run build from the release tag.
     images:
       - infra/aws/secure-edge/diagram.svg
