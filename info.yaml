@@ -18,7 +18,7 @@ templates:
 - id: static-html-site
   name: Static HTML Site
   description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
-  version: 3.0.7
+  version: 3.0.8
   tags:
   - static
   - html
@@ -144,7 +144,7 @@ templates:
   name: React (Vite)
   description: Static or SPA build with React and Vite; deploy as static assets on
     AWS S3.
-  version: 1.0.8
+  version: 1.0.9
   tags:
   - static
   - react
