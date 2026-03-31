@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Validate catalog changes for preset-namespace schema v2 and provider-native infra presets."""
+"""Validate catalog changes for environments.yaml schema v3 and provider-native infra presets."""
 import os
 import re
 import sys
 import subprocess
 from pathlib import Path
 from typing import Any
+
+ENVIRONMENTS_SCHEMA_VERSION = 3
 
 # Align with pr-desktop INFRA_SLICE_KINDS_ALL / INFRA_SLICE_TAXONOMY_VERSION 2.
 INFRA_SLICE_KINDS: frozenset[str] = frozenset(
@@ -111,6 +113,119 @@ def validate_provider_native_slices(
         sh = s.get("shareable")
         if sh is not None and not isinstance(sh, bool):
             errors.append(f"{rel_display}: slices[{i}].shareable must be a boolean when set")
+
+
+def validate_optional_deploy_slices(
+    deploy: dict[str, Any],
+    rel_prefix: str,
+    errors: list[str],
+) -> None:
+    """Validate deploy.slices when present (same slice shape as preset.yaml slices)."""
+    raw = deploy.get("slices")
+    if raw is None:
+        return
+    if not isinstance(raw, list):
+        errors.append(f"{rel_prefix}: deploy.slices must be an array when set")
+        return
+    for i, s in enumerate(raw):
+        if not isinstance(s, dict):
+            errors.append(f"{rel_prefix}: deploy.slices[{i}] must be an object")
+            continue
+        sk = s.get("sliceKind")
+        sf = s.get("sliceFlavor")
+        if not isinstance(sk, str) or not sk.strip():
+            errors.append(f"{rel_prefix}: deploy.slices[{i}].sliceKind must be a non-empty string")
+        elif sk.strip() not in INFRA_SLICE_KINDS:
+            errors.append(
+                f"{rel_prefix}: deploy.slices[{i}].sliceKind '{sk.strip()}' is not a canonical "
+                f"infra slice kind (see INFRA_SLICE_TAXONOMY in PartRocks provider-control)"
+            )
+        if not isinstance(sf, str) or not sf.strip():
+            errors.append(f"{rel_prefix}: deploy.slices[{i}].sliceFlavor must be a non-empty string")
+        ik = s.get("instanceKey")
+        if ik is not None and (not isinstance(ik, str) or not ik.strip()):
+            errors.append(
+                f"{rel_prefix}: deploy.slices[{i}].instanceKey must be a non-empty string when set"
+            )
+        sh = s.get("shareable")
+        if sh is not None and not isinstance(sh, bool):
+            errors.append(f"{rel_prefix}: deploy.slices[{i}].shareable must be a boolean when set")
+        refs = s.get("refs")
+        if refs is not None:
+            if not isinstance(refs, list):
+                errors.append(f"{rel_prefix}: deploy.slices[{i}].refs must be an array when set")
+            else:
+                for j, ref in enumerate(refs):
+                    if not isinstance(ref, dict):
+                        errors.append(
+                            f"{rel_prefix}: deploy.slices[{i}].refs[{j}] must be an object"
+                        )
+                        continue
+                    rel = ref.get("relation")
+                    tik = ref.get("targetInstanceKey")
+                    if not isinstance(rel, str) or not rel.strip():
+                        errors.append(
+                            f"{rel_prefix}: deploy.slices[{i}].refs[{j}] requires relation"
+                        )
+                    if not isinstance(tik, str) or not tik.strip():
+                        errors.append(
+                            f"{rel_prefix}: deploy.slices[{i}].refs[{j}] requires targetInstanceKey"
+                        )
+        params = s.get("parameters")
+        if params is not None and (not isinstance(params, dict) or isinstance(params, list)):
+            errors.append(f"{rel_prefix}: deploy.slices[{i}].parameters must be an object when set")
+
+
+def validate_boot_script_for_cloud(
+    template_dir: str,
+    env_id: str,
+    env_raw: dict[str, Any],
+    has_presets: bool,
+    errors: list[str],
+) -> None:
+    """Schema v3: cloud + deploy.presets requires boot.script relative to _resources/."""
+    if not has_presets:
+        return
+    prefix = f"{template_dir}/environments.yaml"
+    boot = env_raw.get("boot")
+    if boot is None:
+        errors.append(
+            f"{prefix}: environment '{env_id}' cloud runtime with deploy.presets requires "
+            "boot.script (path under _resources/, e.g. _deploy/hooks/cloud-boot.sh)"
+        )
+        return
+    if not isinstance(boot, dict):
+        errors.append(f"{prefix}: environment '{env_id}' boot must be an object with script")
+        return
+    script_raw = boot.get("script")
+    if not isinstance(script_raw, str) or not script_raw.strip():
+        errors.append(f"{prefix}: environment '{env_id}' boot.script is required and must be a string")
+        return
+    s = script_raw.strip()
+    if s.startswith("_resources/"):
+        s = s[len("_resources/") :]
+    if s.startswith("/"):
+        errors.append(
+            f"{prefix}: environment '{env_id}' boot.script must be relative to _resources/, not absolute"
+        )
+        return
+    segments = [x for x in s.split("/") if x]
+    if not segments:
+        errors.append(
+            f"{prefix}: environment '{env_id}' boot.script must be a non-empty path relative to _resources/"
+        )
+        return
+    for seg in segments:
+        if seg == "..":
+            errors.append(
+                f"{prefix}: environment '{env_id}' boot.script must not contain '..'"
+            )
+            return
+        if seg == ".":
+            errors.append(
+                f"{prefix}: environment '{env_id}' boot.script must not contain '.' path segments"
+            )
+            return
 
 
 def validate_preset_document(
@@ -293,8 +408,10 @@ def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> lis
 
     with open(env_path, encoding="utf-8") as f:
         env_doc = yaml.safe_load(f) or {}
-    if env_doc.get("schemaVersion") != 2:
-        errors.append(f"{template_dir}/environments.yaml: schemaVersion must be 2")
+    if env_doc.get("schemaVersion") != ENVIRONMENTS_SCHEMA_VERSION:
+        errors.append(
+            f"{template_dir}/environments.yaml: schemaVersion must be {ENVIRONMENTS_SCHEMA_VERSION}"
+        )
         return errors
     envs = env_doc.get("environments")
     if not isinstance(envs, dict):
@@ -307,32 +424,56 @@ def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> lis
             continue
         env_id = env_raw.get("id", env_key)
         runtime = env_raw.get("runtime")
+        if "lifecycle" in env_raw:
+            errors.append(
+                f"{template_dir}/environments.yaml: environment '{env_id}' cannot use 'lifecycle' "
+                "(removed in schema v3; use boot.script)"
+            )
         if runtime == "cloud":
             deploy = env_raw.get("deploy")
             presets = deploy.get("presets") if isinstance(deploy, dict) else None
-            if not isinstance(presets, list) or len(presets) == 0:
+            has_presets = isinstance(presets, list) and len(presets) > 0
+            if not has_presets:
                 errors.append(
                     f"{template_dir}/environments.yaml: environment '{env_id}' runtime cloud requires deploy.presets"
                 )
-                continue
-            seen_namespaces: set[str] = set()
-            for namespace in presets:
-                if not isinstance(namespace, str):
-                    errors.append(
-                        f"{template_dir}/environments.yaml: environment '{env_id}' deploy.presets entries must be strings"
-                    )
-                    continue
-                ns = namespace.strip()
-                if ns in seen_namespaces:
-                    errors.append(
-                        f"{template_dir}/environments.yaml: environment '{env_id}' deploy.presets has duplicate namespace '{ns}'"
-                    )
-                    continue
-                seen_namespaces.add(ns)
-                validate_namespace_preset(template_path, template_dir, str(env_id), ns, errors, yaml)
+            else:
+                assert isinstance(presets, list)
+                seen_namespaces: set[str] = set()
+                for namespace in presets:
+                    if not isinstance(namespace, str):
+                        errors.append(
+                            f"{template_dir}/environments.yaml: environment '{env_id}' deploy.presets entries must be strings"
+                        )
+                        continue
+                    ns = namespace.strip()
+                    if ns in seen_namespaces:
+                        errors.append(
+                            f"{template_dir}/environments.yaml: environment '{env_id}' deploy.presets has duplicate namespace '{ns}'"
+                        )
+                        continue
+                    seen_namespaces.add(ns)
+                    validate_namespace_preset(template_path, template_dir, str(env_id), ns, errors, yaml)
+            if isinstance(deploy, dict):
+                validate_optional_deploy_slices(
+                    deploy,
+                    f"{template_dir}/environments.yaml: environment '{env_id}'",
+                    errors,
+                )
+            validate_boot_script_for_cloud(
+                template_dir, str(env_id), env_raw, has_presets, errors
+            )
+        elif isinstance(env_raw.get("deploy"), dict):
+            deploy = env_raw["deploy"]
+            assert isinstance(deploy, dict)
+            validate_optional_deploy_slices(
+                deploy,
+                f"{template_dir}/environments.yaml: environment '{env_id}'",
+                errors,
+            )
         if "abstract" in env_raw or "extends" in env_raw:
             errors.append(
-                f"{template_dir}/environments.yaml: environment '{env_id}' cannot use abstract/extends in schema v2"
+                f"{template_dir}/environments.yaml: environment '{env_id}' cannot use abstract/extends in schema v3"
             )
     return errors
 
@@ -385,7 +526,10 @@ def main() -> int:
             print(f"ERROR: {err_msg}", file=sys.stderr)
         return 1
 
-    print(f"Validated: all {len(template_dirs)} template packages (provider-native infra guardrails)")
+    print(
+        f"Validated: all {len(template_dirs)} template packages "
+        f"(environments schema v{ENVIRONMENTS_SCHEMA_VERSION}, provider-native infra guardrails)"
+    )
     return 0
 
 
