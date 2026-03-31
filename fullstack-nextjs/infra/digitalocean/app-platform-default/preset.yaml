@@ -21,11 +21,11 @@ preset:
     jwtSecretKey: ""
   outputs:
     - key: public_url
-      value: "{{ APP_BASE_URL }}"
+      value: "{{ facts.iac.outputs.APP_BASE_URL }}"
     - key: dns_name
-      value: "{{ APP_DNS_NAME }}"
+      value: "{{ facts.iac.outputs.APP_DNS_NAME }}"
     - key: APP_PLATFORM_ID
-      value: "{{ APP_PLATFORM_ID }}"
+      value: "{{ facts.iac.outputs.APP_PLATFORM_ID }}"
   slices:
     - instanceKey: app
       sliceKind: app_runtime

@@ -21,21 +21,21 @@ preset:
     jwtSecretKey: ""
   outputs:
     - key: APP_BASE_URL
-      value: "{{ APP_BASE_URL }}"
+      value: "{{ facts.iac.outputs.APP_BASE_URL }}"
     - key: public_url
-      value: "{{ FRONT_DOOR_URL }}"
+      value: "{{ facts.iac.outputs.FRONT_DOOR_URL }}"
     - key: dns_name
-      value: "{{ FRONT_DOOR_DNS_NAME }}"
+      value: "{{ facts.iac.outputs.FRONT_DOOR_DNS_NAME }}"
     - key: canonical_hosted_zone_id
-      value: "{{ FRONT_DOOR_HOSTED_ZONE_ID }}"
+      value: "{{ facts.iac.outputs.FRONT_DOOR_HOSTED_ZONE_ID }}"
     - key: DATABASE_URL
-      value: "{{ DATABASE_URL }}"
+      value: "{{ facts.iac.outputs.DATABASE_URL }}"
     - key: APP_SECRET
-      value: "{{ APP_SECRET }}"
+      value: "{{ facts.iac.outputs.APP_SECRET }}"
     - key: JWT_SECRET_KEY
-      value: "{{ JWT_SECRET_KEY }}"
+      value: "{{ facts.iac.outputs.JWT_SECRET_KEY }}"
     - key: APP_ENV
-      value: "{{ APP_ENV }}"
+      value: "{{ facts.iac.outputs.APP_ENV }}"
   slices:
     - instanceKey: app
       sliceKind: app_runtime

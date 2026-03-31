@@ -21,7 +21,7 @@ PIPELINE = """pipeline:
 
 DEPS = "dependencies: []\n"
 
-ENV = """schemaVersion: 2
+ENV = """schemaVersion: 3
 environments:
   dev:
     id: dev
