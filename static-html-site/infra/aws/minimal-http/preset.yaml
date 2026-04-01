@@ -1,8 +1,9 @@
 preset:
   provider: aws
   id: minimal-http
-  label: Minimal HTTP (S3 website, dev)
-  description: S3 website endpoint only (HTTP origin). For trying lowest cost locally; production should use Secure Edge (CloudFront + S3) and a shareable CloudFront gateway.
+  label: Minimal HTTP (public S3 website)
+  description: >-
+    S3 static website only — public HTTP bucket endpoint. No shareable ALB required.
   engine: provider-native
   capabilities:
     - envConfig
@@ -17,24 +18,22 @@ preset:
   slices:
     - instanceKey: site
       sliceKind: static_site
-      sliceFlavor: s3
+      sliceFlavor: s3_public_website
       shareable: true
   preflights:
     artifacts:
       type: archive
       archive:
         path: .
+        buildCommand: "true"
   teardown:
     policy: cleanup
   ui:
     badges:
       - low-cost
       - dev-experimental
-    securityPosture: edge-tls-only
+    securityPosture: http-only-on-origin
     costTier: low
     complexity: low
-    notes: >-
-      Dev/experimental only. Outputs point at the S3 website endpoint, not CloudFront.
-      Static templates usually declare a gateway in resources.yaml; use Secure Edge for production so dns_name matches the distribution.
     images:
       - infra/aws/minimal-http/diagram.svg

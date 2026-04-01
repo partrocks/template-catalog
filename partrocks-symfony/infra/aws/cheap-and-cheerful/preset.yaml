@@ -2,7 +2,7 @@ preset:
   provider: aws
   id: cheap-and-cheerful
   label: Cheap and cheerful
-  description: Lowest baseline cost with conservative autoscaling.
+  description: Lowest baseline cost — PHP app on EC2 behind a shareable ALB plus RDS.
   engine: provider-native
   capabilities:
     - appRuntime
@@ -11,11 +11,8 @@ preset:
   constraints:
     appPort: 9000
     appHealthPath: /
-    appRunnerStartCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
-    appRunnerCpu: 1024
-    appRunnerMemory: 2048
-    appRunnerMinSize: 1
-    appRunnerMaxSize: 1
+    ec2InstanceType: t3.micro
+    ec2CloudBootCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
     databaseUrl: ""
     appSecret: ""
     jwtSecretKey: ""
@@ -39,7 +36,7 @@ preset:
   slices:
     - instanceKey: app
       sliceKind: app_runtime
-      sliceFlavor: aws_app_runner
+      sliceFlavor: ec2_alb_backend
     - instanceKey: database
       sliceKind: database
       sliceFlavor: aws_rds_postgres

@@ -1,8 +1,10 @@
 preset:
   provider: aws
   id: secure-edge
-  label: Secure Edge (CloudFront + S3)
-  description: Production static hosting with CloudFront in front of S3; npm build then sync dist/. Use with a PartRocks shareable CloudFront gateway.
+  label: Secure Edge (ALB + S3)
+  description: >-
+    Production static hosting: shareable S3 website origin plus ALB edge registration for TLS at the
+    shareable gateway. Use with a PartRocks shareable ALB `front_door` resource; npm build then sync dist/.
   engine: provider-native
   capabilities:
     - envConfig
@@ -14,8 +16,6 @@ preset:
       value: "{{ facts.iac.outputs.FRONT_DOOR_DNS_NAME }}"
     - key: canonical_hosted_zone_id
       value: "{{ facts.iac.outputs.FRONT_DOOR_HOSTED_ZONE_ID }}"
-    - key: CLOUDFRONT_DISTRIBUTION_ID
-      value: "{{ facts.iac.outputs.CLOUDFRONT_DISTRIBUTION_ID }}"
   slices:
     - instanceKey: origin
       sliceKind: static_site
@@ -23,7 +23,7 @@ preset:
       shareable: true
     - instanceKey: edge
       sliceKind: edge_workload
-      sliceFlavor: cloudfront_s3_origin
+      sliceFlavor: alb_ip_registration
       refs:
         - relation: origin_bucket
           targetInstanceKey: origin
@@ -42,6 +42,8 @@ preset:
     securityPosture: edge-tls-only
     costTier: medium
     complexity: medium
-    notes: Default production preset. Native provisioning creates S3 + CloudFront; dns_name is the distribution hostname. Pair a gateway resource (gatewayFlavor cloudfront, shareable if reusing PartRocks project-scoped edge). Each deploy runs npm ci && npm run build from the release tag.
+    notes: >-
+      Native apply provisions the S3 website bucket; ALB listener rules and TLS live on the shareable gateway.
+      Each deploy runs npm ci && npm run build from the release tag.
     images:
       - infra/aws/secure-edge/diagram.svg

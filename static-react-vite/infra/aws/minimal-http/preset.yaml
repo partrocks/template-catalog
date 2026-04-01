@@ -1,8 +1,10 @@
 preset:
   provider: aws
   id: minimal-http
-  label: Minimal HTTP (S3 website, dev)
-  description: S3 website only after npm build + sync dist/. Dev/experimental; production should use Secure Edge (CloudFront + S3) with a shareable CloudFront gateway.
+  label: Minimal HTTP (public S3 website)
+  description: >-
+    S3 static website only after npm build + sync dist/. Public HTTP endpoint (no shareable ALB required).
+    Prefer Secure Edge when you need HTTPS via the project gateway.
   engine: provider-native
   capabilities:
     - envConfig
@@ -17,7 +19,7 @@ preset:
   slices:
     - instanceKey: site
       sliceKind: static_site
-      sliceFlavor: s3
+      sliceFlavor: s3_public_website
       shareable: true
   preflights:
     artifacts:
@@ -31,10 +33,9 @@ preset:
     badges:
       - low-cost
       - dev-experimental
-    securityPosture: edge-tls-only
+    securityPosture: http-only-on-origin
     costTier: low
     complexity: low
-    notes: >-
-      Dev/experimental only. Outputs target the S3 website endpoint, not CloudFront—mismatched with a gateway resource in resources.yaml. Use Secure Edge for production.
+    notes: Outputs target the S3 website endpoint over HTTP.
     images:
       - infra/aws/minimal-http/diagram.svg

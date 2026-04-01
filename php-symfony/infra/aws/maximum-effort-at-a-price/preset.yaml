@@ -2,7 +2,7 @@ preset:
   provider: aws
   id: maximum-effort-at-a-price
   label: Maximum effort at a price
-  description: Higher resource profile and wider autoscaling envelope (Symfony / FrankenPHP on App Runner).
+  description: Larger EC2 class behind shareable ALB — wider headroom for Symfony / FrankenPHP.
   engine: provider-native
   capabilities:
     - appRuntime
@@ -11,11 +11,8 @@ preset:
   constraints:
     appPort: 8080
     appHealthPath: /health
-    appRunnerStartCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
-    appRunnerCpu: 2048
-    appRunnerMemory: 4096
-    appRunnerMinSize: 2
-    appRunnerMaxSize: 8
+    ec2InstanceType: t3.small
+    ec2CloudBootCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
     databaseUrl: ""
     appSecret: ""
     jwtSecretKey: ""
@@ -39,7 +36,7 @@ preset:
   slices:
     - instanceKey: app
       sliceKind: app_runtime
-      sliceFlavor: aws_app_runner
+      sliceFlavor: ec2_alb_backend
     - instanceKey: database
       sliceKind: database
       sliceFlavor: aws_rds_postgres
