@@ -18,7 +18,7 @@ templates:
 - id: static-html-site
   name: Static HTML Site
   description: Simple static HTML/CSS/JS website with low-cost AWS S3 hosting.
-  version: 3.0.8
+  version: 3.0.9
   tags:
   - static
   - html
@@ -77,7 +77,7 @@ templates:
 - id: partrocks-symfony
   name: PartRocks Symfony
   description: PartRocks Symfony is an opinionated template for building Symfony applications.
-  version: 3.0.22
+  version: 3.0.23
   tags:
   - symfony
   - php
@@ -144,7 +144,7 @@ templates:
   name: React (Vite)
   description: Static or SPA build with React and Vite; deploy as static assets on
     AWS S3.
-  version: 1.0.9
+  version: 1.0.10
   tags:
   - static
   - react
@@ -195,7 +195,7 @@ templates:
   name: Symfony
   description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
     and Docker dev.
-  version: 1.0.20
+  version: 1.0.21
   tags:
   - php
   - symfony
@@ -210,7 +210,7 @@ templates:
 - id: fullstack-nextjs
   name: Next.js
   description: Full stack React with SSR, API routes, and app router patterns.
-  version: 1.0.22
+  version: 1.0.23
   tags:
   - nextjs
   - react
