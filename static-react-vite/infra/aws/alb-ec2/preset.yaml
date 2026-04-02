@@ -10,6 +10,8 @@ preset:
     is future work); optional `ec2UserDataBash` serves a tiny placeholder over HTTP so the target group
     can pass health checks.
   engine: provider-native
+  omitShareableResourceIds:
+    - publicGatewayCdn
   capabilities:
     - appRuntime
     - envConfig

@@ -6,6 +6,9 @@ preset:
     One S3 bucket with static website hosting: npm ci && npm run build, then deploy syncs dist/.
     The front door is the bucket’s public website endpoint over HTTP — no CloudFront or ALB resource.
   engine: provider-native
+  omitShareableResourceIds:
+    - publicGatewayCdn
+    - publicGatewayAlb
   capabilities:
     - envConfig
   constraints: {}

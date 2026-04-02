@@ -275,6 +275,26 @@ def validate_preset_document(
     validate_provider_native_slices(preset_doc, rel_display, errors)
     validate_preset_outputs_keys(preset_doc, rel_display, provider, errors)
 
+    omit = preset_doc.get("omitShareableResourceIds")
+    if omit is not None:
+        if not isinstance(omit, list):
+            errors.append(
+                f"{rel_display}: omitShareableResourceIds must be an array when set"
+            )
+        else:
+            seen_omit: set[str] = set()
+            for i, item in enumerate(omit):
+                if not isinstance(item, str) or not item.strip():
+                    errors.append(
+                        f"{rel_display}: omitShareableResourceIds[{i}] must be a non-empty string"
+                    )
+                elif item.strip() in seen_omit:
+                    errors.append(
+                        f"{rel_display}: omitShareableResourceIds has duplicate '{item.strip()}'"
+                    )
+                else:
+                    seen_omit.add(item.strip())
+
     ui = preset_doc.get("ui")
     if isinstance(ui, dict):
         images = ui.get("images")

@@ -2,7 +2,7 @@
 
 PartRocks shareable **ALB** gateways use an **IP target group** in your default VPC. Your preset outputs must include `partrocks_alb_target_private_ips` (or set `partrocks_iac_owns_alb_targets=true` when ECS/ASG attaches the same target group). **Bare S3 static sites** do not expose private IPs there, so pairing **minimal S3** with an ALB gateway often yields an empty target group (503).
 
-**Recommended path:** use a **CloudFront** shareable gateway with the **`aws/cloudfront-s3`** preset (see `static-react-vite` environment `cloud_https_cdn`).
+**Recommended path:** use a **CloudFront** shareable gateway with the **`aws/cloudfront-s3`** preset (see `static-react-vite` cloud envs such as **`prod`** / **`uat`**).
 
 ## Steps
 
@@ -10,7 +10,7 @@ PartRocks shareable **ALB** gateways use an **IP target group** in your default 
    Use a current static template that declares **`publicGatewayCdn`** with `constraints.sliceFlavor: cloudfront` in `resources.yaml` (see bundled `static-react-vite`).
 
 2. **Environment / preset**  
-   Point the app at environment **`cloud_https_cdn`** (preset **`aws/cloudfront-s3`**). For **ALB → EC2** (private IP target), use **`cloud_https_alb`** with **`aws/alb-ec2`** and bind **`publicGatewayAlb`** (`sliceFlavor: alb`). Do not pair a bare S3-only preset with an ALB gateway unless you add real IP targets.
+   Use a cloud environment (**`prod`**, **`uat`**, etc.) and choose preset **`aws/cloudfront-s3`** for CloudFront + S3, or **`aws/alb-ec2`** for **ALB → EC2** (bind **`publicGatewayAlb`**, `sliceFlavor: alb`). Do not pair a bare S3-only preset with an ALB gateway unless you add real IP targets.
 
 3. **Shared gateway**  
    - Destroy or stop using the old **ALB** shareable gateway binding for that environment, or create a **new** shareable gateway from deploy: with CloudFront flavor, PartRocks provisions a distribution and records `cloudfrontDistributionId` for teardown.  
@@ -27,4 +27,4 @@ PartRocks shareable **ALB** gateways use an **IP target group** in your default 
 
 ## Rollback
 
-If you must stay on ALB, add **in-VPC targets** (e.g. ECS service attached to the PartRocks target group, or outputs for `partrocks_alb_target_private_ips`). That is an advanced pattern; prefer CloudFront + `cloud_https_cdn` for static sites.
+If you must stay on ALB, add **in-VPC targets** (e.g. ECS service attached to the PartRocks target group, or outputs for `partrocks_alb_target_private_ips`). That is an advanced pattern; prefer CloudFront + preset **`aws/cloudfront-s3`** for static sites.

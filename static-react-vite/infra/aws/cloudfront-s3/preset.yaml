@@ -7,6 +7,8 @@ preset:
     your built static site — bind resource id `publicGatewayCdn` (sliceFlavor cloudfront). npm ci &&
     npm run build; deploy syncs dist/. This path does not use an ALB or EC2.
   engine: provider-native
+  omitShareableResourceIds:
+    - publicGatewayAlb
   capabilities:
     - envConfig
   constraints: {}

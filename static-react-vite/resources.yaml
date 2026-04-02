@@ -1,7 +1,6 @@
-# Two shareable gateway selectors (sliceFlavor must match the shareable gateway you bind):
-# - publicGatewayCdn: CloudFront shareable gateway (`cloud_https_cdn` / `aws/cloudfront-s3`).
-# - publicGatewayAlb: ALB shareable gateway (`cloud_https_alb` / `aws/alb-ec2`).
-# Environments omit the gateway ids they do not need via deploy.omitShareableResourceIds.
+# Two shareable gateway selectors (sliceFlavor must match the shareable gateway you bind).
+# `prod` / `uat` list all three AWS presets; each preset.yaml sets omitShareableResourceIds so only
+# the gateways that preset needs are required when you pick that preset for deploy.
 resources:
   - id: publicGatewayCdn
     kind: gateway
