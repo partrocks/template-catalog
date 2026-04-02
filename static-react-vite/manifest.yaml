@@ -3,7 +3,7 @@ manifest:
   name: React (Vite)
   description: Static or SPA build with React and Vite; AWS paths include public S3
     website HTTP, CloudFront+S3, or ALB→EC2 (see presets).
-  version: 1.2.1
+  version: 1.2.2
   baseImage: node:20-alpine
   tags:
   - static
