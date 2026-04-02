@@ -1,7 +1,7 @@
 preset:
   provider: aws
   id: cloudfront-s3
-  label: DNS → CloudFront → S3 (shareable CloudFront gateway)
+  label: CloudFront → S3
   description: >-
     DNS alias and HTTPS on a PartRocks shareable CloudFront distribution; S3 is the private origin for
     your built static site — bind resource id `publicGatewayCdn` (sliceFlavor cloudfront). npm ci &&

@@ -1,7 +1,7 @@
 preset:
   provider: aws
   id: alb-ec2
-  label: DNS → ALB → EC2 (shareable ALB gateway)
+  label: ALB → EC2
   description: >-
     Single EC2 instance is the ALB target: DNS alias and HTTPS terminate on the PartRocks shareable
     ALB — bind resource id `publicGatewayAlb` (sliceFlavor alb). Native apply registers the instance
