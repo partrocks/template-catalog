@@ -4,11 +4,10 @@ preset:
   label: ALB → EC2
   description: >-
     Single EC2 instance is the ALB target: DNS alias and HTTPS terminate on the PartRocks shareable
-    ALB — bind resource id `publicGatewayAlb` (sliceFlavor alb). Native apply registers the instance
-    private IP with the gateway target group. Archive preflight still builds dist/ for consistency with
-    other React presets, but deploy does not copy dist/ onto the host yet (release-to-instance handling
-    is future work); optional `ec2UserDataBash` serves a tiny placeholder over HTTP so the target group
-    can pass health checks.
+    ALB — bind resource id `publicGatewayAlb` (sliceFlavor alb). Native apply uploads the built `dist/`
+    as a gzipped tarball to a dedicated private S3 bucket (7-day object expiration), attaches an
+    instance profile, and generates UserData that installs the AWS CLI, downloads the archive, unpacks
+    to the web root, and serves it with Python's HTTP server on `appPort` for the target group.
   engine: provider-native
   omitShareableResourceIds:
     - publicGatewayCdn
@@ -19,14 +18,6 @@ preset:
     appPort: 80
     appHealthPath: /
     ec2InstanceType: t3.micro
-    ec2CloudBootCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
-    ec2UserDataBash: |
-      #!/bin/bash
-      set -euo pipefail
-      mkdir -p /var/partrocks/www
-      printf '%s\n' '<!doctype html><html><head><meta charset="utf-8"><title>PartRocks</title></head><body><p>EC2 ALB target placeholder. Built static assets are not synced here yet — use the S3 presets or extend release handling.</p></body></html>' > /var/partrocks/www/index.html
-      cd /var/partrocks/www
-      nohup python3 -m http.server 80 --bind 0.0.0.0 </dev/null >/var/log/partrocks-http.log 2>&1 &
   outputs:
     - key: public_url
       value: "{{ facts.iac.outputs.FRONT_DOOR_URL }}"
@@ -54,7 +45,9 @@ preset:
     costTier: medium
     complexity: high
     notes: >-
-      FRONT_DOOR_* outputs come from the bound shareable ALB after apply + edge sync. Root EBS only;
-      extra data volumes and pushing release archives to the instance are not modeled in this template yet.
+      FRONT_DOOR_* outputs come from the bound shareable ALB after apply + edge sync.
+      UserData runs once per instance: a redeploy uploads a new S3 object, but an existing instance
+      keeps serving the previous tree until you replace the instance (or use a future ASG/SSM path).
+      Handoff objects expire after 7 days via bucket lifecycle.
     images:
       - infra/aws/alb-ec2/diagram.svg

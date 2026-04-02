@@ -1,3 +1,5 @@
 #!/usr/bin/env sh
-# Archive-based static templates do not run a container; this satisfies environments.yaml boot.script.
+set -eu
+# Cloud boot script is required for `boot.script` in environments.yaml. ALB→EC2 uses platform-generated
+# UserData (S3 handoff + http.server); this hook is not executed on that path.
 exit 0
