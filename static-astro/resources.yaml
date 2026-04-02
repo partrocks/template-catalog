@@ -3,7 +3,7 @@ resources:
     kind: gateway
     shareable: true
     constraints:
-      gatewayFlavor: cloudfront
+      sliceFlavor: cloudfront
       protocol: https
       routing: host
     binding:

@@ -15,22 +15,39 @@ environments:
         required: true
         default: "8080"
 
-  uat:
-    id: uat
+  # HTTP only: one S3 bucket (static website). Front door = public bucket website URL. No shareable gateway.
+  cloud_http:
+    id: cloud_http
     runtime: cloud
     boot:
       script: _deploy/hooks/cloud-boot.sh
     deploy:
       presets:
-        - aws/secure-edge
         - aws/minimal-http
+      omitShareableResourceIds:
+        - publicGatewayCdn
+        - publicGatewayAlb
 
-  prod:
-    id: prod
+  # DNS → CloudFront → S3: shareable CloudFront gateway + private S3 origin (bind `publicGatewayCdn`).
+  cloud_https_cdn:
+    id: cloud_https_cdn
     runtime: cloud
     boot:
       script: _deploy/hooks/cloud-boot.sh
     deploy:
       presets:
-        - aws/secure-edge
-        - aws/minimal-http
+        - aws/cloudfront-s3
+      omitShareableResourceIds:
+        - publicGatewayAlb
+
+  # DNS → ALB → EC2: shareable ALB forwards to the catalog EC2 target (bind `publicGatewayAlb`).
+  cloud_https_alb:
+    id: cloud_https_alb
+    runtime: cloud
+    boot:
+      script: _deploy/hooks/cloud-boot.sh
+    deploy:
+      presets:
+        - aws/alb-ec2
+      omitShareableResourceIds:
+        - publicGatewayCdn

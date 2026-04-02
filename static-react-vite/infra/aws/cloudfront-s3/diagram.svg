@@ -4,13 +4,13 @@
   <text x="95" y="122" text-anchor="middle" font-size="14" fill="#e2e8f0">Browser</text>
   <rect x="210" y="80" width="150" height="80" rx="10" fill="#1e293b" stroke="#334155"/>
   <text x="285" y="122" text-anchor="middle" font-size="14" fill="#e2e8f0">Route53 Alias</text>
-  <rect x="400" y="80" width="150" height="80" rx="10" fill="#1e293b" stroke="#334155"/>
-  <text x="475" y="116" text-anchor="middle" font-size="14" fill="#e2e8f0">CloudFront</text>
-  <text x="475" y="136" text-anchor="middle" font-size="11" fill="#7dd3fc">ACM TLS</text>
+  <rect x="400" y="80" width="150" height="80" rx="10" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="475" y="116" text-anchor="middle" font-size="14" fill="#e2e8f0">Shareable CF</text>
+  <text x="475" y="136" text-anchor="middle" font-size="11" fill="#fcd34d">gateway sliceFlavor</text>
   <rect x="590" y="80" width="90" height="80" rx="10" fill="#1e293b" stroke="#334155"/>
   <text x="635" y="122" text-anchor="middle" font-size="14" fill="#e2e8f0">S3</text>
   <path d="M170 120H210" stroke="#38bdf8" stroke-width="3"/>
   <path d="M360 120H400" stroke="#38bdf8" stroke-width="3"/>
   <path d="M550 120H590" stroke="#38bdf8" stroke-width="3"/>
-  <text x="285" y="200" text-anchor="middle" font-size="12" fill="#94a3b8">HTTPS at edge with canonical alias metadata</text>
+  <text x="350" y="200" text-anchor="middle" font-size="12" fill="#94a3b8">TLS at CloudFront; origin bucket from preset apply</text>
 </svg>

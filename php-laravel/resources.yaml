@@ -12,6 +12,7 @@ resources:
     kind: gateway
     shareable: true
     constraints:
+      sliceFlavor: alb
       protocol: https
       routing: host
     binding:

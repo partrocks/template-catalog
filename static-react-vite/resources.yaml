@@ -1,9 +1,22 @@
+# Two shareable gateway selectors (sliceFlavor must match the shareable gateway you bind):
+# - publicGatewayCdn: CloudFront shareable gateway (`cloud_https_cdn` / `aws/cloudfront-s3`).
+# - publicGatewayAlb: ALB shareable gateway (`cloud_https_alb` / `aws/alb-ec2`).
+# Environments omit the gateway ids they do not need via deploy.omitShareableResourceIds.
 resources:
-  - id: publicGateway
+  - id: publicGatewayCdn
     kind: gateway
     shareable: true
     constraints:
-      gatewayFlavor: cloudfront
+      sliceFlavor: cloudfront
+      protocol: https
+      routing: host
+    binding:
+      scope: environment
+  - id: publicGatewayAlb
+    kind: gateway
+    shareable: true
+    constraints:
+      sliceFlavor: alb
       protocol: https
       routing: host
     binding:

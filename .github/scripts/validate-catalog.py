@@ -390,6 +390,57 @@ def validate_orphan_infra_presets(template_path: Path, template_dir: str, errors
         _validate_ui_images_exist(template_path, template_dir, preset_yaml_path, preset_doc, errors)
 
 
+def validate_resources_yaml(template_path: Path, template_dir: str, errors: list[str]) -> None:
+    """Gateway resources must declare sliceFlavor; legacy gatewayFlavor/awsGatewayType forbidden."""
+    path = template_path / "resources.yaml"
+    if not path.is_file():
+        return
+    try:
+        import yaml
+    except ImportError:
+        return
+    with open(path, encoding="utf-8") as f:
+        doc = yaml.safe_load(f) or {}
+    resources = doc.get("resources")
+    prefix = f"{template_dir}/resources.yaml"
+    if resources is None:
+        return
+    if not isinstance(resources, list):
+        errors.append(f"{prefix}: 'resources' must be an array when set")
+        return
+    for i, row in enumerate(resources):
+        if not isinstance(row, dict):
+            errors.append(f"{prefix}: resources[{i}] must be an object")
+            continue
+        if row.get("kind") != "gateway":
+            continue
+        if "gatewayFlavor" in row or "awsGatewayType" in row:
+            errors.append(
+                f"{prefix}: resources[{i}] must use sliceFlavor, not gatewayFlavor/awsGatewayType "
+                "(remove legacy top-level keys)"
+            )
+        cons = row.get("constraints")
+        if isinstance(cons, dict):
+            if "gatewayFlavor" in cons or "awsGatewayType" in cons:
+                errors.append(
+                    f"{prefix}: resources[{i}] gateway constraints must use sliceFlavor, "
+                    "not gatewayFlavor/awsGatewayType"
+                )
+        top_sf = row.get("sliceFlavor")
+        cons_sf = cons.get("sliceFlavor") if isinstance(cons, dict) else None
+        top_s = top_sf.strip() if isinstance(top_sf, str) else ""
+        cons_s = cons_sf.strip() if isinstance(cons_sf, str) else ""
+        if top_s and cons_s and top_s != cons_s:
+            errors.append(
+                f"{prefix}: resources[{i}] sliceFlavor conflict (top-level vs constraints)"
+            )
+        if not top_s and not cons_s:
+            errors.append(
+                f"{prefix}: resources[{i}] kind gateway requires non-empty sliceFlavor "
+                "(top-level or constraints.sliceFlavor)"
+            )
+
+
 def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> list[str]:
     errors: list[str] = []
     template_path = repo_root / template_dir
@@ -402,6 +453,7 @@ def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> lis
 
     validate_no_dot_tf_under_infra(template_path, template_dir, errors)
     validate_orphan_infra_presets(template_path, template_dir, errors, yaml)
+    validate_resources_yaml(template_path, template_dir, errors)
 
     if not env_path.exists():
         return errors
@@ -460,6 +512,29 @@ def validate_template_deploy_contract(repo_root: Path, template_dir: str) -> lis
                     f"{template_dir}/environments.yaml: environment '{env_id}'",
                     errors,
                 )
+                omit = deploy.get("omitShareableResourceIds")
+                if omit is not None:
+                    if not isinstance(omit, list):
+                        errors.append(
+                            f"{template_dir}/environments.yaml: environment '{env_id}' "
+                            "deploy.omitShareableResourceIds must be an array when set"
+                        )
+                    else:
+                        seen_omit: set[str] = set()
+                        for j, item in enumerate(omit):
+                            if not isinstance(item, str) or not item.strip():
+                                errors.append(
+                                    f"{template_dir}/environments.yaml: environment '{env_id}' "
+                                    f"deploy.omitShareableResourceIds[{j}] must be a non-empty string"
+                                )
+                                continue
+                            oid = item.strip()
+                            if oid in seen_omit:
+                                errors.append(
+                                    f"{template_dir}/environments.yaml: environment '{env_id}' "
+                                    f"deploy.omitShareableResourceIds has duplicate '{oid}'"
+                                )
+                            seen_omit.add(oid)
             validate_boot_script_for_cloud(
                 template_dir, str(env_id), env_raw, has_presets, errors
             )
