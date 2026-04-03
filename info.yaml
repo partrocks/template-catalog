@@ -2,7 +2,7 @@ templates:
   - id: static-react-vite
     name: React (Vite)
     description: Static or SPA build with React and Vite.
-    version: 1.2.4
+    version: 1.2.5
     tags:
       - static
       - react
@@ -15,14 +15,14 @@ templates:
     description:
       Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
       and Docker dev.
-    version: 1.0.24
+    version: 1.0.25
     tags:
       - php
       - symfony
   - id: fullstack-nextjs
     name: Next.js
     description: Full stack React with SSR, API routes, and app router patterns.
-    version: 1.0.24
+    version: 1.0.25
     tags:
       - nextjs
       - react
