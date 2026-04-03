@@ -1,5 +1,0 @@
-steps:
-  - step: stub-placeholder
-    label: Placeholder (stub template)
-    run:
-      - command: "true"

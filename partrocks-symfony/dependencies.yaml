@@ -1,7 +1,0 @@
-dependencies:
-  - name: PHP
-    install: apk add --no-cache php84 php84-cli php84-phar php84-xml php84-mbstring php84-curl php84-zip php84-openssl php84-ctype php84-iconv php84-session php84-tokenizer php84-dom php84-simplexml php84-sodium
-  - name: Composer
-    install: curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
-  - name: Symfony CLI
-    install: curl -sS https://get.symfony.com/cli/installer | bash && mv ~/.symfony5/bin/symfony /usr/local/bin/symfony

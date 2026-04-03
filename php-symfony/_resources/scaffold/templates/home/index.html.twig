@@ -33,7 +33,8 @@
             <li>Replace this landing page in <code>templates/home/</code> and <code>DefaultController</code> when you are ready.</li>
         </ul>
         <footer>
-            Production images use FrankenPHP on port 8080 (AWS EC2 + ALB + RDS preset or DigitalOcean App Platform).
+            Production uses FrankenPHP on port 8080. DigitalOcean App Platform deploy uses a built container image;
+            the AWS EC2 + ALB + RDS preset skips registry/image preflight (EC2 apply is not ECR-based).
         </footer>
     </article>
 </main>

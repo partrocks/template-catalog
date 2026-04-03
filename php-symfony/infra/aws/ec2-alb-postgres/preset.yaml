@@ -42,13 +42,9 @@ preset:
       sliceFlavor: aws_rds_postgres
   preflights:
     artifacts:
-      type: container_image
-      containerImage:
-        dockerfile: _docker/Dockerfile.cloud
-        context: .
-        repositoryName: partrocks/{{projectName}}
-        registryRequirementId: appRegistry
-        tagStrategy: releaseTag
+      # EC2 catalog apply does not pull from ECR; it optionally stages a release tarball to S3.
+      # Explicit `none` skips the container build/push preflight (DigitalOcean preset still uses a container image).
+      type: none
   teardown:
     policy: cleanup
   ui:
@@ -58,5 +54,8 @@ preset:
     securityPosture: edge-tls-only
     costTier: medium
     complexity: medium
+    notes: >-
+      No ECR or shared registry preflight for this AWS path. The runtime is EC2 + ALB;
+      choose the DigitalOcean preset when you need a container image build and push.
     images:
       - infra/aws/ec2-alb-postgres/diagram.svg
