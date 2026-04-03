@@ -1,12 +1,4 @@
 templates:
-- id: container-rails
-  name: Rails
-  description: Ruby on Rails app containerized for web or API.
-  version: 0.1.0-stub
-  tags:
-  - rails
-  - ruby
-  - docker
 - id: api-node
   name: Node API (Express / Fastify / Nest)
   description: Node.js REST/GraphQL-style API with interchangeable framework preference.
@@ -74,25 +66,6 @@ templates:
   tags:
   - python
   - django
-- id: partrocks-symfony
-  name: PartRocks Symfony
-  description: PartRocks Symfony is an opinionated template for building Symfony applications.
-  version: 3.0.24
-  tags:
-  - symfony
-  - php
-  - framework
-  - web
-  - api
-  - partrocks
-- id: container-dotnet
-  name: .NET
-  description: .NET application in a Linux container image.
-  version: 0.1.0-stub
-  tags:
-  - dotnet
-  - docker
-  - container
 - id: php-laravel
   name: Laravel
   description: Laravel MVC, API resources, queues, and Eloquent ORM.
@@ -108,14 +81,6 @@ templates:
   - nuxt
   - vue
   - fullstack
-- id: container-rust
-  name: Rust
-  description: Rust binary or web service in a slim container.
-  version: 0.1.0-stub
-  tags:
-  - rust
-  - docker
-  - container
 - id: static-svelte
   name: Svelte (static)
   description: Svelte compiled to static assets for edge/CDN delivery.
@@ -124,14 +89,6 @@ templates:
   - static
   - svelte
   - javascript
-- id: container-go
-  name: Go
-  description: Go service packaged as a Docker image.
-  version: 0.1.0-stub
-  tags:
-  - go
-  - docker
-  - container
 - id: worker-php
   name: PHP worker
   description: Symfony Messenger or Laravel queue workers in PHP.
@@ -160,13 +117,6 @@ templates:
   - node
   - worker
   - queue
-- id: container-custom
-  name: Custom Docker app
-  description: Bring any Dockerfile; framework-agnostic container deploy.
-  version: 0.1.0-stub
-  tags:
-  - docker
-  - container
 - id: static-vue
   name: Vue
   description: Vue static site or SPA built for static hosting.
@@ -175,14 +125,6 @@ templates:
   - static
   - vue
   - javascript
-- id: container-java-spring
-  name: Java (Spring)
-  description: Spring Boot (or similar) in a container image.
-  version: 0.1.0-stub
-  tags:
-  - java
-  - spring
-  - docker
 - id: api-laravel
   name: Laravel API
   description: Laravel as API backend (resources, Sanctum, queues).
@@ -193,8 +135,7 @@ templates:
   - api
 - id: php-symfony
   name: Symfony
-  description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production
-    (AWS EC2 + ALB + RDS without ECR preflight; DigitalOcean App Platform with a container image),
+  description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
     and Docker dev.
   version: 1.0.24
   tags:
