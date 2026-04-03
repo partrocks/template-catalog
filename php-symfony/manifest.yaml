@@ -3,7 +3,7 @@ manifest:
   name: Symfony
   description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
     and Docker dev.
-  version: 1.0.24
+  version: 1.0.25
   baseImage: php:8.4-cli-alpine
   tags:
   - php
@@ -14,8 +14,9 @@ manifest:
     PostgreSQL in dev (Compose) and via PartRocks bindings in cloud.
 
     Default landing page at / with PartRocks-oriented copy. Deploy: AWS EC2 behind
-    a shareable ALB with RDS PostgreSQL (ECR image + Docker on the instance), or
-    DigitalOcean App Platform with a container image (FrankenPHP :8080, `preflights.artifacts.type: default`).
+    a shareable ALB with RDS PostgreSQL (ECR image + Docker on the instance), or DigitalOcean
+    App Platform with a container image (FrankenPHP :8080, `preflights.artifacts.type:
+    default`).
 
     The appMode option is reserved for future variants; the scaffold always includes
     the web landing page.
