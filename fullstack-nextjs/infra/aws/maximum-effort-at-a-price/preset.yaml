@@ -12,7 +12,7 @@ preset:
     appPort: 3000
     appHealthPath: /
     ec2InstanceType: t3.small
-    ec2CloudBootCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
+    ec2HandoffLaunchMode: release_container
     databaseUrl: ""
     appSecret: ""
     jwtSecretKey: ""

@@ -18,6 +18,7 @@ preset:
     appPort: 80
     appHealthPath: /
     ec2InstanceType: t3.micro
+    ec2HandoffLaunchMode: static_http
   outputs:
     - key: public_url
       value: "{{ facts.iac.outputs.FRONT_DOOR_URL }}"

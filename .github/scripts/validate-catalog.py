@@ -10,6 +10,12 @@ from typing import Any
 ENVIRONMENTS_SCHEMA_VERSION = 3
 
 # Align with pr-desktop INFRA_SLICE_KINDS_ALL / INFRA_SLICE_TAXONOMY_VERSION 2.
+ARTIFACT_PREFLIGHT_TYPES: frozenset[str] = frozenset(
+    {"archive", "container_image", "none", "default"}
+)
+
+EC2_HANDOFF_LAUNCH_MODES: frozenset[str] = frozenset({"static_http", "release_container"})
+
 INFRA_SLICE_KINDS: frozenset[str] = frozenset(
     {
         "gateway",
@@ -81,6 +87,54 @@ def validate_preset_outputs_keys(
             errors.append(f"{rel_display}: outputs must include '{required_output}'")
     if provider == "aws" and "canonical_hosted_zone_id" not in output_keys:
         errors.append(f"{rel_display}: outputs must include 'canonical_hosted_zone_id' for AWS")
+
+
+def validate_preflight_artifacts(
+    preset_doc: dict[str, Any],
+    rel_display: str,
+    errors: list[str],
+) -> None:
+    pf = preset_doc.get("preflights")
+    if pf is None:
+        return
+    if not isinstance(pf, dict):
+        errors.append(f"{rel_display}: preflights must be an object when set")
+        return
+    art = pf.get("artifacts")
+    if art is None:
+        return
+    if not isinstance(art, dict):
+        errors.append(f"{rel_display}: preflights.artifacts must be an object when set")
+        return
+    t = art.get("type")
+    if t is None:
+        return
+    if not isinstance(t, str) or not t.strip() or t.strip() not in ARTIFACT_PREFLIGHT_TYPES:
+        errors.append(
+            f"{rel_display}: preflights.artifacts.type must be one of "
+            f"{sorted(ARTIFACT_PREFLIGHT_TYPES)}"
+        )
+
+
+def validate_ec2_handoff_constraints(
+    preset_doc: dict[str, Any],
+    rel_display: str,
+    errors: list[str],
+) -> None:
+    c = preset_doc.get("constraints")
+    if not isinstance(c, dict):
+        return
+    mode = c.get("ec2HandoffLaunchMode")
+    if mode is None:
+        return
+    if not isinstance(mode, str) or not mode.strip():
+        errors.append(f"{rel_display}: constraints.ec2HandoffLaunchMode must be a non-empty string")
+        return
+    if mode.strip().lower() not in EC2_HANDOFF_LAUNCH_MODES:
+        errors.append(
+            f"{rel_display}: constraints.ec2HandoffLaunchMode must be one of "
+            f"{sorted(EC2_HANDOFF_LAUNCH_MODES)}"
+        )
 
 
 def validate_provider_native_slices(
@@ -273,6 +327,8 @@ def validate_preset_document(
         )
 
     validate_provider_native_slices(preset_doc, rel_display, errors)
+    validate_preflight_artifacts(preset_doc, rel_display, errors)
+    validate_ec2_handoff_constraints(preset_doc, rel_display, errors)
     validate_preset_outputs_keys(preset_doc, rel_display, provider, errors)
 
     omit = preset_doc.get("omitShareableResourceIds")

@@ -32,19 +32,7 @@ preset:
       sliceFlavor: digitalocean_app_platform
   preflights:
     artifacts:
-      type: container_image
-      containerImage:
-        dockerfile: _docker/Dockerfile.cloud
-        context: .
-        # DOCR Starter allows 1 repository. Use one shared path + unique tags (appId-envId-tag).
-        # Prefer a single path segment (no slash): DOCR has rejected pushes to repo/name on
-        # Starter when that path was the second logical repository. If you still have an empty
-        # partrocks/workspace repo from an older preset, delete it in DO, or set
-        # imageRepositoryPath on the registry resource to that exact name.
-        repositoryName: partrocks-workspace
-        singleRepositoryImageLayout: true
-        registryRequirementId: appRegistry
-        tagStrategy: releaseTag
+      type: default
   teardown:
     policy: cleanup
   ui:

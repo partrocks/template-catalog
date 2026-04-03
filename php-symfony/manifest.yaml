@@ -14,8 +14,8 @@ manifest:
     PostgreSQL in dev (Compose) and via PartRocks bindings in cloud.
 
     Default landing page at / with PartRocks-oriented copy. Deploy: AWS EC2 behind
-    a shareable ALB with RDS PostgreSQL (no container registry preflight), or
-    DigitalOcean App Platform with a container image (FrankenPHP :8080).
+    a shareable ALB with RDS PostgreSQL (ECR image + Docker on the instance), or
+    DigitalOcean App Platform with a container image (FrankenPHP :8080, `preflights.artifacts.type: default`).
 
     The appMode option is reserved for future variants; the scaffold always includes
     the web landing page.

@@ -12,7 +12,7 @@ preset:
     appPort: 8080
     appHealthPath: /health
     ec2InstanceType: t3.micro
-    ec2CloudBootCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
+    ec2HandoffLaunchMode: release_container
     databaseUrl: ""
     appSecret: ""
     jwtSecretKey: ""
@@ -42,9 +42,13 @@ preset:
       sliceFlavor: aws_rds_postgres
   preflights:
     artifacts:
-      # EC2 catalog apply does not pull from ECR; it optionally stages a release tarball to S3.
-      # Explicit `none` skips the container build/push preflight (DigitalOcean preset still uses a container image).
-      type: none
+      type: container_image
+      containerImage:
+        dockerfile: _docker/Dockerfile.cloud
+        context: .
+        repositoryName: partrocks/{{projectName}}
+        registryRequirementId: appRegistry
+        tagStrategy: releaseTag
   teardown:
     policy: cleanup
   ui:
@@ -55,7 +59,9 @@ preset:
     costTier: medium
     complexity: medium
     notes: >-
-      No ECR or shared registry preflight for this AWS path. The runtime is EC2 + ALB;
-      choose the DigitalOcean preset when you need a container image build and push.
+      Publishes the release image to ECR, then boots Amazon Linux 2023 on EC2 with Docker:
+      `aws ecr get-login-password`, env file from deploy secrets, and `docker run` on `appPort`.
+      For static file handoff (S3 tarball + Python http.server), set `ec2HandoffLaunchMode: static_http`
+      and use `preflights.artifacts.type: archive` (or `default` with this EC2 flavor).
     images:
       - infra/aws/ec2-alb-postgres/diagram.svg
