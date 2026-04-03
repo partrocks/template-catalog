@@ -1,5 +1,0 @@
-services:
-  app:
-    image: nginx:alpine
-    ports:
-      - "{{localPort}}:80"

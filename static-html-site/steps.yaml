@@ -1,6 +1,0 @@
-steps:
-  - step: copy-app-files
-    label: Copy static site app files
-    copy:
-      from: app/
-      to: .
