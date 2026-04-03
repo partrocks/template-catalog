@@ -1,8 +1,8 @@
 preset:
   provider: aws
-  id: maximum-effort-at-a-price
-  label: Maximum effort at a price
-  description: Larger EC2 class behind shareable ALB — wider headroom for Symfony / FrankenPHP.
+  id: ec2-alb-postgres
+  label: EC2 + ALB + RDS
+  description: Symfony / FrankenPHP on EC2 behind a PartRocks shareable ALB, with PostgreSQL on RDS.
   engine: provider-native
   capabilities:
     - appRuntime
@@ -11,7 +11,7 @@ preset:
   constraints:
     appPort: 8080
     appHealthPath: /health
-    ec2InstanceType: t3.small
+    ec2InstanceType: t3.micro
     ec2CloudBootCommand: "sh /opt/partrocks/hooks/cloud-boot.sh"
     databaseUrl: ""
     appSecret: ""
@@ -53,10 +53,10 @@ preset:
     policy: cleanup
   ui:
     badges:
-      - premium
+      - balanced
       - edge-tls
     securityPosture: edge-tls-only
-    costTier: high
-    complexity: high
+    costTier: medium
+    complexity: medium
     images:
-      - infra/aws/maximum-effort-at-a-price/diagram.svg
+      - infra/aws/ec2-alb-postgres/diagram.svg

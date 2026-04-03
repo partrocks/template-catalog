@@ -193,9 +193,9 @@ templates:
   - api
 - id: php-symfony
   name: Symfony
-  description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
-    and Docker dev.
-  version: 1.0.22
+  description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production
+    (AWS EC2 + ALB + RDS or DigitalOcean App Platform), and Docker dev.
+  version: 1.0.23
   tags:
   - php
   - symfony

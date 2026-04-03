@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="240" viewBox="0 0 680 240">
+  <rect width="680" height="240" fill="#0b1120"/>
+  <rect x="20" y="80" width="120" height="80" rx="10" fill="#1f2937" stroke="#334155"/>
+  <text x="80" y="124" text-anchor="middle" font-size="13" fill="#e5e7eb">Users</text>
+  <rect x="170" y="80" width="150" height="80" rx="10" fill="#1f2937" stroke="#334155"/>
+  <text x="245" y="114" text-anchor="middle" font-size="13" fill="#e5e7eb">Shareable ALB</text>
+  <text x="245" y="132" text-anchor="middle" font-size="11" fill="#7dd3fc">HTTPS to targets</text>
+  <rect x="350" y="80" width="150" height="80" rx="10" fill="#1f2937" stroke="#334155"/>
+  <text x="425" y="114" text-anchor="middle" font-size="13" fill="#e5e7eb">EC2</text>
+  <text x="425" y="132" text-anchor="middle" font-size="11" fill="#a5b4fc">FrankenPHP :8080</text>
+  <rect x="520" y="80" width="140" height="80" rx="10" fill="#1f2937" stroke="#334155"/>
+  <text x="590" y="114" text-anchor="middle" font-size="13" fill="#e5e7eb">RDS PostgreSQL</text>
+  <text x="590" y="132" text-anchor="middle" font-size="11" fill="#94a3b8">managed DB</text>
+  <path d="M140 120H170" stroke="#38bdf8" stroke-width="3"/>
+  <path d="M320 120H350" stroke="#38bdf8" stroke-width="3"/>
+  <path d="M500 120H520" stroke="#38bdf8" stroke-width="3"/>
+</svg>

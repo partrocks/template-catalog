@@ -35,8 +35,7 @@ environments:
       script: _deploy/hooks/cloud-boot.sh
     deploy:
       presets:
-        - aws/cheap-and-cheerful
-        - aws/maximum-effort-at-a-price
+        - aws/ec2-alb-postgres
         - digitalocean/app-platform-default
 
   prod:
@@ -46,6 +45,5 @@ environments:
       script: _deploy/hooks/cloud-boot.sh
     deploy:
       presets:
-        - aws/cheap-and-cheerful
-        - aws/maximum-effort-at-a-price
+        - aws/ec2-alb-postgres
         - digitalocean/app-platform-default

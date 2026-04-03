@@ -3,7 +3,7 @@ manifest:
   name: Symfony
   description: Symfony web application with Doctrine, PostgreSQL, FrankenPHP in production,
     and Docker dev.
-  version: 1.0.22
+  version: 1.0.23
   baseImage: php:8.4-cli-alpine
   tags:
   - php
@@ -13,8 +13,8 @@ manifest:
   capabilities: 'Fresh Symfony 8 skeleton + webapp pack (Twig, Doctrine, security).
     PostgreSQL in dev (Compose) and via PartRocks bindings in cloud.
 
-    Default landing page at / with PartRocks-oriented copy. Deploy: AWS App Runner
-    or DigitalOcean App Platform (FrankenPHP :8080).
+    Default landing page at / with PartRocks-oriented copy. Deploy: AWS EC2 behind
+    a shareable ALB with RDS PostgreSQL, or DigitalOcean App Platform (FrankenPHP :8080).
 
     The appMode option is reserved for future variants; the scaffold always includes
     the web landing page.
